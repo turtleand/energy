@@ -41,7 +41,7 @@ const { Content } = await render(lab);
               <stop offset="100%" stop-color="#f59e0b" />
             </linearGradient>
           </defs>
-          <path class="wire" data-wire d="M170 190 H330 V110 H590 V270 H330 V190 H170" />
+          <path id="charge-path" class="wire" data-wire d="M170 190 H330 V110 H590 V270 H330 V190 H170" />
           <g class="battery" transform="translate(110 135)">
             <rect width="80" height="110" rx="16" />
             <line x1="80" y1="55" x2="128" y2="55" />
@@ -58,10 +58,26 @@ const { Content } = await render(lab);
             <text x="65" y="62">Resistance</text>
             <text class="resistance-label" data-svg-resistance x="65" y="84">20 Ω</text>
           </g>
-          <circle class="charge charge-one" data-charge r="9" cx="250" cy="190" />
-          <circle class="charge charge-two" data-charge r="9" cx="440" cy="110" />
-          <circle class="charge charge-three" data-charge r="9" cx="590" cy="230" />
-          <circle class="charge charge-four" data-charge r="9" cx="420" cy="270" />
+          <circle class="charge charge-one" data-charge r="9">
+            <animateMotion data-charge-motion dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear">
+              <mpath href="#charge-path" />
+            </animateMotion>
+          </circle>
+          <circle class="charge charge-two" data-charge r="9">
+            <animateMotion data-charge-motion dur="4s" begin="-1s" repeatCount="indefinite" calcMode="linear">
+              <mpath href="#charge-path" />
+            </animateMotion>
+          </circle>
+          <circle class="charge charge-three" data-charge r="9">
+            <animateMotion data-charge-motion dur="4s" begin="-2s" repeatCount="indefinite" calcMode="linear">
+              <mpath href="#charge-path" />
+            </animateMotion>
+          </circle>
+          <circle class="charge charge-four" data-charge r="9">
+            <animateMotion data-charge-motion dur="4s" begin="-3s" repeatCount="indefinite" calcMode="linear">
+              <mpath href="#charge-path" />
+            </animateMotion>
+          </circle>
         </svg>
       </div>
 

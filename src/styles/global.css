@@ -53,10 +53,6 @@ a {
   margin: 0 auto;
 }
 
-.narrow {
-  width: min(780px, calc(100% - 32px));
-}
-
 .site-header,
 .site-footer {
   width: min(1120px, calc(100% - 32px));
@@ -156,8 +152,7 @@ h3 {
 
 .lede,
 .hero-card p,
-.section-heading p,
-.narrow p {
+.section-heading p {
   color: var(--muted);
   font-size: clamp(1.05rem, 2vw, 1.24rem);
   line-height: 1.6;
@@ -219,11 +214,6 @@ h3 {
 
 .section {
   padding: clamp(3rem, 7vw, 5.5rem) 0;
-}
-
-.section-muted {
-  background: rgba(255, 250, 240, 0.5);
-  border-block: 1px solid var(--line);
 }
 
 .content-cards {
@@ -392,24 +382,11 @@ h3 {
   stroke: #38bdf8;
   stroke-width: 3;
   filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.8));
-  animation: pulse var(--charge-speed) ease-in-out infinite;
-}
-
-.charge-two { animation-delay: -1s; }
-.charge-three { animation-delay: -2s; }
-.charge-four { animation-delay: -3s; }
-
-[data-loop-state='open'] .charge {
-  animation-play-state: paused;
+  transition: opacity 160ms ease;
 }
 
 [data-loop-state='open'] .wire {
   opacity: 0.45;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(0.8); }
-  50% { transform: scale(1.35); }
 }
 
 .lab-controls,

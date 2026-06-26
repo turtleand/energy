@@ -18,9 +18,11 @@ if (lab) {
     svgResistance: lab.querySelector('[data-svg-resistance]'),
     bulb: lab.querySelector('[data-bulb]'),
     wire: lab.querySelector('[data-wire]'),
+    circuit: lab.querySelector('.circuit'),
   };
 
   const charges = Array.from(lab.querySelectorAll('[data-charge]'));
+  const chargeMotions = Array.from(lab.querySelectorAll('[data-charge-motion]'));
 
   const format = (value, unit, digits = 2) => `${value.toFixed(digits)} ${unit}`;
 
@@ -55,8 +57,15 @@ if (lab) {
 
     outputs.bulb.style.opacity = String(0.28 + intensity * 0.72);
     outputs.wire.style.strokeWidth = closed ? `${wireWidth}px` : '5px';
+    if (closed) {
+      outputs.circuit?.unpauseAnimations?.();
+    } else {
+      outputs.circuit?.pauseAnimations?.();
+    }
+    chargeMotions.forEach((motion) => {
+      motion.setAttribute('dur', `${speed.toFixed(2)}s`);
+    });
     charges.forEach((charge) => {
-      charge.style.animationDuration = `${speed.toFixed(2)}s`;
       charge.style.opacity = closed ? '1' : '0.18';
     });
   }
