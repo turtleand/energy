@@ -1,0 +1,16 @@
+[build]
+command = "npm run build"
+publish = "dist"
+
+[dev]
+command = "npm run dev"
+port = 8888
+targetPort = 4321
+
+[[headers]]
+for = "/*"
+[headers.values]
+X-Frame-Options = "DENY"
+X-Content-Type-Options = "nosniff"
+Referrer-Policy = "strict-origin-when-cross-origin"
+Content-Signal = "ai-train=yes, search=yes, ai-input=yes"

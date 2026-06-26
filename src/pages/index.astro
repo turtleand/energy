@@ -1,0 +1,79 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const lessons = (await getCollection('lessons', ({ data }) => data.status === 'ready')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+const labs = (await getCollection('labs', ({ data }) => data.status === 'ready')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+const firstLesson = lessons[0];
+const firstLab = labs[0];
+---
+
+<BaseLayout>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Energy, from first principles</p>
+        <h1 id="hero-title">Learn how energy moves through real systems.</h1>
+        <p class="lede">
+          Turtleand Energy starts small: one beginner pathway for electricity, one interactive lab, and a structure that can grow only when the artifacts are real.
+        </p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="/labs/lesson-1-energy-flow/">Open the first lab</a>
+          <a class="button button-secondary" href="/lessons/lesson-1-electricity-from-first-principles/">Read lesson 1</a>
+        </div>
+      </div>
+      <aside class="hero-card" aria-label="Current surface status">
+        <p class="card-kicker">Now live</p>
+        <h2>Lesson 1 plus one lab</h2>
+        <p>
+          The homepage stays focused until more work exists. No empty circuit lab shelf. No empty energy map. Build the next section when the next artifact is ready.
+        </p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="current-work-title">
+    <div class="container section-grid">
+      <div class="section-heading">
+        <p class="eyebrow">Start here</p>
+        <h2 id="current-work-title">The first energy-flow path.</h2>
+        <p>
+          The first artifact shows how source, loop, resistance, current, power, and energy relate in a simple circuit.
+        </p>
+      </div>
+
+      <div class="content-cards">
+        {firstLesson && (
+          <article class="content-card">
+            <p class="card-kicker">Lesson</p>
+            <h3>{firstLesson.data.title}</h3>
+            <p>{firstLesson.data.summary}</p>
+            <a href={`/lessons/${firstLesson.id}/`}>Read the model</a>
+          </article>
+        )}
+        {firstLab && (
+          <article class="content-card content-card-accent">
+            <p class="card-kicker">Interactive lab</p>
+            <h3>{firstLab.data.title}</h3>
+            <p>{firstLab.data.summary}</p>
+            <a href={`/labs/${firstLab.id}/`}>Experiment with the circuit</a>
+          </article>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-muted" aria-labelledby="model-title">
+    <div class="container narrow">
+      <p class="eyebrow">Expansion principle</p>
+      <h2 id="model-title">The model is ready. The surface stays quiet.</h2>
+      <p>
+        Energy can later hold lessons, labs, circuit practice, maps, storage explainers, and grid notes. For now, only ready content appears. The system should compound without making visitors walk through empty rooms.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

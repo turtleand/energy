@@ -1,0 +1,51 @@
+---
+import { site } from '@data/site';
+import '@styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description = site.description } = Astro.props;
+const pageTitle = title ? `${title} | ${site.name}` : site.name;
+const canonical = new URL(Astro.url.pathname, site.url).toString();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="robots" content="index,follow" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Turtleand Energy home">
+        <span class="brand-mark" aria-hidden="true">E</span>
+        <span>Turtleand Energy</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="/lessons/lesson-1-electricity-from-first-principles/">Lesson 1</a>
+        <a href="/labs/lesson-1-energy-flow/">Lab 1</a>
+      </nav>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>Turtleand Energy turns physical systems into understandable learning artifacts.</p>
+      <p class="footer-small">Educational models only. Real electrical work requires proper tools, ratings, and safety judgment.</p>
+    </footer>
+  </body>
+</html>

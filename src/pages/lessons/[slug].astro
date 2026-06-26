@@ -1,0 +1,28 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const lessons = await getCollection('lessons', ({ data }) => data.status === 'ready');
+  return lessons.map((lesson) => ({ params: { slug: lesson.id }, props: { lesson } }));
+}
+
+const { lesson } = Astro.props;
+const { Content } = await render(lesson);
+---
+
+<BaseLayout title={lesson.data.title} description={lesson.data.summary}>
+  <article class="article-shell">
+    <div class="container article-container">
+      <p class="eyebrow">{lesson.data.module}</p>
+      <h1>{lesson.data.title}</h1>
+      <p class="lede">{lesson.data.summary}</p>
+      {lesson.data.labSlug && (
+        <a class="button button-primary" href={`/labs/${lesson.data.labSlug}/`}>Open the interactive lab</a>
+      )}
+      <div class="prose">
+        <Content />
+      </div>
+    </div>
+  </article>
+</BaseLayout>

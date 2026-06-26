@@ -1,0 +1,9 @@
+# Turtleand Energy
+
+Turtleand Energy is a public learning surface for energy, electricity, circuits, and physical systems.
+
+## Lessons
+- [Lesson 1: Electricity from first principles](https://energy.turtleand.com/lessons/lesson-1-electricity-from-first-principles/): Start with source, push, flow, resistance, load, power, and energy before memorizing equations.
+
+## Labs
+- [Lesson 1 Lab: Energy flow in a simple circuit](https://energy.turtleand.com/labs/lesson-1-energy-flow/): Adjust voltage, resistance, time, and loop state to see current, power, and transferred energy change together.

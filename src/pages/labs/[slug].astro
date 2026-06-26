@@ -1,0 +1,120 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const labs = await getCollection('labs', ({ data }) => data.status === 'ready');
+  return labs.map((lab) => ({ params: { slug: lab.id }, props: { lab } }));
+}
+
+const { lab } = Astro.props;
+const { Content } = await render(lab);
+---
+
+<BaseLayout title={lab.data.title} description={lab.data.summary}>
+  <article class="lab-page">
+    <div class="container article-container lab-intro">
+      <p class="eyebrow">Interactive artifact</p>
+      <h1>{lab.data.title}</h1>
+      <p class="lede">{lab.data.summary}</p>
+      <div class="prose compact">
+        <Content />
+      </div>
+    </div>
+
+    <section class="container lab-shell" aria-labelledby="lab-title" data-energy-lab>
+      <div class="lab-board">
+        <div class="lab-board-header">
+          <div>
+            <p class="eyebrow">Simple circuit model</p>
+            <h2 id="lab-title">Push, flow, work, loop.</h2>
+          </div>
+          <p class="lab-status" data-status>Closed loop. Current is flowing.</p>
+        </div>
+
+        <svg class="circuit" viewBox="0 0 760 380" role="img" aria-labelledby="circuit-title circuit-desc">
+          <title id="circuit-title">Interactive simple circuit diagram</title>
+          <desc id="circuit-desc">A battery, wire loop, resistance load, and moving charge markers controlled by voltage and resistance sliders.</desc>
+          <defs>
+            <linearGradient id="wireGradient" x1="0%" x2="100%">
+              <stop offset="0%" stop-color="#38bdf8" />
+              <stop offset="100%" stop-color="#f59e0b" />
+            </linearGradient>
+          </defs>
+          <path class="wire" data-wire d="M170 190 H330 V110 H590 V270 H330 V190 H170" />
+          <g class="battery" transform="translate(110 135)">
+            <rect width="80" height="110" rx="16" />
+            <line x1="80" y1="55" x2="128" y2="55" />
+            <text x="40" y="48">Battery</text>
+            <text class="battery-voltage" data-svg-voltage x="40" y="72">5.0 V</text>
+          </g>
+          <g class="load" transform="translate(560 235)">
+            <circle cx="30" cy="35" r="38" data-bulb />
+            <path d="M14 35 C22 20 38 50 46 35" />
+            <text x="30" y="96">Load</text>
+          </g>
+          <g class="resistor" transform="translate(345 90)">
+            <path d="M0 20 h25 l10 -18 l20 36 l20 -36 l20 36 l10 -18 h25" />
+            <text x="65" y="62">Resistance</text>
+            <text class="resistance-label" data-svg-resistance x="65" y="84">20 Ω</text>
+          </g>
+          <circle class="charge charge-one" data-charge r="9" cx="250" cy="190" />
+          <circle class="charge charge-two" data-charge r="9" cx="440" cy="110" />
+          <circle class="charge charge-three" data-charge r="9" cx="590" cy="230" />
+          <circle class="charge charge-four" data-charge r="9" cx="420" cy="270" />
+        </svg>
+      </div>
+
+      <div class="lab-controls" aria-label="Circuit controls">
+        <label class="control">
+          <span>Voltage, the push from the battery</span>
+          <input data-voltage type="range" min="1" max="12" step="0.1" value="5" />
+          <output data-voltage-output>5.0 V</output>
+        </label>
+        <label class="control">
+          <span>Resistance, the limit on flow</span>
+          <input data-resistance type="range" min="2" max="80" step="1" value="20" />
+          <output data-resistance-output>20 Ω</output>
+        </label>
+        <label class="control">
+          <span>Time, how long energy is transferred</span>
+          <input data-time type="range" min="1" max="60" step="1" value="10" />
+          <output data-time-output>10 s</output>
+        </label>
+        <label class="switch-control">
+          <input data-loop type="checkbox" checked />
+          <span>Close the loop</span>
+        </label>
+      </div>
+
+      <div class="meters" aria-label="Circuit readings">
+        <div class="meter">
+          <span>Current</span>
+          <strong data-current>0.25 A</strong>
+          <p>Current is flow. It rises with voltage and falls with resistance.</p>
+        </div>
+        <div class="meter">
+          <span>Power</span>
+          <strong data-power>1.25 W</strong>
+          <p>Power is work per second. It depends on both push and flow.</p>
+        </div>
+        <div class="meter">
+          <span>Energy transferred</span>
+          <strong data-energy>12.5 J</strong>
+          <p>Energy grows as power continues over time.</p>
+        </div>
+      </div>
+
+      <aside class="formula-card" aria-label="Formulas used in this lab">
+        <h2>The relationships</h2>
+        <ul>
+          <li><strong>Current</strong> = voltage divided by resistance.</li>
+          <li><strong>Power</strong> = voltage multiplied by current.</li>
+          <li><strong>Energy</strong> = power multiplied by time.</li>
+          <li>If the loop opens, sustained current stops.</li>
+        </ul>
+      </aside>
+    </section>
+  </article>
+  <script type="module" src="/scripts/energy-flow-lab.js"></script>
+</BaseLayout>

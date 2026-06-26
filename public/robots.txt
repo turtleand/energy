@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://energy.turtleand.com/sitemap-index.xml
