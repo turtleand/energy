@@ -512,6 +512,7 @@ h3 {
 }
 
 .static-scene {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(86px, 1fr) minmax(44px, 0.35fr) minmax(86px, 1fr);
   align-items: center;
@@ -545,6 +546,8 @@ h3 {
   border-radius: 999px;
   font-weight: 900;
   transition: opacity 160ms ease, transform 160ms ease;
+  animation: charge-hover 2.8s ease-in-out infinite;
+  animation-delay: calc(var(--dot-delay, 0) * 1s);
 }
 
 .charged-object-negative .charge-dot {
@@ -561,27 +564,44 @@ h3 {
 .dot-e {
   left: 18%;
   top: 18%;
+  --dot-delay: 0;
 }
 
 .dot-b,
 .dot-f {
   right: 18%;
   top: 36%;
+  --dot-delay: 0.35;
 }
 
 .dot-c,
 .dot-g {
   left: 34%;
   bottom: 18%;
+  --dot-delay: 0.7;
 }
 
 .dot-d {
   right: 30%;
   bottom: 16%;
+  --dot-delay: 1.05;
+}
+
+@keyframes charge-hover {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  50% {
+    transform: translateY(calc(var(--static-charge-level) * -0.45px)) scale(1.05);
+  }
 }
 
 .spark-gap {
   position: relative;
+  display: grid;
+  place-items: center;
   min-height: 96px;
 }
 
@@ -601,6 +621,68 @@ h3 {
 
 .spark-gap::after {
   bottom: 0;
+}
+
+.field-line {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  height: 2px;
+  opacity: calc(0.16 + var(--static-charge-level) * 0.055);
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0), rgba(248, 217, 138, 0.82), rgba(245, 158, 11, 0));
+  box-shadow: 0 0 12px rgba(248, 217, 138, 0.45);
+  transform-origin: center;
+  animation: field-breathe 2.6s ease-in-out infinite;
+}
+
+.field-line-one {
+  top: 26%;
+  --line-rotation: -9deg;
+}
+
+.field-line-two {
+  top: 50%;
+  animation-delay: 0.45s;
+}
+
+.field-line-three {
+  top: 74%;
+  --line-rotation: 9deg;
+  animation-delay: 0.9s;
+}
+
+.spark-label {
+  position: absolute;
+  bottom: -1.4rem;
+  left: 50%;
+  width: max-content;
+  max-width: 8rem;
+  color: rgba(255, 247, 220, 0.72);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+}
+
+@keyframes field-breathe {
+  0%,
+  100% {
+    opacity: calc(0.12 + var(--static-charge-level) * 0.045);
+    transform: rotate(var(--line-rotation, 0deg)) scaleX(0.74);
+  }
+
+  50% {
+    opacity: calc(0.2 + var(--static-charge-level) * 0.07);
+    transform: rotate(var(--line-rotation, 0deg)) scaleX(1);
+  }
+}
+
+.spark-gap-active::before,
+.spark-gap-active::after {
+  background: #f8d98a;
+  box-shadow: 0 0 18px rgba(248, 217, 138, 0.85);
 }
 
 .spark {
@@ -655,6 +737,30 @@ h3 {
   transition: opacity 160ms ease, stroke-width 160ms ease;
 }
 
+.mini-flow-trace {
+  fill: none;
+  stroke: rgba(248, 217, 138, 0.92);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 4px;
+  stroke-dasharray: 12 18;
+  opacity: 0;
+  filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.6));
+  animation: current-trace var(--flow-speed, 2.9s) linear infinite;
+  transition: opacity 160ms ease;
+}
+
+@keyframes current-trace {
+  to {
+    stroke-dashoffset: -120;
+  }
+}
+
+[data-current-state='stopped'] .mini-flow-trace,
+[data-motion='reduced'] .mini-flow-trace {
+  animation-play-state: paused;
+}
+
 .mini-battery rect,
 .mini-load circle {
   fill: rgba(255, 250, 240, 0.12);
@@ -677,6 +783,37 @@ h3 {
   font-size: 14px;
   font-weight: 800;
   text-anchor: middle;
+}
+
+.mini-switch-mask {
+  stroke: rgba(19, 86, 68, 0.96);
+  stroke-linecap: round;
+  stroke-width: 16;
+}
+
+.mini-switch-terminal {
+  fill: #fff7dc;
+  stroke: #38bdf8;
+  stroke-width: 3;
+}
+
+.mini-switch-lever {
+  stroke: #f8d98a;
+  stroke-linecap: round;
+  stroke-width: 6;
+  filter: drop-shadow(0 0 8px rgba(248, 217, 138, 0.72));
+  transform-box: fill-box;
+  transform-origin: 0 50%;
+  transition: transform 180ms ease, opacity 180ms ease;
+}
+
+[data-loop-state='open'] .mini-switch-lever {
+  opacity: 0.72;
+  transform: rotate(-32deg);
+}
+
+[data-loop-state='open'] .mini-charge {
+  filter: none;
 }
 
 .mini-load circle {
@@ -745,5 +882,14 @@ h3 {
 
   .circuit {
     min-height: 220px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .charge-dot,
+  .field-line,
+  .mini-flow-trace,
+  .spark-active {
+    animation: none !important;
   }
 }

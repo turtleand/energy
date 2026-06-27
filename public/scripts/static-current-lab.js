@@ -18,9 +18,13 @@ if (lab) {
     spark: lab.querySelector('[data-spark]'),
     sparkGap: lab.querySelector('[data-spark-gap]'),
     wire: lab.querySelector('[data-mini-wire]'),
+    flow: lab.querySelector('[data-mini-flow]'),
     bulb: lab.querySelector('[data-mini-bulb]'),
     circuit: lab.querySelector('.mini-circuit'),
   };
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  lab.dataset.motion = reduceMotion ? 'reduced' : 'full';
 
   const staticDots = Array.from(lab.querySelectorAll('.static-panel .charge-dot'));
   const currentCharges = Array.from(lab.querySelectorAll('[data-mini-charge]'));
@@ -31,6 +35,8 @@ if (lab) {
   function setSpark(active) {
     lab.dataset.spark = active ? 'on' : 'off';
     outputs.spark?.classList.toggle('spark-active', active);
+    outputs.sparkGap?.classList.toggle('spark-gap-active', active);
+    outputs.sparkGap?.setAttribute('data-spark-pulse', active ? 'on' : 'off');
     if (active) {
       clearTimeout(dischargeTimer);
       dischargeTimer = window.setTimeout(() => setSpark(false), 650);
@@ -42,8 +48,10 @@ if (lab) {
     const voltage = Number(sourceVoltage.value);
     const closed = currentLoop.checked;
     const currentActive = closed && voltage > 0;
-    const currentStrength = voltage / 12;
-    const speed = Math.max(1.8, 5.8 - currentStrength * 3.5);
+    const sourceStrength = voltage / 12;
+    const flowStrength = currentActive ? sourceStrength : 0;
+    const speed = Math.max(1.8, 5.8 - sourceStrength * 3.5);
+    const flowSpeed = Math.max(1.25, speed * 0.7);
     const dotVisibility = Math.max(0.15, chargeLevel / 10);
 
     outputs.staticOutput.textContent = `${chargeLevel} / 10`;
@@ -69,8 +77,10 @@ if (lab) {
       : 'Static can build without a circuit. Current stops without source and closed path.';
 
     lab.style.setProperty('--static-charge-level', String(chargeLevel));
-    lab.style.setProperty('--current-strength', currentStrength.toFixed(2));
+    lab.style.setProperty('--current-strength', flowStrength.toFixed(2));
+    lab.style.setProperty('--flow-speed', `${flowSpeed.toFixed(2)}s`);
     lab.dataset.currentState = currentActive ? 'flowing' : 'stopped';
+    lab.dataset.loopState = closed ? 'closed' : 'open';
     lab.dataset.staticState = chargeLevel >= 7 ? 'charged' : chargeLevel > 0 ? 'building' : 'balanced';
 
     staticDots.forEach((dot, index) => {
@@ -78,9 +88,12 @@ if (lab) {
     });
 
     outputs.wire.style.opacity = currentActive ? '1' : '0.42';
-    outputs.bulb.style.opacity = String(currentActive ? 0.35 + currentStrength * 0.65 : 0.22);
+    if (outputs.flow) {
+      outputs.flow.style.opacity = currentActive ? String(0.35 + flowStrength * 0.65) : '0';
+    }
+    outputs.bulb.style.opacity = String(currentActive ? 0.35 + flowStrength * 0.65 : 0.22);
     outputs.bulb.style.filter = currentActive
-      ? `drop-shadow(0 0 ${8 + currentStrength * 26}px rgba(245, 158, 11, 0.95))`
+      ? `drop-shadow(0 0 ${8 + flowStrength * 26}px rgba(245, 158, 11, 0.95))`
       : 'none';
 
     currentMotions.forEach((motion) => {
@@ -90,7 +103,7 @@ if (lab) {
       charge.style.opacity = currentActive ? '1' : '0.12';
     });
 
-    if (currentActive) {
+    if (currentActive && !reduceMotion) {
       outputs.circuit?.unpauseAnimations?.();
     } else {
       outputs.circuit?.pauseAnimations?.();

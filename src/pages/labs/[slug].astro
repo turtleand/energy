@@ -46,7 +46,11 @@ const isStaticVsCurrentLab = lab.id === 'lesson-2-static-vs-moving-electricity';
                   <span class="charge-dot dot-d">−</span>
                 </div>
                 <div class="spark-gap" data-spark-gap>
+                  <span class="field-line field-line-one"></span>
+                  <span class="field-line field-line-two"></span>
+                  <span class="field-line field-line-three"></span>
                   <span class="spark" data-spark></span>
+                  <span class="spark-label">brief discharge</span>
                 </div>
                 <div class="charged-object charged-object-positive">
                   <span class="charge-dot dot-e">+</span>
@@ -63,12 +67,19 @@ const isStaticVsCurrentLab = lab.id === 'lesson-2-static-vs-moving-electricity';
               <svg class="mini-circuit" viewBox="0 0 420 210" role="img" aria-labelledby="mini-circuit-title mini-circuit-desc">
                 <title id="mini-circuit-title">Simple current electricity model</title>
                 <desc id="mini-circuit-desc">A source, closed wire path, load, and moving charge markers show sustained current.</desc>
+                <path class="mini-flow-trace" data-mini-flow d="M70 110 H165 V55 H330 V155 H165 V110 H70" />
                 <path id="mini-current-path" class="mini-wire" data-mini-wire d="M70 110 H165 V55 H330 V155 H165 V110 H70" />
                 <g class="mini-battery" transform="translate(38 78)">
                   <rect width="58" height="64" rx="12" />
                   <line x1="58" y1="32" x2="95" y2="32" />
                   <text x="29" y="29">Source</text>
                   <text x="29" y="47" data-source-label>6 V</text>
+                </g>
+                <g class="mini-switch" data-mini-switch transform="translate(148 110)">
+                  <line class="mini-switch-mask" x1="-20" y1="0" x2="22" y2="0" />
+                  <circle class="mini-switch-terminal" cx="-17" cy="0" r="5" />
+                  <circle class="mini-switch-terminal" cx="19" cy="0" r="5" />
+                  <line class="mini-switch-lever" x1="-17" y1="0" x2="19" y2="0" />
                 </g>
                 <g class="mini-load" transform="translate(305 130)">
                   <circle cx="24" cy="24" r="27" data-mini-bulb />
