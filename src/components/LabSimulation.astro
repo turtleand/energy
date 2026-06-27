@@ -1,27 +1,11 @@
 ---
-import BaseLayout from '@layouts/BaseLayout.astro';
-import { getCollection, render } from 'astro:content';
-
-export async function getStaticPaths() {
-  const labs = await getCollection('labs', ({ data }) => data.status === 'ready');
-  return labs.map((lab) => ({ params: { slug: lab.id }, props: { lab } }));
+interface Props {
+  labSlug: string;
 }
 
-const { lab } = Astro.props;
-const { Content } = await render(lab);
-const isStaticChargeLab = lab.id === 'lesson-2-static-charge-buildup';
+const { labSlug } = Astro.props;
+const isStaticChargeLab = labSlug === 'lesson-2-static-charge-buildup';
 ---
-
-<BaseLayout title={lab.data.title} description={lab.data.summary}>
-  <article class="lab-page">
-    <div class="container article-container lab-intro">
-      <p class="eyebrow">Interactive artifact</p>
-      <h1>{lab.data.title}</h1>
-      <p class="lede">{lab.data.summary}</p>
-      <div class="prose compact">
-        <Content />
-      </div>
-    </div>
 
     {isStaticChargeLab ? (
       <section class="container lab-shell static-charge-shell" aria-labelledby="lab-title" data-static-charge-lab>
@@ -227,10 +211,8 @@ const isStaticChargeLab = lab.id === 'lesson-2-static-charge-buildup';
         </aside>
       </section>
     )}
-  </article>
   {isStaticChargeLab ? (
     <script type="module" src="/scripts/static-charge-lab.js"></script>
   ) : (
     <script type="module" src="/scripts/energy-flow-lab.js"></script>
   )}
-</BaseLayout>

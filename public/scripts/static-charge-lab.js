@@ -32,6 +32,7 @@ if (lab) {
   let lastTime = performance.now();
   let phaseUntil = 0;
   let dischargeStart = 0;
+  let dischargeStartCharge = 0;
 
   function clamp(value, min, max) {
     return Math.min(max, Math.max(min, value));
@@ -54,6 +55,7 @@ if (lab) {
     if (phase === 'discharging') return;
     phase = 'discharging';
     dischargeStart = now;
+    dischargeStartCharge = clamp(charge, 0, maxCharge);
     setSpark(true);
   }
 
@@ -127,7 +129,11 @@ if (lab) {
     if (outputs.chargeOutput) outputs.chargeOutput.textContent = `${Math.round(charge)} / 10`;
     if (outputs.rateOutput && rateInput) outputs.rateOutput.textContent = `${rateInput.value}x`;
     if (outputs.note) outputs.note.textContent = copy.note;
-    if (outputs.status) outputs.status.textContent = copy.status;
+    if (outputs.status) {
+      outputs.status.textContent = paused
+        ? 'Paused. Manual controls can still set the imbalance.'
+        : copy.status;
+    }
     if (outputs.tensionBar) outputs.tensionBar.style.inlineSize = `${Math.round(progress * 100)}%`;
 
     staticDots.forEach((dot, index) => {
@@ -150,7 +156,7 @@ if (lab) {
         triggerDischarge(now);
       } else if (phase === 'discharging') {
         const progress = clamp((now - dischargeStart) / 780, 0, 1);
-        charge = maxCharge * (1 - progress);
+        charge = dischargeStartCharge * (1 - progress);
         if (progress >= 1) {
           resetLoop(now);
         }
@@ -192,7 +198,11 @@ if (lab) {
     paused = !paused;
     pauseButton.textContent = paused ? 'Resume loop' : 'Pause loop';
     lab.dataset.paused = paused ? 'true' : 'false';
-    outputs.status.textContent = paused ? 'Paused. Manual controls can still set the imbalance.' : phaseCopy().status;
+    if (outputs.status) {
+      outputs.status.textContent = paused
+        ? 'Paused. Manual controls can still set the imbalance.'
+        : phaseCopy().status;
+    }
   });
 
   updateUi();

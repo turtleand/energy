@@ -2,15 +2,11 @@
 
 Turtleand Energy is a public learning surface for energy, electricity, circuits, and physical systems.
 
-## Lessons
-- [Lesson 1: Electricity from first principles](https://energy.turtleand.com/lessons/lesson-1-electricity-from-first-principles/): Start with source, push, flow, resistance, load, power, and energy before memorizing equations.
-- [Lesson 2: Static charge buildup](https://energy.turtleand.com/lessons/lesson-2-static-charge-buildup/): See how charge imbalance accumulates, reaches a critical point, and releases suddenly as a spark.
+## Articles
+- [Lesson 1: Electricity from first principles](https://energy.turtleand.com/lessons/lesson-1-electricity-from-first-principles/): Start with source, push, flow, resistance, load, power, and energy before memorizing equations. Includes embedded simulation: Adjust voltage, resistance, time, and loop state to see current, power, and transferred energy change together.
+- [Lesson 2: Static charge buildup](https://energy.turtleand.com/lessons/lesson-2-static-charge-buildup/): See how charge imbalance accumulates, reaches a critical point, and releases suddenly as a spark. Includes embedded simulation: Watch imbalance rise automatically until the spark discharges and the buildup starts again.
 
-## Labs
-- [Lesson 1 Lab: Energy flow in a simple circuit](https://energy.turtleand.com/labs/lesson-1-energy-flow/): Adjust voltage, resistance, time, and loop state to see current, power, and transferred energy change together.
-- [Lesson 2 Lab: Static charge buildup](https://energy.turtleand.com/labs/lesson-2-static-charge-buildup/): Watch imbalance rise automatically until the spark discharges and the buildup starts again.
-
-## Lesson details
+## Article details
 ### Lesson 1: Electricity from first principles
 
 Electricity is easier to understand when the structure comes before the equations.
@@ -32,7 +28,11 @@ P = V * I
 Energy = P * time
 ```
 
-The lab connected to this lesson lets you adjust voltage, resistance, and time so the relationships become visible.
+The simulation below lets you adjust voltage, resistance, and time so the relationships become visible while you read.
+
+Embedded simulation:
+
+Adjust voltage, resistance, time, and loop state to see current, power, and transferred energy change together.
 
 ### Lesson 2: Static charge buildup
 
@@ -96,11 +96,6 @@ and the system resets.
 
 This lesson is a model for understanding behavior, not a guide for working on electrical systems. Real electrical systems can be dangerous and should be handled with proper training, tools, and safety rules.
 
-## Lab details
-### Lesson 1 Lab: Energy flow in a simple circuit
+Embedded simulation:
 
-This artifact turns the first circuit model into something visible. It keeps the physics simple on purpose: a battery, a loop, resistance, a useful load, and meters for the relationships.
-
-### Lesson 2 Lab: Static charge buildup
-
-This lab focuses on static charge only. The imbalance builds by itself, reaches a critical point, sparks, resets, and repeats. Manual controls are available if you want to slow the loop down or set the imbalance directly.
+Watch imbalance rise automatically until the spark discharges and the buildup starts again.

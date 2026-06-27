@@ -26,4 +26,4 @@ P = V * I
 Energy = P * time
 ```
 
-The lab connected to this lesson lets you adjust voltage, resistance, and time so the relationships become visible.
+The simulation below lets you adjust voltage, resistance, and time so the relationships become visible while you read.

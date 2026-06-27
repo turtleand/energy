@@ -27,17 +27,21 @@ const lessons = (await getCollection('lessons', ({ data }) => data.status === 'r
 
       <div class="content-cards article-cards">
         {lessons.map((lesson) => (
-          <article class="content-card article-card">
+          <a
+            class="content-card article-card"
+            href={`/lessons/${lesson.id}/`}
+            aria-label={`Read ${lesson.data.title}`}
+          >
             <div>
               <p class="card-kicker">Lesson {lesson.data.order.toString().padStart(2, '0')}</p>
               <h3>{lesson.data.title}</h3>
               <p>{lesson.data.summary}</p>
             </div>
             <div class="card-footer">
-              <a href={`/lessons/${lesson.id}/`}>Read article</a>
+              <span class="card-link">Read article</span>
               {lesson.data.labSlug && <span>Simulation inside</span>}
             </div>
-          </article>
+          </a>
         ))}
       </div>
     </div>
