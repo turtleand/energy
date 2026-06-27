@@ -18,7 +18,7 @@ const { Content } = await render(lesson);
       <h1>{lesson.data.title}</h1>
       <p class="lede">{lesson.data.summary}</p>
       {lesson.data.labSlug && (
-        <a class="button button-primary" href={`/labs/${lesson.data.labSlug}/`}>Open the interactive lab</a>
+        <a class="button button-primary" href={`/labs/${lesson.data.labSlug}/`}>Open simulation</a>
       )}
       <div class="prose">
         <Content />
