@@ -31,6 +31,9 @@ async function readCollection(dir, routePrefix) {
       title: data.title,
       summary: data.summary,
       url: `${routePrefix}/${slug}/`,
+      slug,
+      labSlug: data.labSlug,
+      lessonSlug: data.lessonSlug,
       body,
     });
   }
@@ -39,30 +42,42 @@ async function readCollection(dir, routePrefix) {
 
 const lessons = await readCollection(lessonsDir, '/lessons');
 const labs = await readCollection(labsDir, '/labs');
+const labsBySlug = new Map(labs.map((item) => [item.slug, item]));
+
+function embeddedSimulationSummary(lesson) {
+  const lab = lesson.labSlug ? labsBySlug.get(lesson.labSlug) : undefined;
+  return lab ? ` Includes embedded simulation: ${lab.summary}` : '';
+}
 
 const compact = [
   '# Turtleand Energy',
   '',
   'Turtleand Energy is a public learning surface for energy, electricity, circuits, and physical systems.',
   '',
-  '## Lessons',
-  ...lessons.flatMap((item) => [`- [${item.title}](https://energy.turtleand.com${item.url}): ${item.summary}`]),
-  '',
-  '## Labs',
-  ...labs.flatMap((item) => [`- [${item.title}](https://energy.turtleand.com${item.url}): ${item.summary}`]),
+  '## Articles',
+  ...lessons.flatMap((item) => [
+    `- [${item.title}](https://energy.turtleand.com${item.url}): ${item.summary}${embeddedSimulationSummary(item)}`,
+  ]),
   '',
 ].join('\n');
 
 const full = [
   compact,
-  '## Lesson details',
-  ...lessons.flatMap((item) => [`### ${item.title}`, '', item.body, '']),
-  '## Lab details',
-  ...labs.flatMap((item) => [`### ${item.title}`, '', item.body, '']),
+  '## Article details',
+  ...lessons.flatMap((item) => {
+    const lab = item.labSlug ? labsBySlug.get(item.labSlug) : undefined;
+    return [
+      `### ${item.title}`,
+      '',
+      item.body,
+      '',
+      ...(lab ? ['Embedded simulation:', '', lab.summary, ''] : []),
+    ];
+  }),
 ].join('\n');
 
 await mkdir(publicDir, { recursive: true });
 await writeFile(path.join(publicDir, 'llms.txt'), compact, 'utf8');
 await writeFile(path.join(publicDir, 'llms-full.txt'), full, 'utf8');
 
-console.log(`Generated llms.txt with ${lessons.length} lesson(s) and ${labs.length} lab(s).`);
+console.log(`Generated llms.txt with ${lessons.length} article(s) and embedded simulation metadata.`);

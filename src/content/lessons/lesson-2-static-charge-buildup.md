@@ -1,40 +1,11 @@
-# Turtleand Energy
-
-Turtleand Energy is a public learning surface for energy, electricity, circuits, and physical systems.
-
-## Articles
-- [Lesson 1: Electricity from first principles](https://energy.turtleand.com/lessons/lesson-1-electricity-from-first-principles/): Start with source, push, flow, resistance, load, power, and energy before memorizing equations. Includes embedded simulation: Adjust voltage, resistance, time, and loop state to see current, power, and transferred energy change together.
-- [Lesson 2: Static charge buildup](https://energy.turtleand.com/lessons/lesson-2-static-charge-buildup/): See how charge imbalance accumulates, reaches a critical point, and releases suddenly as a spark. Includes embedded simulation: Watch imbalance rise automatically until the spark discharges and the buildup starts again.
-
-## Article details
-### Lesson 1: Electricity from first principles
-
-Electricity is easier to understand when the structure comes before the equations.
-
-A simple circuit has four anchors:
-
-1. **Source**: a battery or supply creates electrical push.
-2. **Loop**: a closed path lets charge keep moving.
-3. **Resistance**: the path and load limit the flow.
-4. **Load**: a component turns electrical energy into light, heat, motion, sound, computation, or signal.
-
-Voltage is energy per charge. Current is charge flow per second. Resistance limits current. Power is energy transfer per second. Energy is the amount transferred over time.
-
-The first two equations are enough for the opening lesson:
-
-```text
-I = V / R
-P = V * I
-Energy = P * time
-```
-
-The simulation below lets you adjust voltage, resistance, and time so the relationships become visible while you read.
-
-Embedded simulation:
-
-Adjust voltage, resistance, time, and loop state to see current, power, and transferred energy change together.
-
-### Lesson 2: Static charge buildup
+---
+title: "Lesson 2: Static charge buildup"
+summary: "See how charge imbalance accumulates, reaches a critical point, and releases suddenly as a spark."
+module: "Foundations"
+order: 2
+status: ready
+labSlug: "lesson-2-static-charge-buildup"
+---
 
 Static electricity begins when electric charge becomes imbalanced.
 
@@ -95,7 +66,3 @@ and the system resets.
 ```
 
 This lesson is a model for understanding behavior, not a guide for working on electrical systems. Real electrical systems can be dangerous and should be handled with proper training, tools, and safety rules.
-
-Embedded simulation:
-
-Watch imbalance rise automatically until the spark discharges and the buildup starts again.
