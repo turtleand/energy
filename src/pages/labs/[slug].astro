@@ -9,7 +9,7 @@ export async function getStaticPaths() {
 
 const { lab } = Astro.props;
 const { Content } = await render(lab);
-const isStaticVsCurrentLab = lab.id === 'lesson-2-static-vs-moving-electricity';
+const isStaticChargeLab = lab.id === 'lesson-2-static-charge-buildup';
 ---
 
 <BaseLayout title={lab.data.title} description={lab.data.summary}>
@@ -23,20 +23,20 @@ const isStaticVsCurrentLab = lab.id === 'lesson-2-static-vs-moving-electricity';
       </div>
     </div>
 
-    {isStaticVsCurrentLab ? (
-      <section class="container lab-shell contrast-lab-shell" aria-labelledby="lab-title" data-static-current-lab>
-        <div class="lab-board contrast-lab-board">
+    {isStaticChargeLab ? (
+      <section class="container lab-shell static-charge-shell" aria-labelledby="lab-title" data-static-charge-lab>
+        <div class="lab-board static-charge-board">
           <div class="lab-board-header">
             <div>
-              <p class="eyebrow">Static vs moving electricity</p>
-              <h2 id="lab-title">One spark or a steady loop.</h2>
+              <p class="eyebrow">Static charge buildup</p>
+              <h2 id="lab-title">Imbalance builds until it sparks.</h2>
             </div>
-            <p class="lab-status" data-contrast-status>Static charge is building. Current needs a closed loop.</p>
+            <p class="lab-status" data-static-status>Balanced start. Imbalance will build until it sparks.</p>
           </div>
 
-          <div class="contrast-stage" aria-label="Static and current electricity visual comparison">
-            <section class="contrast-panel static-panel" aria-labelledby="static-panel-title">
-              <p class="panel-label">Static electricity</p>
+          <div class="static-buildup-stage" aria-label="Automatic static charge buildup and discharge loop">
+            <section class="contrast-panel static-panel static-buildup-panel" aria-labelledby="static-panel-title">
+              <p class="panel-label">Automatic loop</p>
               <h3 id="static-panel-title">Charge imbalance</h3>
               <div class="static-scene" aria-hidden="true">
                 <div class="charged-object charged-object-negative">
@@ -50,7 +50,7 @@ const isStaticVsCurrentLab = lab.id === 'lesson-2-static-vs-moving-electricity';
                   <span class="field-line field-line-two"></span>
                   <span class="field-line field-line-three"></span>
                   <span class="spark" data-spark></span>
-                  <span class="spark-label">brief discharge</span>
+                  <span class="spark-label">automatic discharge</span>
                 </div>
                 <div class="charged-object charged-object-positive">
                   <span class="charge-dot dot-e">+</span>
@@ -58,92 +58,78 @@ const isStaticVsCurrentLab = lab.id === 'lesson-2-static-vs-moving-electricity';
                   <span class="charge-dot dot-g">+</span>
                 </div>
               </div>
-              <p class="panel-note" data-static-note>Separated charge creates an electric field. It can discharge briefly.</p>
-            </section>
 
-            <section class="contrast-panel current-panel" aria-labelledby="current-panel-title">
-              <p class="panel-label">Moving electricity</p>
-              <h3 id="current-panel-title">Sustained current</h3>
-              <svg class="mini-circuit" viewBox="0 0 420 210" role="img" aria-labelledby="mini-circuit-title mini-circuit-desc">
-                <title id="mini-circuit-title">Simple current electricity model</title>
-                <desc id="mini-circuit-desc">A source, closed wire path, load, and moving charge markers show sustained current.</desc>
-                <path class="mini-flow-trace" data-mini-flow d="M70 110 H165 V55 H330 V155 H165 V110 H70" />
-                <path id="mini-current-path" class="mini-wire" data-mini-wire d="M70 110 H165 V55 H330 V155 H165 V110 H70" />
-                <g class="mini-battery" transform="translate(38 78)">
-                  <rect width="58" height="64" rx="12" />
-                  <line x1="58" y1="32" x2="95" y2="32" />
-                  <text x="29" y="29">Source</text>
-                  <text x="29" y="47" data-source-label>6 V</text>
-                </g>
-                <g class="mini-switch" data-mini-switch transform="translate(148 110)">
-                  <line class="mini-switch-mask" x1="-20" y1="0" x2="22" y2="0" />
-                  <circle class="mini-switch-terminal" cx="-17" cy="0" r="5" />
-                  <circle class="mini-switch-terminal" cx="19" cy="0" r="5" />
-                  <line class="mini-switch-lever" x1="-17" y1="0" x2="19" y2="0" />
-                </g>
-                <g class="mini-load" transform="translate(305 130)">
-                  <circle cx="24" cy="24" r="27" data-mini-bulb />
-                  <path d="M11 24 C17 12 31 36 37 24" />
-                  <text x="24" y="66">Load</text>
-                </g>
-                <circle class="mini-charge" data-mini-charge r="7">
-                  <animateMotion data-mini-motion dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear">
-                    <mpath href="#mini-current-path" />
-                  </animateMotion>
-                </circle>
-                <circle class="mini-charge" data-mini-charge r="7">
-                  <animateMotion data-mini-motion dur="4s" begin="-1.3s" repeatCount="indefinite" calcMode="linear">
-                    <mpath href="#mini-current-path" />
-                  </animateMotion>
-                </circle>
-                <circle class="mini-charge" data-mini-charge r="7">
-                  <animateMotion data-mini-motion dur="4s" begin="-2.6s" repeatCount="indefinite" calcMode="linear">
-                    <mpath href="#mini-current-path" />
-                  </animateMotion>
-                </circle>
-              </svg>
-              <p class="panel-note" data-current-note>A source keeps the voltage difference going through a closed path and load.</p>
+              <div class="buildup-meter" aria-hidden="true">
+                <div class="buildup-meter-labels">
+                  <span>Balanced</span>
+                  <span>Critical point</span>
+                </div>
+                <div class="buildup-track">
+                  <span class="buildup-bar" data-tension-bar></span>
+                  <span class="critical-marker"></span>
+                </div>
+              </div>
+
+              <p class="panel-note" data-static-note>The system starts near balance. Imbalance begins to accumulate again.</p>
             </section>
           </div>
         </div>
 
-        <div class="lab-controls" aria-label="Static and current controls">
-          <label class="control">
-            <span>Static charge imbalance</span>
-            <input data-static-charge type="range" min="0" max="10" step="1" value="6" />
-            <output data-static-output>6 / 10</output>
-          </label>
-          <button class="button button-secondary lab-action" type="button" data-discharge>Release static discharge</button>
-          <label class="control">
-            <span>Source voltage for the loop</span>
-            <input data-source-voltage type="range" min="0" max="12" step="1" value="6" />
-            <output data-source-output>6 V</output>
-          </label>
-          <label class="switch-control">
-            <input data-current-loop type="checkbox" checked />
-            <span>Close the current loop</span>
-          </label>
-        </div>
-
-        <div class="meters contrast-meters" aria-label="Comparison readings">
+        <div class="meters static-meters" aria-label="Static charge readings">
           <div class="meter">
-            <span>Static side</span>
-            <strong data-static-reading>Built up</strong>
-            <p>Charge can sit separated. The visible event is a brief discharge.</p>
+            <span>Balance</span>
+            <strong data-static-state-label>Balanced</strong>
+            <p>The imbalance rises automatically, as if a steady source keeps separating charge.</p>
           </div>
           <div class="meter">
-            <span>Current side</span>
-            <strong data-current-reading>Flowing</strong>
-            <p>Charges keep moving only while the source and closed path remain.</p>
+            <span>Critical point</span>
+            <strong data-critical-reading>Below limit</strong>
+            <p>When the imbalance becomes too large, the gap can no longer hold it.</p>
+          </div>
+          <div class="meter">
+            <span>Discharge</span>
+            <strong data-discharge-reading>Waiting</strong>
+            <p>The spark releases the built-up imbalance, then the loop starts again.</p>
           </div>
         </div>
 
-        <aside class="formula-card" aria-label="Lesson model used in this lab">
-          <h2>The simple difference</h2>
+        <div class="manual-control-shell">
+          <button
+            class="button button-secondary manual-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="manual-static-controls"
+            data-manual-toggle
+          >
+            Manual controls
+          </button>
+
+          <div class="lab-controls manual-controls" id="manual-static-controls" aria-label="Manual static charge controls" data-manual-controls hidden>
+            <label class="control">
+              <span>Static charge imbalance</span>
+              <input data-static-charge type="range" min="0" max="10" step="1" value="1" />
+              <output data-static-output>1 / 10</output>
+            </label>
+            <label class="control">
+              <span>Constant buildup rate</span>
+              <input data-buildup-rate type="range" min="0.6" max="3" step="0.2" value="1.6" />
+              <output data-rate-output>1.6x</output>
+            </label>
+            <div class="manual-actions">
+              <button class="button button-secondary lab-action" type="button" data-discharge>Trigger discharge</button>
+              <button class="button button-secondary lab-action" type="button" data-reset>Reset</button>
+              <button class="button button-secondary lab-action" type="button" data-pause>Pause loop</button>
+            </div>
+          </div>
+        </div>
+
+        <aside class="formula-card static-model-card" aria-label="Lesson model used in this lab">
+          <h2>The simple model</h2>
           <ul>
-            <li><strong>Static:</strong> imbalance first, then possible brief discharge.</li>
-            <li><strong>Current:</strong> source plus closed path plus load, producing sustained flow.</li>
-            <li>A spark is not the same thing as a working circuit.</li>
+            <li><strong>Build:</strong> imbalance accumulates over time.</li>
+            <li><strong>Threshold:</strong> the system reaches a critical point.</li>
+            <li><strong>Discharge:</strong> a spark releases the stored imbalance.</li>
+            <li><strong>Reset:</strong> buildup begins again after the spark.</li>
           </ul>
         </aside>
       </section>
@@ -259,8 +245,8 @@ const isStaticVsCurrentLab = lab.id === 'lesson-2-static-vs-moving-electricity';
       </section>
     )}
   </article>
-  {isStaticVsCurrentLab ? (
-    <script type="module" src="/scripts/static-current-lab.js"></script>
+  {isStaticChargeLab ? (
+    <script type="module" src="/scripts/static-charge-lab.js"></script>
   ) : (
     <script type="module" src="/scripts/energy-flow-lab.js"></script>
   )}

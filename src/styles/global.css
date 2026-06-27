@@ -482,6 +482,110 @@ h3 {
   gap: 1rem;
 }
 
+.static-charge-shell {
+  grid-template-columns: 1fr;
+}
+
+.static-charge-board,
+.static-meters,
+.manual-control-shell,
+.static-model-card {
+  grid-column: 1 / -1;
+}
+
+.static-buildup-stage {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.static-buildup-panel {
+  min-height: 420px;
+}
+
+.static-buildup-panel .static-scene {
+  max-width: 760px;
+  min-height: clamp(190px, 28vw, 270px);
+  margin: 1.2rem auto 1.6rem;
+}
+
+.static-buildup-panel .charged-object {
+  min-height: clamp(150px, 22vw, 220px);
+}
+
+.static-meters {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.manual-control-shell {
+  display: grid;
+  gap: 1rem;
+}
+
+.manual-toggle {
+  justify-self: start;
+  cursor: pointer;
+}
+
+.manual-controls[hidden] {
+  display: none;
+}
+
+.manual-controls {
+  width: 100%;
+}
+
+.manual-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.buildup-meter {
+  max-width: 760px;
+  margin: 0 auto 1rem;
+}
+
+.buildup-meter-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.45rem;
+  color: rgba(255, 247, 220, 0.72);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.buildup-track {
+  position: relative;
+  height: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 247, 220, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 250, 240, 0.12);
+}
+
+.buildup-bar {
+  display: block;
+  inline-size: 0%;
+  block-size: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #38bdf8, #f8d98a, #f59e0b);
+  box-shadow: 0 0 18px rgba(248, 217, 138, 0.55);
+  transition: inline-size 120ms linear;
+}
+
+.critical-marker {
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  left: 90%;
+  width: 2px;
+  background: #fff7dc;
+  box-shadow: 0 0 14px rgba(255, 247, 220, 0.9);
+}
+
 .contrast-panel {
   min-height: 330px;
   padding: clamp(1rem, 3vw, 1.4rem);
@@ -535,6 +639,26 @@ h3 {
 
 .charged-object-positive {
   box-shadow: inset 0 0 calc(var(--static-charge-level) * 3px) rgba(245, 158, 11, 0.42);
+}
+
+[data-static-state='critical'] .charged-object {
+  animation: static-tension-shake 240ms ease-in-out infinite;
+}
+
+[data-static-state='discharging'] .charged-object {
+  border-color: rgba(248, 217, 138, 0.95);
+  box-shadow: inset 0 0 34px rgba(248, 217, 138, 0.45), 0 0 28px rgba(245, 158, 11, 0.28);
+}
+
+@keyframes static-tension-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(2px);
+  }
 }
 
 .charge-dot {
@@ -720,115 +844,6 @@ h3 {
   }
 }
 
-.mini-circuit {
-  display: block;
-  width: 100%;
-  min-height: 160px;
-  margin: 0.4rem 0 0.9rem;
-}
-
-.mini-wire {
-  fill: none;
-  stroke: #38bdf8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: calc(6px + var(--current-strength) * 7px);
-  filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.32));
-  transition: opacity 160ms ease, stroke-width 160ms ease;
-}
-
-.mini-flow-trace {
-  fill: none;
-  stroke: rgba(248, 217, 138, 0.92);
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 4px;
-  stroke-dasharray: 12 18;
-  opacity: 0;
-  filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.6));
-  animation: current-trace var(--flow-speed, 2.9s) linear infinite;
-  transition: opacity 160ms ease;
-}
-
-@keyframes current-trace {
-  to {
-    stroke-dashoffset: -120;
-  }
-}
-
-[data-current-state='stopped'] .mini-flow-trace,
-[data-motion='reduced'] .mini-flow-trace {
-  animation-play-state: paused;
-}
-
-.mini-battery rect,
-.mini-load circle {
-  fill: rgba(255, 250, 240, 0.12);
-  stroke: #fff7dc;
-  stroke-width: 3;
-}
-
-.mini-battery line,
-.mini-load path {
-  fill: none;
-  stroke: #fff7dc;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 4;
-}
-
-.mini-battery text,
-.mini-load text {
-  fill: #fff7dc;
-  font-size: 14px;
-  font-weight: 800;
-  text-anchor: middle;
-}
-
-.mini-switch-mask {
-  stroke: rgba(19, 86, 68, 0.96);
-  stroke-linecap: round;
-  stroke-width: 16;
-}
-
-.mini-switch-terminal {
-  fill: #fff7dc;
-  stroke: #38bdf8;
-  stroke-width: 3;
-}
-
-.mini-switch-lever {
-  stroke: #f8d98a;
-  stroke-linecap: round;
-  stroke-width: 6;
-  filter: drop-shadow(0 0 8px rgba(248, 217, 138, 0.72));
-  transform-box: fill-box;
-  transform-origin: 0 50%;
-  transition: transform 180ms ease, opacity 180ms ease;
-}
-
-[data-loop-state='open'] .mini-switch-lever {
-  opacity: 0.72;
-  transform: rotate(-32deg);
-}
-
-[data-loop-state='open'] .mini-charge {
-  filter: none;
-}
-
-.mini-load circle {
-  fill: rgba(245, 158, 11, calc(0.16 + var(--current-strength) * 0.66));
-  transition: opacity 160ms ease, fill 160ms ease, filter 160ms ease;
-}
-
-.mini-charge {
-  fill: #fff7dc;
-  stroke: #38bdf8;
-  stroke-width: 3;
-  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.8));
-  transition: opacity 160ms ease;
-}
-
 .lab-action {
   width: 100%;
   margin-bottom: 1.1rem;
@@ -858,6 +873,8 @@ h3 {
   .hero-grid,
   .section-grid,
   .contrast-stage,
+  .static-meters,
+  .manual-actions,
   .lab-shell,
   .lab-board-header {
     display: grid;
@@ -888,8 +905,8 @@ h3 {
 @media (prefers-reduced-motion: reduce) {
   .charge-dot,
   .field-line,
-  .mini-flow-trace,
-  .spark-active {
+  .spark-active,
+  [data-static-state='critical'] .charged-object {
     animation: none !important;
   }
 }
