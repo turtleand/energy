@@ -12,14 +12,11 @@ if (lab) {
   const outputs = {
     chargeOutput: lab.querySelector('[data-static-output]'),
     rateOutput: lab.querySelector('[data-rate-output]'),
-    state: lab.querySelector('[data-static-state-label]'),
     note: lab.querySelector('[data-static-note]'),
     status: lab.querySelector('[data-static-status]'),
     spark: lab.querySelector('[data-spark]'),
     sparkGap: lab.querySelector('[data-spark-gap]'),
     tensionBar: lab.querySelector('[data-tension-bar]'),
-    criticalReading: lab.querySelector('[data-critical-reading]'),
-    dischargeReading: lab.querySelector('[data-discharge-reading]'),
   };
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -73,8 +70,6 @@ if (lab) {
         label: 'Critical point',
         note: 'The imbalance is at the limit. Discharge is about to happen.',
         status: 'Critical point reached. The spark will fire automatically.',
-        critical: 'Reached',
-        discharge: 'About to spark',
       };
     }
 
@@ -83,8 +78,6 @@ if (lab) {
         label: 'Discharging',
         note: 'The spark releases the built-up imbalance in one brief event.',
         status: 'Spark discharge. The stored imbalance is dropping fast.',
-        critical: 'Released',
-        discharge: 'Sparking',
       };
     }
 
@@ -93,8 +86,6 @@ if (lab) {
         label: 'Resetting',
         note: 'After discharge, the system returns toward balance before buildup restarts.',
         status: 'Resetting after discharge. Buildup will begin again.',
-        critical: 'Below limit',
-        discharge: 'Reset',
       };
     }
 
@@ -103,8 +94,6 @@ if (lab) {
         label: 'Imbalance building',
         note: 'The separated charge is storing more electrical tension as it approaches the critical point.',
         status: 'Imbalance is rising toward the critical point.',
-        critical: 'Approaching',
-        discharge: 'Not yet',
       };
     }
 
@@ -113,8 +102,6 @@ if (lab) {
         label: 'Imbalance building',
         note: 'Charge separation is increasing. The spark has not happened yet.',
         status: 'Static imbalance is accumulating automatically.',
-        critical: 'Below limit',
-        discharge: 'Not yet',
       };
     }
 
@@ -122,8 +109,6 @@ if (lab) {
       label: 'Balanced',
       note: 'The system starts near balance. Imbalance begins to accumulate again.',
       status: 'Balanced start. Imbalance will build until it sparks.',
-      critical: 'Below limit',
-      discharge: 'Waiting',
     };
   }
 
@@ -141,11 +126,8 @@ if (lab) {
     }
     if (outputs.chargeOutput) outputs.chargeOutput.textContent = `${Math.round(charge)} / 10`;
     if (outputs.rateOutput && rateInput) outputs.rateOutput.textContent = `${rateInput.value}x`;
-    if (outputs.state) outputs.state.textContent = copy.label;
     if (outputs.note) outputs.note.textContent = copy.note;
     if (outputs.status) outputs.status.textContent = copy.status;
-    if (outputs.criticalReading) outputs.criticalReading.textContent = copy.critical;
-    if (outputs.dischargeReading) outputs.dischargeReading.textContent = copy.discharge;
     if (outputs.tensionBar) outputs.tensionBar.style.inlineSize = `${Math.round(progress * 100)}%`;
 
     staticDots.forEach((dot, index) => {
