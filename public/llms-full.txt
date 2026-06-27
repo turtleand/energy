@@ -8,6 +8,7 @@ Turtleand Energy is a public learning surface for energy, electricity, circuits,
 
 ## Labs
 - [Lesson 1 Lab: Energy flow in a simple circuit](https://energy.turtleand.com/labs/lesson-1-energy-flow/): Adjust voltage, resistance, time, and loop state to see current, power, and transferred energy change together.
+- [Lesson 2 Lab: Static spark vs steady current](https://energy.turtleand.com/labs/lesson-2-static-vs-moving-electricity/): Build charge imbalance, release a brief spark, then compare it with charge moving through a closed circuit.
 
 ## Lesson details
 ### Lesson 1: Electricity from first principles
@@ -49,6 +50,8 @@ Static electricity is like charge piling up in one place.
 Current electricity is like charge flowing through a working loop.
 
 A balloon sticking to hair, a tiny shock from a doorknob, and lightning are static-electricity examples. A lamp, phone charger, motor, or computer uses current electricity because the flow is sustained through a circuit.
+
+The connected lab makes the contrast visible. Build up separated charge, release a brief spark, then compare that with charge markers moving continuously through a closed loop.
 
 ## Static electricity
 
@@ -113,3 +116,7 @@ This lesson is a model for understanding behavior, not a guide for working on el
 ### Lesson 1 Lab: Energy flow in a simple circuit
 
 This artifact turns the first circuit model into something visible. It keeps the physics simple on purpose: a battery, a loop, resistance, a useful load, and meters for the relationships.
+
+### Lesson 2 Lab: Static spark vs steady current
+
+This lab keeps the contrast simple. Static electricity begins with separated charge and may produce one brief discharge. Moving electricity needs a maintained source, a closed path, and a load so current can continue.

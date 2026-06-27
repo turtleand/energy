@@ -8,3 +8,4 @@ Turtleand Energy is a public learning surface for energy, electricity, circuits,
 
 ## Labs
 - [Lesson 1 Lab: Energy flow in a simple circuit](https://energy.turtleand.com/labs/lesson-1-energy-flow/): Adjust voltage, resistance, time, and loop state to see current, power, and transferred energy change together.
+- [Lesson 2 Lab: Static spark vs steady current](https://energy.turtleand.com/labs/lesson-2-static-vs-moving-electricity/): Build charge imbalance, release a brief spark, then compare it with charge moving through a closed circuit.

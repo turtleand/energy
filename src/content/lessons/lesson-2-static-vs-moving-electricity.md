@@ -4,6 +4,7 @@ summary: "Separate brief discharge from sustained current: charge imbalance, vol
 module: "Foundations"
 order: 2
 status: ready
+labSlug: "lesson-2-static-vs-moving-electricity"
 ---
 
 Static electricity and current electricity both involve electric charge, but they behave differently.
@@ -20,6 +21,8 @@ Static electricity is like charge piling up in one place.
 Current electricity is like charge flowing through a working loop.
 
 A balloon sticking to hair, a tiny shock from a doorknob, and lightning are static-electricity examples. A lamp, phone charger, motor, or computer uses current electricity because the flow is sustained through a circuit.
+
+The connected lab makes the contrast visible. Build up separated charge, release a brief spark, then compare that with charge markers moving continuously through a closed loop.
 
 ## Static electricity
 

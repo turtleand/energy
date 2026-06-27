@@ -8,7 +8,6 @@ const lessons = (await getCollection('lessons', ({ data }) => data.status === 'r
 const labs = (await getCollection('labs', ({ data }) => data.status === 'ready')).sort(
   (a, b) => a.data.order - b.data.order
 );
-const firstLab = labs[0];
 const latestLesson = lessons.at(-1) ?? lessons[0];
 ---
 
@@ -19,7 +18,7 @@ const latestLesson = lessons.at(-1) ?? lessons[0];
         <p class="eyebrow">Energy, from first principles</p>
         <h1 id="hero-title">Learn how energy moves through real systems.</h1>
         <p class="lede">
-          Turtleand Energy starts small: beginner lessons for electricity, one interactive lab, and a structure that can grow only when the artifacts are real.
+          Turtleand Energy starts small: beginner lessons for electricity, simple interactive labs, and a structure that grows only when the artifacts are real.
         </p>
         <div class="hero-actions">
           <a class="button button-primary" href="/labs/lesson-1-energy-flow/">Open the first lab</a>
@@ -28,9 +27,9 @@ const latestLesson = lessons.at(-1) ?? lessons[0];
       </div>
       <aside class="hero-card" aria-label="Current surface status">
         <p class="card-kicker">Now live</p>
-        <h2>Two foundation lessons plus one lab</h2>
+        <h2>Two foundation lessons plus two simple labs</h2>
         <p>
-          The homepage stays focused on real artifacts: first principles, the static-versus-current distinction, and one working circuit lab.
+          The homepage stays focused on real artifacts: first principles, the static-versus-current distinction, and working visual models.
         </p>
       </aside>
     </div>
@@ -55,14 +54,14 @@ const latestLesson = lessons.at(-1) ?? lessons[0];
             <a href={`/lessons/${lesson.id}/`}>Read the model</a>
           </article>
         ))}
-        {firstLab && (
+        {labs.map((lab) => (
           <article class="content-card content-card-accent">
             <p class="card-kicker">Interactive lab</p>
-            <h3>{firstLab.data.title}</h3>
-            <p>{firstLab.data.summary}</p>
-            <a href={`/labs/${firstLab.id}/`}>Experiment with the circuit</a>
+            <h3>{lab.data.title}</h3>
+            <p>{lab.data.summary}</p>
+            <a href={`/labs/${lab.id}/`}>Open the lab</a>
           </article>
-        )}
+        ))}
       </div>
     </div>
   </section>
