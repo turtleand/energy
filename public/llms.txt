@@ -4,6 +4,7 @@ Turtleand Energy is a public learning surface for energy, electricity, circuits,
 
 ## Lessons
 - [Lesson 1: Electricity from first principles](https://energy.turtleand.com/lessons/lesson-1-electricity-from-first-principles/): Start with source, push, flow, resistance, load, power, and energy before memorizing equations.
+- [Lesson 2: Static electricity vs moving electricity](https://energy.turtleand.com/lessons/lesson-2-static-vs-moving-electricity/): Separate brief discharge from sustained current: charge imbalance, voltage difference, closed path, load, and source.
 
 ## Labs
 - [Lesson 1 Lab: Energy flow in a simple circuit](https://energy.turtleand.com/labs/lesson-1-energy-flow/): Adjust voltage, resistance, time, and loop state to see current, power, and transferred energy change together.

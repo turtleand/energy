@@ -8,8 +8,8 @@ const lessons = (await getCollection('lessons', ({ data }) => data.status === 'r
 const labs = (await getCollection('labs', ({ data }) => data.status === 'ready')).sort(
   (a, b) => a.data.order - b.data.order
 );
-const firstLesson = lessons[0];
 const firstLab = labs[0];
+const latestLesson = lessons.at(-1) ?? lessons[0];
 ---
 
 <BaseLayout>
@@ -19,18 +19,18 @@ const firstLab = labs[0];
         <p class="eyebrow">Energy, from first principles</p>
         <h1 id="hero-title">Learn how energy moves through real systems.</h1>
         <p class="lede">
-          Turtleand Energy starts small: one beginner pathway for electricity, one interactive lab, and a structure that can grow only when the artifacts are real.
+          Turtleand Energy starts small: beginner lessons for electricity, one interactive lab, and a structure that can grow only when the artifacts are real.
         </p>
         <div class="hero-actions">
           <a class="button button-primary" href="/labs/lesson-1-energy-flow/">Open the first lab</a>
-          <a class="button button-secondary" href="/lessons/lesson-1-electricity-from-first-principles/">Read lesson 1</a>
+          {latestLesson && <a class="button button-secondary" href={`/lessons/${latestLesson.id}/`}>Read the latest lesson</a>}
         </div>
       </div>
       <aside class="hero-card" aria-label="Current surface status">
         <p class="card-kicker">Now live</p>
-        <h2>Lesson 1 plus one lab</h2>
+        <h2>Two foundation lessons plus one lab</h2>
         <p>
-          The homepage stays focused until more work exists. No empty circuit lab shelf. No empty energy map. Build the next section when the next artifact is ready.
+          The homepage stays focused on real artifacts: first principles, the static-versus-current distinction, and one working circuit lab.
         </p>
       </aside>
     </div>
@@ -40,21 +40,21 @@ const firstLab = labs[0];
     <div class="container section-grid">
       <div class="section-heading">
         <p class="eyebrow">Start here</p>
-        <h2 id="current-work-title">The first energy-flow path.</h2>
+        <h2 id="current-work-title">The foundation path.</h2>
         <p>
-          The first artifact shows how source, loop, resistance, current, power, and energy relate in a simple circuit.
+          Begin with source, loop, load, and energy flow. Then separate brief static discharge from sustained current.
         </p>
       </div>
 
       <div class="content-cards">
-        {firstLesson && (
+        {lessons.map((lesson) => (
           <article class="content-card">
             <p class="card-kicker">Lesson</p>
-            <h3>{firstLesson.data.title}</h3>
-            <p>{firstLesson.data.summary}</p>
-            <a href={`/lessons/${firstLesson.id}/`}>Read the model</a>
+            <h3>{lesson.data.title}</h3>
+            <p>{lesson.data.summary}</p>
+            <a href={`/lessons/${lesson.id}/`}>Read the model</a>
           </article>
-        )}
+        ))}
         {firstLab && (
           <article class="content-card content-card-accent">
             <p class="card-kicker">Interactive lab</p>
