@@ -5,6 +5,7 @@ interface Props {
 
 const { labSlug } = Astro.props;
 const isStaticChargeLab = labSlug === 'lesson-2-static-charge-buildup';
+const isSwitchLab = labSlug === 'lesson-3-simple-circuit-switch';
 ---
 
     {isStaticChargeLab ? (
@@ -97,6 +98,107 @@ const isStaticChargeLab = labSlug === 'lesson-2-static-charge-buildup';
             <li><strong>Threshold:</strong> the system reaches a critical point.</li>
             <li><strong>Discharge:</strong> a spark releases the stored imbalance.</li>
             <li><strong>Reset:</strong> buildup begins again after the spark.</li>
+          </ul>
+        </aside>
+      </section>
+    ) : isSwitchLab ? (
+      <section class="container lab-shell switch-lab-shell" aria-labelledby="lab-title" data-switch-lab data-switch-state="open">
+        <div class="lab-board switch-lab-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">Switch circuit model</p>
+              <h2 id="lab-title">Open path, closed path.</h2>
+            </div>
+            <p class="lab-status" data-switch-status>Open switch. The loop is broken, so the bulb is off.</p>
+          </div>
+
+          <svg class="circuit switch-circuit" viewBox="0 0 760 380" role="img" aria-labelledby="switch-circuit-title switch-circuit-desc">
+            <title id="switch-circuit-title">Interactive switch circuit diagram</title>
+            <desc id="switch-circuit-desc">A battery, switch, load, return path, and moving charge markers that start and stop when the switch opens or closes.</desc>
+            <defs>
+              <linearGradient id="wireGradient" x1="0%" x2="100%">
+                <stop offset="0%" stop-color="#38bdf8" />
+                <stop offset="100%" stop-color="#f59e0b" />
+              </linearGradient>
+            </defs>
+            <path id="switch-charge-path" d="M170 210 H585 V300 H170 V210" fill="none" />
+            <path class="wire switch-wire" data-switch-wire d="M170 210 H250 M360 210 H585 V300 H170 V210" />
+            <g class="battery" transform="translate(90 155)">
+              <rect width="80" height="110" rx="16" />
+              <line x1="80" y1="55" x2="128" y2="55" />
+              <text x="40" y="48">Battery</text>
+              <text class="battery-voltage" x="40" y="72">source</text>
+            </g>
+            <g class="switch-diagram" aria-hidden="true">
+              <circle class="switch-contact" cx="258" cy="210" r="9" />
+              <circle class="switch-contact" cx="360" cy="210" r="9" />
+              <line class="switch-arm" data-switch-arm x1="258" y1="210" x2="344" y2="210" />
+              <path class="switch-gap-arc" d="M283 170 Q309 150 337 170" />
+              <text class="switch-svg-label" data-switch-svg-label x="310" y="152">Switch open</text>
+            </g>
+            <g class="load" transform="translate(555 265)">
+              <circle cx="30" cy="35" r="38" data-switch-bulb />
+              <path d="M14 35 C22 20 38 50 46 35" />
+              <text x="30" y="96">Bulb</text>
+            </g>
+            <text class="return-path-label" x="352" y="334">return path completes the loop</text>
+            <circle class="charge switch-charge-one" data-switch-charge r="9">
+              <animateMotion data-switch-charge-motion dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear">
+                <mpath href="#switch-charge-path" />
+              </animateMotion>
+            </circle>
+            <circle class="charge switch-charge-two" data-switch-charge r="9">
+              <animateMotion data-switch-charge-motion dur="4s" begin="-1s" repeatCount="indefinite" calcMode="linear">
+                <mpath href="#switch-charge-path" />
+              </animateMotion>
+            </circle>
+            <circle class="charge switch-charge-three" data-switch-charge r="9">
+              <animateMotion data-switch-charge-motion dur="4s" begin="-2s" repeatCount="indefinite" calcMode="linear">
+                <mpath href="#switch-charge-path" />
+              </animateMotion>
+            </circle>
+            <circle class="charge switch-charge-four" data-switch-charge r="9">
+              <animateMotion data-switch-charge-motion dur="4s" begin="-3s" repeatCount="indefinite" calcMode="linear">
+                <mpath href="#switch-charge-path" />
+              </animateMotion>
+            </circle>
+          </svg>
+        </div>
+
+        <div class="lab-controls switch-controls" aria-label="Switch circuit controls">
+          <label class="switch-control switch-control-row">
+            <input data-circuit-switch type="checkbox" />
+            <span data-switch-control-label>Close the switch</span>
+          </label>
+          <p class="switch-control-note" data-switch-note>
+            The source still has voltage, but the open switch leaves a gap in the path.
+          </p>
+        </div>
+
+        <div class="meters switch-readings" aria-label="Switch circuit readings">
+          <div class="meter">
+            <span>Path state</span>
+            <strong data-switch-path>Open</strong>
+            <p>The switch controls whether the path is complete.</p>
+          </div>
+          <div class="meter">
+            <span>Current</span>
+            <strong data-switch-current>0 A</strong>
+            <p data-switch-current-note>No complete loop means no sustained current.</p>
+          </div>
+          <div class="meter">
+            <span>Load</span>
+            <strong data-switch-load>Off</strong>
+            <p>The bulb lights only when energy can transfer through the closed loop.</p>
+          </div>
+        </div>
+
+        <aside class="formula-card switch-explainer" aria-label="Switch model used in this lab">
+          <h2>The switch rule</h2>
+          <ul>
+            <li><strong>Open switch:</strong> the path has a gap, so sustained current stops.</li>
+            <li><strong>Closed switch:</strong> the route is complete, so charge can circulate.</li>
+            <li><strong>Load:</strong> the bulb receives energy only when the loop is closed.</li>
           </ul>
         </aside>
       </section>
@@ -213,6 +315,8 @@ const isStaticChargeLab = labSlug === 'lesson-2-static-charge-buildup';
     )}
   {isStaticChargeLab ? (
     <script type="module" src="/scripts/static-charge-lab.js"></script>
+  ) : isSwitchLab ? (
+    <script type="module" src="/scripts/switch-circuit-lab.js"></script>
   ) : (
     <script type="module" src="/scripts/energy-flow-lab.js"></script>
   )}
