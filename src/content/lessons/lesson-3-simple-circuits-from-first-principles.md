@@ -4,6 +4,7 @@ summary: "Understand source, path, load, switch, and return path before adding c
 module: "Foundations"
 order: 3
 status: ready
+labSlug: "lesson-3-simple-circuit-switch"
 ---
 
 A simple circuit is a closed working loop.
