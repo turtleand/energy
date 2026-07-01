@@ -3,6 +3,16 @@ import { glob } from 'astro/loaders';
 
 const lessonStatus = z.enum(['ready', 'planned']);
 
+const learningPaths = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/learning-paths' }),
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+    order: z.number(),
+    status: lessonStatus,
+  }),
+});
+
 const lessons = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/lessons' }),
   schema: z.object({
@@ -26,4 +36,4 @@ const labs = defineCollection({
   }),
 });
 
-export const collections = { lessons, labs };
+export const collections = { learningPaths, lessons, labs };

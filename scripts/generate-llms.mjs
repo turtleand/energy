@@ -3,6 +3,7 @@ import path from 'node:path';
 
 const root = process.cwd();
 const publicDir = path.join(root, 'public');
+const learningPathsDir = path.join(root, 'src/content/learning-paths');
 const lessonsDir = path.join(root, 'src/content/lessons');
 const labsDir = path.join(root, 'src/content/labs');
 
@@ -40,6 +41,7 @@ async function readCollection(dir, routePrefix) {
   return items;
 }
 
+const learningPaths = await readCollection(learningPathsDir, '/learning-paths');
 const lessons = await readCollection(lessonsDir, '/lessons');
 const labs = await readCollection(labsDir, '/labs');
 const labsBySlug = new Map(labs.map((item) => [item.slug, item]));
@@ -54,6 +56,11 @@ const compact = [
   '',
   'Turtleand Energy is a public learning surface for energy, electricity, circuits, and physical systems.',
   '',
+  '## Learning paths',
+  ...learningPaths.flatMap((item) => [
+    `- [${item.title}](https://energy.turtleand.com${item.url}): ${item.summary}`,
+  ]),
+  '',
   '## Articles',
   ...lessons.flatMap((item) => [
     `- [${item.title}](https://energy.turtleand.com${item.url}): ${item.summary}${embeddedSimulationSummary(item)}`,
@@ -63,6 +70,13 @@ const compact = [
 
 const full = [
   compact,
+  '## Learning path details',
+  ...learningPaths.flatMap((item) => [
+    `### ${item.title}`,
+    '',
+    item.body,
+    '',
+  ]),
   '## Article details',
   ...lessons.flatMap((item) => {
     const lab = item.labSlug ? labsBySlug.get(item.labSlug) : undefined;
@@ -80,4 +94,6 @@ await mkdir(publicDir, { recursive: true });
 await writeFile(path.join(publicDir, 'llms.txt'), compact, 'utf8');
 await writeFile(path.join(publicDir, 'llms-full.txt'), full, 'utf8');
 
-console.log(`Generated llms.txt with ${lessons.length} article(s) and embedded simulation metadata.`);
+console.log(
+  `Generated llms.txt with ${learningPaths.length} learning path(s), ${lessons.length} article(s), and embedded simulation metadata.`
+);
