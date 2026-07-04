@@ -28,6 +28,14 @@ Applies only to `energy/`.
 4. Do not modify `dist/` unless explicitly preparing a static deployment branch.
 5. Run local validation before PR or deployment.
 
+## Progressive-learning artifacts
+
+- When converting a completed Progressive Learning session into an Energy artifact, turn the reusable concept into a public lesson plus its embedded interactive lab when the model benefits from visible behavior.
+- Keep the lesson and interactive component connected through `labSlug` and `lessonSlug` so the simulation appears inside the lesson page, not as a disconnected artifact.
+- Strip lesson IDs, grades, checkpoint history, private tutoring notes, timestamps, and resume pointers from public prose.
+- Preserve the reusable mental model, final correction, proportionality or unit relationships, and public-safe caveats.
+- For electricity learning, keep the rhythm: intuition first, plain-language model second, formula only after the relationship is visible, and safety boundary last.
+
 ## Public-safety review
 
 Reject changes that expose secrets, credentials, private infrastructure details, internal paths, operational weaknesses, personal data, or misleading safety advice.
@@ -48,7 +56,7 @@ Energy content may discuss public science, educational circuit models, safety ba
 
 - `npm run build`
 - `git diff --check`
-- Browser check for `/` and `/labs/lesson-1-energy-flow/`
+- Browser check for `/`, `/labs/lesson-1-energy-flow/`, and any changed lesson route
 - Console check after interacting with the lab
 - Mobile or narrow viewport smoke check when the UI changes
 - Focused public-safety scan on changed files
