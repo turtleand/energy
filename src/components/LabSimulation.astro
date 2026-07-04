@@ -7,6 +7,7 @@ const { labSlug } = Astro.props;
 const isStaticChargeLab = labSlug === 'lesson-2-static-charge-buildup';
 const isSwitchLab = labSlug === 'lesson-3-simple-circuit-switch';
 const isOhmsLawLab = labSlug === 'lesson-4-ohms-law-without-formula-fear';
+const isDcVsAcLab = labSlug === 'lesson-5-dc-vs-ac';
 ---
 
     {isStaticChargeLab ? (
@@ -326,6 +327,91 @@ const isOhmsLawLab = labSlug === 'lesson-4-ohms-law-without-formula-fear';
           <p>Ohm's Law works best for ohmic components. LEDs have a nonlinear voltage-current relationship, so they do not behave like constant-resistance ideal resistors.</p>
         </aside>
       </section>
+    ) : isDcVsAcLab ? (
+      <section class="container lab-shell ac-dc-shell" aria-labelledby="lab-title" data-ac-dc-lab data-ac-dc-stage="1">
+        <div class="lab-board ac-dc-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">DC vs AC conversion</p>
+              <h2 id="lab-title">From reversing AC to stable DC.</h2>
+            </div>
+            <p class="lab-status" data-acdc-status>Voltage adjustment stage. The AC push is in a useful range, but it still reverses.</p>
+          </div>
+
+          <div class="ac-dc-stage" aria-label="AC to DC conversion stages">
+            <svg class="ac-dc-wave" viewBox="0 0 800 300" role="img" aria-labelledby="acdc-wave-title acdc-wave-desc">
+              <title id="acdc-wave-title">AC to DC conversion waveforms</title>
+              <desc id="acdc-wave-desc">Four simplified waveforms showing AC input, rectified pulsing DC, capacitor smoothing, and regulated DC.</desc>
+              <line class="ac-dc-zero-line" x1="40" y1="150" x2="760" y2="150" />
+              <path class="ac-dc-wave-path ac-dc-wave-ac" d="M40 150 C80 55 120 55 160 150 S240 245 280 150 S360 55 400 150 S480 245 520 150 S600 55 640 150 S720 245 760 150" />
+              <path class="ac-dc-wave-path ac-dc-wave-rectified" d="M40 150 C80 55 120 55 160 150 S240 55 280 150 S360 55 400 150 S480 55 520 150 S600 55 640 150 S720 55 760 150" />
+              <path class="ac-dc-wave-path ac-dc-wave-smoothed" d="M40 118 C100 70 150 86 200 116 S300 87 360 116 S470 88 520 116 S640 88 760 116" />
+              <path class="ac-dc-wave-path ac-dc-wave-regulated" d="M40 104 H760" />
+              <g class="ac-dc-wave-labels" aria-hidden="true">
+                <text data-acdc-wave-label="1" x="110" y="260">AC reverses</text>
+                <text data-acdc-wave-label="2" x="300" y="260">pulsing DC</text>
+                <text data-acdc-wave-label="3" x="500" y="260">smoother</text>
+                <text data-acdc-wave-label="4" x="675" y="260">stable</text>
+              </g>
+            </svg>
+
+            <div class="ac-dc-readout" aria-label="Current conversion stage">
+              <p class="panel-label">Current stage</p>
+              <strong data-acdc-stage-name>Adjusted AC</strong>
+              <p data-acdc-device>The voltage is prepared, but the device still needs one-direction DC.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="lab-controls ac-dc-controls" aria-label="AC to DC stage controls">
+          <label class="control">
+            <span>Conversion stage</span>
+            <input data-acdc-stage-range type="range" min="1" max="4" step="1" value="1" />
+            <output>1 to 4</output>
+          </label>
+          <div class="ac-dc-step-buttons" aria-label="Jump to a conversion stage">
+            <button class="button button-secondary ac-dc-step" type="button" data-acdc-stage-button="1" aria-pressed="true">Adjust</button>
+            <button class="button button-secondary ac-dc-step" type="button" data-acdc-stage-button="2" aria-pressed="false">Rectify</button>
+            <button class="button button-secondary ac-dc-step" type="button" data-acdc-stage-button="3" aria-pressed="false">Smooth</button>
+            <button class="button button-secondary ac-dc-step" type="button" data-acdc-stage-button="4" aria-pressed="false">Regulate</button>
+          </div>
+        </div>
+
+        <div class="meters ac-dc-readings" aria-label="AC to DC readings">
+          <div class="meter">
+            <span>Direction</span>
+            <strong data-acdc-direction>Reversing</strong>
+            <p>AC changes polarity repeatedly. DC keeps a one-direction pattern.</p>
+          </div>
+          <div class="meter">
+            <span>Output shape</span>
+            <strong data-acdc-stability>Not DC yet</strong>
+            <p>After rectification, the output is usually pulsing DC before smoothing.</p>
+          </div>
+        </div>
+
+        <aside class="formula-card ac-dc-pipeline-card" aria-label="AC to DC pipeline">
+          <h2>The conversion pipeline</h2>
+          <div class="ac-dc-pipeline">
+            <div class="ac-dc-pipeline-step is-current" data-acdc-panel="1">
+              <strong>1. Adjust</strong>
+              <p>Change or control the incoming voltage range.</p>
+            </div>
+            <div class="ac-dc-pipeline-step" data-acdc-panel="2">
+              <strong>2. Rectify</strong>
+              <p>Diodes make the reversing input mostly one direction.</p>
+            </div>
+            <div class="ac-dc-pipeline-step" data-acdc-panel="3">
+              <strong>3. Smooth</strong>
+              <p>Capacitors reduce the bumps in the pulsing output.</p>
+            </div>
+            <div class="ac-dc-pipeline-step" data-acdc-panel="4">
+              <strong>4. Regulate</strong>
+              <p>A regulator holds the final DC near the target voltage.</p>
+            </div>
+          </div>
+        </aside>
+      </section>
     ) : (
       <section class="container lab-shell" aria-labelledby="lab-title" data-energy-lab>
         <div class="lab-board">
@@ -443,6 +529,8 @@ const isOhmsLawLab = labSlug === 'lesson-4-ohms-law-without-formula-fear';
     <script type="module" src="/scripts/switch-circuit-lab.js"></script>
   ) : isOhmsLawLab ? (
     <script type="module" src="/scripts/ohms-law-lab.js"></script>
+  ) : isDcVsAcLab ? (
+    <script type="module" src="/scripts/ac-dc-conversion-lab.js"></script>
   ) : (
     <script type="module" src="/scripts/energy-flow-lab.js"></script>
   )}

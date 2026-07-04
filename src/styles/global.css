@@ -663,6 +663,149 @@ h3 {
   font-size: 1.25rem;
 }
 
+.ac-dc-shell {
+  grid-template-columns: 1fr;
+}
+
+.ac-dc-board,
+.ac-dc-controls,
+.ac-dc-readings,
+.ac-dc-pipeline-card {
+  grid-column: 1 / -1;
+}
+
+.ac-dc-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(240px, 0.55fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.ac-dc-wave {
+  width: 100%;
+  min-height: 260px;
+  border: 1px solid rgba(255, 247, 220, 0.22);
+  border-radius: 24px;
+  background: rgba(255, 250, 240, 0.08);
+}
+
+.ac-dc-zero-line {
+  stroke: rgba(255, 247, 220, 0.28);
+  stroke-dasharray: 8 10;
+  stroke-width: 3;
+}
+
+.ac-dc-wave-path {
+  fill: none;
+  opacity: 0.12;
+  stroke: #fff7dc;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 9;
+  transition: opacity 180ms ease, stroke 180ms ease, filter 180ms ease;
+}
+
+[data-ac-dc-stage='1'] .ac-dc-wave-ac,
+[data-ac-dc-stage='2'] .ac-dc-wave-rectified,
+[data-ac-dc-stage='3'] .ac-dc-wave-smoothed,
+[data-ac-dc-stage='4'] .ac-dc-wave-regulated {
+  opacity: 1;
+  stroke: #f8d98a;
+  filter: drop-shadow(0 0 14px rgba(248, 217, 138, 0.72));
+}
+
+.ac-dc-wave-labels text {
+  fill: rgba(255, 247, 220, 0.42);
+  font-size: 18px;
+  font-weight: 900;
+  text-anchor: middle;
+  text-transform: uppercase;
+}
+
+.ac-dc-wave-labels text.is-current {
+  fill: #f8d98a;
+}
+
+.ac-dc-readout {
+  display: grid;
+  align-content: center;
+  gap: 0.75rem;
+  padding: 1.2rem;
+  border: 1px solid rgba(255, 247, 220, 0.22);
+  border-radius: 24px;
+  background: rgba(255, 250, 240, 0.08);
+}
+
+.ac-dc-readout strong {
+  color: #fff7dc;
+  font-size: clamp(2.3rem, 5vw, 4.1rem);
+  line-height: 0.92;
+  letter-spacing: -0.06em;
+}
+
+.ac-dc-readout p:not(.panel-label) {
+  color: rgba(255, 247, 220, 0.82);
+  font-weight: 850;
+  line-height: 1.5;
+}
+
+.ac-dc-controls {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.7fr) minmax(0, 1.3fr);
+  gap: 1rem;
+  align-items: end;
+}
+
+.ac-dc-step-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.ac-dc-step {
+  color: var(--green-dark);
+  cursor: pointer;
+}
+
+.ac-dc-step.is-current {
+  border-color: rgba(20, 108, 83, 0.42);
+  background: rgba(20, 108, 83, 0.12);
+}
+
+.ac-dc-readings {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ac-dc-pipeline {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.ac-dc-pipeline-step {
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.36);
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.ac-dc-pipeline-step.is-current {
+  border-color: rgba(20, 108, 83, 0.44);
+  background: rgba(20, 108, 83, 0.1);
+  transform: translateY(-2px);
+}
+
+.ac-dc-pipeline-step strong {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--green-dark);
+}
+
+.ac-dc-pipeline-step p {
+  margin-bottom: 0;
+}
+
 .meters {
   display: grid;
   gap: 1rem;
@@ -1108,6 +1251,11 @@ h3 {
   .ohms-controls,
   .ohms-readings,
   .ohms-compare-grid,
+  .ac-dc-stage,
+  .ac-dc-controls,
+  .ac-dc-step-buttons,
+  .ac-dc-readings,
+  .ac-dc-pipeline,
   .lab-shell,
   .lab-board-header {
     display: grid;
