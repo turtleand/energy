@@ -8,6 +8,7 @@ const isStaticChargeLab = labSlug === 'lesson-2-static-charge-buildup';
 const isSwitchLab = labSlug === 'lesson-3-simple-circuit-switch';
 const isOhmsLawLab = labSlug === 'lesson-4-ohms-law-without-formula-fear';
 const isDcVsAcLab = labSlug === 'lesson-5-dc-vs-ac';
+const isAdapterLabelLab = labSlug === 'lesson-6-power-adapter-labels';
 ---
 
     {isStaticChargeLab ? (
@@ -412,6 +413,102 @@ const isDcVsAcLab = labSlug === 'lesson-5-dc-vs-ac';
           </div>
         </aside>
       </section>
+    ) : isAdapterLabelLab ? (
+      <section class="container lab-shell adapter-label-shell" aria-labelledby="lab-title" data-adapter-label-lab data-adapter-state="safe">
+        <div class="lab-board adapter-label-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">Adapter label checker</p>
+              <h2 id="lab-title">Read output before plugging in.</h2>
+            </div>
+            <p class="lab-status" data-adapter-status>Usually okay.</p>
+          </div>
+
+          <div class="adapter-stage" aria-label="Power adapter label practice">
+            <section class="adapter-device-card" aria-labelledby="device-requirement-title">
+              <p class="panel-label">Device input needed</p>
+              <h3 id="device-requirement-title">5V DC, 1A</h3>
+              <dl class="adapter-label-list">
+                <div><dt>Connector</dt><dd>Round barrel, firm fit</dd></div>
+                <div><dt>Polarity</dt><dd>Center positive</dd></div>
+                <div><dt>Rule</dt><dd>Match voltage and type. Current capacity can be higher.</dd></div>
+              </dl>
+            </section>
+
+            <section class="adapter-label-card" aria-labelledby="adapter-output-title">
+              <p class="panel-label">Adapter output label</p>
+              <h3 id="adapter-output-title">OUTPUT</h3>
+              <dl class="adapter-label-list adapter-output-list">
+                <div><dt>Voltage</dt><dd data-label-voltage>5V</dd></div>
+                <div><dt>Type</dt><dd data-label-type>DC</dd></div>
+                <div><dt>Current</dt><dd data-label-current>2A</dd></div>
+                <div><dt>Connector</dt><dd data-label-connector>Fits firmly</dd></div>
+                <div><dt>Polarity</dt><dd data-label-polarity>Center positive</dd></div>
+              </dl>
+            </section>
+          </div>
+        </div>
+
+        <div class="lab-controls adapter-controls" aria-label="Adapter label controls">
+          <label class="control">
+            <span>Adapter voltage</span>
+            <select data-adapter-voltage>
+              <option value="5" selected>5V</option>
+              <option value="9">9V</option>
+              <option value="12">12V</option>
+            </select>
+          </label>
+          <label class="control">
+            <span>Adapter output type</span>
+            <select data-adapter-type>
+              <option value="DC" selected>DC</option>
+              <option value="AC">AC</option>
+            </select>
+          </label>
+          <label class="control">
+            <span>Adapter current capacity</span>
+            <select data-adapter-current>
+              <option value="0.5">0.5A</option>
+              <option value="1">1A</option>
+              <option value="2" selected>2A</option>
+              <option value="3">3A</option>
+            </select>
+          </label>
+          <label class="control">
+            <span>Connector fit</span>
+            <select data-adapter-connector>
+              <option value="fits" selected>Fits firmly</option>
+              <option value="wrong">Wrong size</option>
+            </select>
+          </label>
+          <label class="control">
+            <span>Barrel polarity</span>
+            <select data-adapter-polarity>
+              <option value="center-positive" selected>Center positive</option>
+              <option value="center-negative">Center negative</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="meters adapter-readings" aria-label="Adapter reading result">
+          <div class="meter adapter-result-meter">
+            <span>Result</span>
+            <strong data-adapter-result>Label match</strong>
+            <p data-adapter-reason>The adapter matches the required voltage, type, connector, polarity, and has at least the required current capacity.</p>
+          </div>
+        </div>
+
+        <aside class="formula-card adapter-checklist-card" aria-label="Adapter label checklist">
+          <h2>Checklist</h2>
+          <ul class="adapter-checklist">
+            <li data-check-voltage data-check-state="pass">Voltage matches exactly.</li>
+            <li data-check-type data-check-state="pass">DC/AC type matches.</li>
+            <li data-check-current data-check-state="pass">Current capacity is enough.</li>
+            <li data-check-connector data-check-state="pass">Connector fit is acceptable.</li>
+            <li data-check-polarity data-check-state="pass">Barrel polarity matches.</li>
+          </ul>
+        </aside>
+      </section>
     ) : (
       <section class="container lab-shell" aria-labelledby="lab-title" data-energy-lab>
         <div class="lab-board">
@@ -531,6 +628,8 @@ const isDcVsAcLab = labSlug === 'lesson-5-dc-vs-ac';
     <script type="module" src="/scripts/ohms-law-lab.js"></script>
   ) : isDcVsAcLab ? (
     <script type="module" src="/scripts/ac-dc-conversion-lab.js"></script>
+  ) : isAdapterLabelLab ? (
+    <script type="module" src="/scripts/power-adapter-label-lab.js"></script>
   ) : (
     <script type="module" src="/scripts/energy-flow-lab.js"></script>
   )}
