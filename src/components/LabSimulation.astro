@@ -6,6 +6,7 @@ interface Props {
 const { labSlug } = Astro.props;
 const isStaticChargeLab = labSlug === 'lesson-2-static-charge-buildup';
 const isSwitchLab = labSlug === 'lesson-3-simple-circuit-switch';
+const isOhmsLawLab = labSlug === 'lesson-4-ohms-law-without-formula-fear';
 ---
 
     {isStaticChargeLab ? (
@@ -202,6 +203,129 @@ const isSwitchLab = labSlug === 'lesson-3-simple-circuit-switch';
           </ul>
         </aside>
       </section>
+    ) : isOhmsLawLab ? (
+      <section class="container lab-shell ohms-law-shell" aria-labelledby="lab-title" data-ohms-law-lab>
+        <div class="lab-board ohms-law-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">Ohm's Law model</p>
+              <h2 id="lab-title">Push divided by opposition.</h2>
+            </div>
+            <p class="lab-status" data-ohms-sentence>Current is 0.50 A because 6.0 V of push is divided by 12 Ω of opposition.</p>
+          </div>
+
+          <div class="ohms-stage" aria-label="Interactive Ohm's Law flow model">
+            <svg class="circuit ohms-circuit" viewBox="0 0 760 360" role="img" aria-labelledby="ohms-circuit-title ohms-circuit-desc">
+              <title id="ohms-circuit-title">Interactive Ohm's Law circuit diagram</title>
+              <desc id="ohms-circuit-desc">A battery, resistor, loop, and charge markers whose speed responds to voltage divided by resistance.</desc>
+              <defs>
+                <linearGradient id="ohmsWireGradient" x1="0%" x2="100%">
+                  <stop offset="0%" stop-color="#38bdf8" />
+                  <stop offset="100%" stop-color="#f59e0b" />
+                </linearGradient>
+              </defs>
+              <path id="ohms-charge-path" class="wire ohms-wire" d="M170 190 H330 V105 H590 V275 H330 V190 H170" />
+              <g class="battery" transform="translate(110 135)">
+                <rect width="80" height="110" rx="16" />
+                <line x1="80" y1="55" x2="128" y2="55" />
+                <text x="40" y="48">Voltage</text>
+                <text class="battery-voltage" data-ohms-voltage-output x="40" y="72">6.0 V</text>
+              </g>
+              <g class="resistor" transform="translate(345 85)">
+                <path d="M0 20 h25 l10 -18 l20 36 l20 -36 l20 36 l10 -18 h25" />
+                <text x="65" y="62">Resistance</text>
+                <text class="resistance-label" data-ohms-resistance-output x="65" y="84">12 Ω</text>
+              </g>
+              <g class="load" transform="translate(560 240)">
+                <circle cx="30" cy="35" r="38" />
+                <path d="M14 35 C22 20 38 50 46 35" />
+                <text x="30" y="96">Current</text>
+              </g>
+              <circle class="charge ohms-charge-one" r="9">
+                <animateMotion data-ohms-charge-motion dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear">
+                  <mpath href="#ohms-charge-path" />
+                </animateMotion>
+              </circle>
+              <circle class="charge ohms-charge-two" r="9">
+                <animateMotion data-ohms-charge-motion dur="4s" begin="-1s" repeatCount="indefinite" calcMode="linear">
+                  <mpath href="#ohms-charge-path" />
+                </animateMotion>
+              </circle>
+              <circle class="charge ohms-charge-three" r="9">
+                <animateMotion data-ohms-charge-motion dur="4s" begin="-2s" repeatCount="indefinite" calcMode="linear">
+                  <mpath href="#ohms-charge-path" />
+                </animateMotion>
+              </circle>
+              <text class="ohms-equation-label" x="380" y="330">I = V / R</text>
+            </svg>
+
+            <div class="ohms-flow-panel" aria-label="Current reading">
+              <p class="panel-label">Visible relationship</p>
+              <strong data-ohms-current>0.50 A</strong>
+              <span data-ohms-current-unit>6.0 V / 12 Ω = 0.50 A</span>
+              <div class="ohms-flow-track" aria-hidden="true">
+                <span data-ohms-bar></span>
+              </div>
+              <p data-ohms-flow>Moderate flow</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="lab-controls ohms-controls" aria-label="Ohm's Law controls">
+          <label class="control">
+            <span>Voltage, the push</span>
+            <input data-ohms-voltage type="range" min="1" max="12" step="0.1" value="6" />
+            <output data-ohms-voltage-output>6.0 V</output>
+          </label>
+          <label class="control">
+            <span>Resistance, the opposition</span>
+            <input data-ohms-resistance type="range" min="2" max="80" step="1" value="12" />
+            <output data-ohms-resistance-output>12 Ω</output>
+          </label>
+        </div>
+
+        <div class="meters ohms-readings" aria-label="Ohm's Law readings">
+          <div class="meter">
+            <span>Relationship</span>
+            <strong>I = V / R</strong>
+            <p>Current is voltage divided by resistance.</p>
+          </div>
+          <div class="meter">
+            <span>Units</span>
+            <strong>A = V / Ω</strong>
+            <p>Amps come from volts divided by ohms.</p>
+          </div>
+          <div class="meter">
+            <span>Physical meaning</span>
+            <strong>1 A = 1 C/s</strong>
+            <p>One ampere means one coulomb passes each second.</p>
+          </div>
+        </div>
+
+        <aside class="formula-card ohms-compare-card" aria-label="Direct and inverse proportionality explorer">
+          <h2>Check the pattern</h2>
+          <p>Baseline: 6 V across 12 Ω gives 0.50 A.</p>
+          <div class="ohms-compare-grid">
+            <label class="control">
+              <span>Comparison voltage</span>
+              <input data-ohms-compare-voltage type="range" min="3" max="12" step="3" value="6" />
+              <output data-ohms-compare-voltage-output>6.0 V</output>
+            </label>
+            <label class="control">
+              <span>Comparison resistance</span>
+              <input data-ohms-compare-resistance type="range" min="6" max="24" step="6" value="12" />
+              <output data-ohms-compare-resistance-output>12 Ω</output>
+            </label>
+          </div>
+          <p class="ohms-compare-result">New current: <strong data-ohms-compare-current>0.50 A</strong></p>
+          <p data-ohms-compare-note>The new setup matches the baseline current.</p>
+        </aside>
+
+        <aside class="formula-card ohms-limit-card" aria-label="Model limit">
+          <h2>Where this model stops</h2>
+          <p>Ohm's Law works best for ohmic components. LEDs have a nonlinear voltage-current relationship, so they do not behave like constant-resistance ideal resistors.</p>
+        </aside>
+      </section>
     ) : (
       <section class="container lab-shell" aria-labelledby="lab-title" data-energy-lab>
         <div class="lab-board">
@@ -317,6 +441,8 @@ const isSwitchLab = labSlug === 'lesson-3-simple-circuit-switch';
     <script type="module" src="/scripts/static-charge-lab.js"></script>
   ) : isSwitchLab ? (
     <script type="module" src="/scripts/switch-circuit-lab.js"></script>
+  ) : isOhmsLawLab ? (
+    <script type="module" src="/scripts/ohms-law-lab.js"></script>
   ) : (
     <script type="module" src="/scripts/energy-flow-lab.js"></script>
   )}
