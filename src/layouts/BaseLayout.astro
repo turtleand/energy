@@ -21,6 +21,7 @@ const canonical = new URL(Astro.url.pathname, site.url).toString();
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="alternate" type="application/rss+xml" title="Turtleand Energy RSS" href="/rss.xml" />
     <meta name="robots" content="index,follow" />
     <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={pageTitle} />
@@ -38,10 +39,6 @@ const canonical = new URL(Astro.url.pathname, site.url).toString();
         </span>
         <span>Turtleand Energy</span>
       </a>
-      <nav aria-label="Primary navigation">
-        <a href="/lessons/lesson-1-electricity-from-first-principles/">Lesson 1</a>
-        <a href="/labs/lesson-1-energy-flow/">Lab 1</a>
-      </nav>
     </header>
     <main id="main">
       <slot />

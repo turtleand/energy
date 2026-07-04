@@ -2,8 +2,9 @@
 
 Turtleand Energy is a public learning surface for energy, electricity, circuits, and physical systems.
 
-## Lessons
-- [Lesson 1: Electricity from first principles](https://energy.turtleand.com/lessons/lesson-1-electricity-from-first-principles/): Start with source, push, flow, resistance, load, power, and energy before memorizing equations.
-
-## Labs
-- [Lesson 1 Lab: Energy flow in a simple circuit](https://energy.turtleand.com/labs/lesson-1-energy-flow/): Adjust voltage, resistance, time, and loop state to see current, power, and transferred energy change together.
+## Articles
+- [Lesson 1: Electricity from first principles](https://energy.turtleand.com/lessons/lesson-1-electricity-from-first-principles/): Start with source, push, flow, resistance, load, power, and energy before memorizing equations. Includes embedded simulation: Adjust voltage, resistance, time, and loop state to see current, power, and transferred energy change together.
+- [Lesson 2: Static charge buildup](https://energy.turtleand.com/lessons/lesson-2-static-charge-buildup/): See how charge imbalance accumulates, reaches a critical point, and releases suddenly as a spark. Includes embedded simulation: Watch imbalance rise automatically until the spark discharges and the buildup starts again.
+- [Lesson 3: Simple circuits from first principles](https://energy.turtleand.com/lessons/lesson-3-simple-circuits-from-first-principles/): Understand source, path, load, switch, and return path before adding circuit formulas. Includes embedded simulation: Open and close a switch to see how a complete path turns circuit flow and the load on or off.
+- [Lesson 4: Ohm's Law without formula fear](https://energy.turtleand.com/lessons/lesson-4-ohms-law-without-formula-fear/): Learn voltage, current, and resistance as one visible relationship before treating Ohm's Law as algebra. Includes embedded simulation: Move voltage and resistance to see current rise, fall, and keep its units visible.
+- [Lesson 5: DC vs AC](https://energy.turtleand.com/lessons/lesson-5-dc-vs-ac/): Learn the difference between one-direction current and reversing current, then see how devices turn wall power into usable DC. Includes embedded simulation: Step through voltage adjustment, rectification, smoothing, and regulation to see why the first DC output is pulsing before it becomes stable.

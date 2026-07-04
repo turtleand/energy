@@ -1,0 +1,536 @@
+---
+interface Props {
+  labSlug: string;
+}
+
+const { labSlug } = Astro.props;
+const isStaticChargeLab = labSlug === 'lesson-2-static-charge-buildup';
+const isSwitchLab = labSlug === 'lesson-3-simple-circuit-switch';
+const isOhmsLawLab = labSlug === 'lesson-4-ohms-law-without-formula-fear';
+const isDcVsAcLab = labSlug === 'lesson-5-dc-vs-ac';
+---
+
+    {isStaticChargeLab ? (
+      <section class="container lab-shell static-charge-shell" aria-labelledby="lab-title" data-static-charge-lab>
+        <div class="lab-board static-charge-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">Static charge buildup</p>
+              <h2 id="lab-title">Imbalance builds until it sparks.</h2>
+            </div>
+            <p class="lab-status" data-static-status>Balanced start. Imbalance will build until it sparks.</p>
+          </div>
+
+          <div class="static-buildup-stage" aria-label="Automatic static charge buildup and discharge loop">
+            <section class="contrast-panel static-panel static-buildup-panel" aria-labelledby="static-panel-title">
+              <p class="panel-label">Automatic loop</p>
+              <h3 id="static-panel-title">Charge imbalance</h3>
+              <div class="static-scene" aria-hidden="true">
+                <div class="charged-object charged-object-negative">
+                  <span class="charge-dot dot-a">−</span>
+                  <span class="charge-dot dot-b">−</span>
+                  <span class="charge-dot dot-c">−</span>
+                  <span class="charge-dot dot-d">−</span>
+                </div>
+                <div class="spark-gap" data-spark-gap>
+                  <span class="field-line field-line-one"></span>
+                  <span class="field-line field-line-two"></span>
+                  <span class="field-line field-line-three"></span>
+                  <span class="spark" data-spark></span>
+                  <span class="spark-label">automatic discharge</span>
+                </div>
+                <div class="charged-object charged-object-positive">
+                  <span class="charge-dot dot-e">+</span>
+                  <span class="charge-dot dot-f">+</span>
+                  <span class="charge-dot dot-g">+</span>
+                </div>
+              </div>
+
+              <div class="buildup-meter" aria-hidden="true">
+                <div class="buildup-meter-labels">
+                  <span>Balanced</span>
+                  <span>Critical point</span>
+                </div>
+                <div class="buildup-track">
+                  <span class="buildup-bar" data-tension-bar></span>
+                  <span class="critical-marker"></span>
+                </div>
+              </div>
+
+              <p class="panel-note" data-static-note>The system starts near balance. Imbalance begins to accumulate again.</p>
+            </section>
+          </div>
+        </div>
+
+
+        <div class="manual-control-shell">
+          <button
+            class="button button-secondary manual-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="manual-static-controls"
+            data-manual-toggle
+          >
+            Manual controls
+          </button>
+
+          <div class="lab-controls manual-controls" id="manual-static-controls" aria-label="Manual static charge controls" data-manual-controls hidden>
+            <label class="control">
+              <span>Static charge imbalance</span>
+              <input data-static-charge type="range" min="0" max="10" step="1" value="1" />
+              <output data-static-output>1 / 10</output>
+            </label>
+            <label class="control">
+              <span>Constant buildup rate</span>
+              <input data-buildup-rate type="range" min="0.6" max="3" step="0.2" value="1.6" />
+              <output data-rate-output>1.6x</output>
+            </label>
+            <div class="manual-actions">
+              <button class="button button-secondary lab-action" type="button" data-discharge>Trigger discharge</button>
+              <button class="button button-secondary lab-action" type="button" data-reset>Reset</button>
+              <button class="button button-secondary lab-action" type="button" data-pause>Pause loop</button>
+            </div>
+          </div>
+        </div>
+
+        <aside class="formula-card static-model-card" aria-label="Lesson model used in this lab">
+          <h2>The simple model</h2>
+          <ul>
+            <li><strong>Build:</strong> imbalance accumulates over time.</li>
+            <li><strong>Threshold:</strong> the system reaches a critical point.</li>
+            <li><strong>Discharge:</strong> a spark releases the stored imbalance.</li>
+            <li><strong>Reset:</strong> buildup begins again after the spark.</li>
+          </ul>
+        </aside>
+      </section>
+    ) : isSwitchLab ? (
+      <section class="container lab-shell switch-lab-shell" aria-labelledby="lab-title" data-switch-lab data-switch-state="open">
+        <div class="lab-board switch-lab-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">Switch circuit model</p>
+              <h2 id="lab-title">Open path, closed path.</h2>
+            </div>
+            <p class="lab-status" data-switch-status>Open switch. The loop is broken, so the bulb is off.</p>
+          </div>
+
+          <svg class="circuit switch-circuit" viewBox="0 0 760 380" role="img" aria-labelledby="switch-circuit-title switch-circuit-desc">
+            <title id="switch-circuit-title">Interactive switch circuit diagram</title>
+            <desc id="switch-circuit-desc">A battery, switch, load, return path, and moving charge markers that start and stop when the switch opens or closes.</desc>
+            <defs>
+              <linearGradient id="wireGradient" x1="0%" x2="100%">
+                <stop offset="0%" stop-color="#38bdf8" />
+                <stop offset="100%" stop-color="#f59e0b" />
+              </linearGradient>
+            </defs>
+            <path id="switch-charge-path" d="M170 210 H585 V300 H170 V210" fill="none" />
+            <path class="wire switch-wire" data-switch-wire d="M170 210 H250 M360 210 H585 V300 H170 V210" />
+            <g class="battery" transform="translate(90 155)">
+              <rect width="80" height="110" rx="16" />
+              <line x1="80" y1="55" x2="128" y2="55" />
+              <text x="40" y="48">Battery</text>
+              <text class="battery-voltage" x="40" y="72">source</text>
+            </g>
+            <g class="switch-diagram" aria-hidden="true">
+              <circle class="switch-contact" cx="258" cy="210" r="9" />
+              <circle class="switch-contact" cx="360" cy="210" r="9" />
+              <line class="switch-arm" data-switch-arm x1="258" y1="210" x2="344" y2="210" />
+              <path class="switch-gap-arc" d="M283 170 Q309 150 337 170" />
+              <text class="switch-svg-label" data-switch-svg-label x="310" y="152">Switch open</text>
+            </g>
+            <g class="load" transform="translate(555 265)">
+              <circle cx="30" cy="35" r="38" data-switch-bulb />
+              <path d="M14 35 C22 20 38 50 46 35" />
+              <text x="30" y="96">Bulb</text>
+            </g>
+            <text class="return-path-label" x="352" y="334">return path completes the loop</text>
+            <circle class="charge switch-charge-one" data-switch-charge r="9">
+              <animateMotion data-switch-charge-motion dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear">
+                <mpath href="#switch-charge-path" />
+              </animateMotion>
+            </circle>
+            <circle class="charge switch-charge-two" data-switch-charge r="9">
+              <animateMotion data-switch-charge-motion dur="4s" begin="-1s" repeatCount="indefinite" calcMode="linear">
+                <mpath href="#switch-charge-path" />
+              </animateMotion>
+            </circle>
+            <circle class="charge switch-charge-three" data-switch-charge r="9">
+              <animateMotion data-switch-charge-motion dur="4s" begin="-2s" repeatCount="indefinite" calcMode="linear">
+                <mpath href="#switch-charge-path" />
+              </animateMotion>
+            </circle>
+            <circle class="charge switch-charge-four" data-switch-charge r="9">
+              <animateMotion data-switch-charge-motion dur="4s" begin="-3s" repeatCount="indefinite" calcMode="linear">
+                <mpath href="#switch-charge-path" />
+              </animateMotion>
+            </circle>
+          </svg>
+        </div>
+
+        <div class="lab-controls switch-controls" aria-label="Switch circuit controls">
+          <label class="switch-control switch-control-row">
+            <input data-circuit-switch type="checkbox" />
+            <span data-switch-control-label>Close the switch</span>
+          </label>
+          <p class="switch-control-note" data-switch-note>
+            The source still has voltage, but the open switch leaves a gap in the path.
+          </p>
+        </div>
+
+        <div class="meters switch-readings" aria-label="Switch circuit readings">
+          <div class="meter">
+            <span>Path state</span>
+            <strong data-switch-path>Open</strong>
+            <p>The switch controls whether the path is complete.</p>
+          </div>
+          <div class="meter">
+            <span>Current</span>
+            <strong data-switch-current>0 A</strong>
+            <p data-switch-current-note>No complete loop means no sustained current.</p>
+          </div>
+          <div class="meter">
+            <span>Load</span>
+            <strong data-switch-load>Off</strong>
+            <p>The bulb lights only when energy can transfer through the closed loop.</p>
+          </div>
+        </div>
+
+        <aside class="formula-card switch-explainer" aria-label="Switch model used in this lab">
+          <h2>The switch rule</h2>
+          <ul>
+            <li><strong>Open switch:</strong> the path has a gap, so sustained current stops.</li>
+            <li><strong>Closed switch:</strong> the route is complete, so charge can circulate.</li>
+            <li><strong>Load:</strong> the bulb receives energy only when the loop is closed.</li>
+          </ul>
+        </aside>
+      </section>
+    ) : isOhmsLawLab ? (
+      <section class="container lab-shell ohms-law-shell" aria-labelledby="lab-title" data-ohms-law-lab>
+        <div class="lab-board ohms-law-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">Ohm's Law model</p>
+              <h2 id="lab-title">Push divided by opposition.</h2>
+            </div>
+            <p class="lab-status" data-ohms-sentence>Current is 0.50 A because 6.0 V of push is divided by 12 Ω of opposition.</p>
+          </div>
+
+          <div class="ohms-stage" aria-label="Interactive Ohm's Law flow model">
+            <svg class="circuit ohms-circuit" viewBox="0 0 760 360" role="img" aria-labelledby="ohms-circuit-title ohms-circuit-desc">
+              <title id="ohms-circuit-title">Interactive Ohm's Law circuit diagram</title>
+              <desc id="ohms-circuit-desc">A battery, resistor, loop, and charge markers whose speed responds to voltage divided by resistance.</desc>
+              <defs>
+                <linearGradient id="ohmsWireGradient" x1="0%" x2="100%">
+                  <stop offset="0%" stop-color="#38bdf8" />
+                  <stop offset="100%" stop-color="#f59e0b" />
+                </linearGradient>
+              </defs>
+              <path id="ohms-charge-path" class="wire ohms-wire" d="M170 190 H330 V105 H590 V275 H330 V190 H170" />
+              <g class="battery" transform="translate(110 135)">
+                <rect width="80" height="110" rx="16" />
+                <line x1="80" y1="55" x2="128" y2="55" />
+                <text x="40" y="48">Voltage</text>
+                <text class="battery-voltage" data-ohms-voltage-output x="40" y="72">6.0 V</text>
+              </g>
+              <g class="resistor" transform="translate(345 85)">
+                <path d="M0 20 h25 l10 -18 l20 36 l20 -36 l20 36 l10 -18 h25" />
+                <text x="65" y="62">Resistance</text>
+                <text class="resistance-label" data-ohms-resistance-output x="65" y="84">12 Ω</text>
+              </g>
+              <g class="load" transform="translate(560 240)">
+                <circle cx="30" cy="35" r="38" />
+                <path d="M14 35 C22 20 38 50 46 35" />
+                <text x="30" y="96">Current</text>
+              </g>
+              <circle class="charge ohms-charge-one" r="9">
+                <animateMotion data-ohms-charge-motion dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear">
+                  <mpath href="#ohms-charge-path" />
+                </animateMotion>
+              </circle>
+              <circle class="charge ohms-charge-two" r="9">
+                <animateMotion data-ohms-charge-motion dur="4s" begin="-1s" repeatCount="indefinite" calcMode="linear">
+                  <mpath href="#ohms-charge-path" />
+                </animateMotion>
+              </circle>
+              <circle class="charge ohms-charge-three" r="9">
+                <animateMotion data-ohms-charge-motion dur="4s" begin="-2s" repeatCount="indefinite" calcMode="linear">
+                  <mpath href="#ohms-charge-path" />
+                </animateMotion>
+              </circle>
+              <text class="ohms-equation-label" x="380" y="330">I = V / R</text>
+            </svg>
+
+            <div class="ohms-flow-panel" aria-label="Current reading">
+              <p class="panel-label">Visible relationship</p>
+              <strong data-ohms-current>0.50 A</strong>
+              <span data-ohms-current-unit>6.0 V / 12 Ω = 0.50 A</span>
+              <div class="ohms-flow-track" aria-hidden="true">
+                <span data-ohms-bar></span>
+              </div>
+              <p data-ohms-flow>Moderate flow</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="lab-controls ohms-controls" aria-label="Ohm's Law controls">
+          <label class="control">
+            <span>Voltage, the push</span>
+            <input data-ohms-voltage type="range" min="1" max="12" step="0.1" value="6" />
+            <output data-ohms-voltage-output>6.0 V</output>
+          </label>
+          <label class="control">
+            <span>Resistance, the opposition</span>
+            <input data-ohms-resistance type="range" min="2" max="80" step="1" value="12" />
+            <output data-ohms-resistance-output>12 Ω</output>
+          </label>
+        </div>
+
+        <div class="meters ohms-readings" aria-label="Ohm's Law readings">
+          <div class="meter">
+            <span>Relationship</span>
+            <strong>I = V / R</strong>
+            <p>Current is voltage divided by resistance.</p>
+          </div>
+          <div class="meter">
+            <span>Units</span>
+            <strong>A = V / Ω</strong>
+            <p>Amps come from volts divided by ohms.</p>
+          </div>
+          <div class="meter">
+            <span>Physical meaning</span>
+            <strong>1 A = 1 C/s</strong>
+            <p>One ampere means one coulomb passes each second.</p>
+          </div>
+        </div>
+
+        <aside class="formula-card ohms-compare-card" aria-label="Direct and inverse proportionality explorer">
+          <h2>Check the pattern</h2>
+          <p>Baseline: 6 V across 12 Ω gives 0.50 A.</p>
+          <div class="ohms-compare-grid">
+            <label class="control">
+              <span>Comparison voltage</span>
+              <input data-ohms-compare-voltage type="range" min="3" max="12" step="3" value="6" />
+              <output data-ohms-compare-voltage-output>6.0 V</output>
+            </label>
+            <label class="control">
+              <span>Comparison resistance</span>
+              <input data-ohms-compare-resistance type="range" min="6" max="24" step="6" value="12" />
+              <output data-ohms-compare-resistance-output>12 Ω</output>
+            </label>
+          </div>
+          <p class="ohms-compare-result">New current: <strong data-ohms-compare-current>0.50 A</strong></p>
+          <p data-ohms-compare-note>The new setup matches the baseline current.</p>
+        </aside>
+
+        <aside class="formula-card ohms-limit-card" aria-label="Model limit">
+          <h2>Where this model stops</h2>
+          <p>Ohm's Law works best for ohmic components. LEDs have a nonlinear voltage-current relationship, so they do not behave like constant-resistance ideal resistors.</p>
+        </aside>
+      </section>
+    ) : isDcVsAcLab ? (
+      <section class="container lab-shell ac-dc-shell" aria-labelledby="lab-title" data-ac-dc-lab data-ac-dc-stage="1">
+        <div class="lab-board ac-dc-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">DC vs AC conversion</p>
+              <h2 id="lab-title">From reversing AC to stable DC.</h2>
+            </div>
+            <p class="lab-status" data-acdc-status>Voltage adjustment stage. The AC push is in a useful range, but it still reverses.</p>
+          </div>
+
+          <div class="ac-dc-stage" aria-label="AC to DC conversion stages">
+            <svg class="ac-dc-wave" viewBox="0 0 800 300" role="img" aria-labelledby="acdc-wave-title acdc-wave-desc">
+              <title id="acdc-wave-title">AC to DC conversion waveforms</title>
+              <desc id="acdc-wave-desc">Four simplified waveforms showing AC input, rectified pulsing DC, capacitor smoothing, and regulated DC.</desc>
+              <line class="ac-dc-zero-line" x1="40" y1="150" x2="760" y2="150" />
+              <path class="ac-dc-wave-path ac-dc-wave-ac" d="M40 150 C80 55 120 55 160 150 S240 245 280 150 S360 55 400 150 S480 245 520 150 S600 55 640 150 S720 245 760 150" />
+              <path class="ac-dc-wave-path ac-dc-wave-rectified" d="M40 150 C80 55 120 55 160 150 S240 55 280 150 S360 55 400 150 S480 55 520 150 S600 55 640 150 S720 55 760 150" />
+              <path class="ac-dc-wave-path ac-dc-wave-smoothed" d="M40 118 C100 70 150 86 200 116 S300 87 360 116 S470 88 520 116 S640 88 760 116" />
+              <path class="ac-dc-wave-path ac-dc-wave-regulated" d="M40 104 H760" />
+              <g class="ac-dc-wave-labels" aria-hidden="true">
+                <text data-acdc-wave-label="1" x="110" y="260">AC reverses</text>
+                <text data-acdc-wave-label="2" x="300" y="260">pulsing DC</text>
+                <text data-acdc-wave-label="3" x="500" y="260">smoother</text>
+                <text data-acdc-wave-label="4" x="675" y="260">stable</text>
+              </g>
+            </svg>
+
+            <div class="ac-dc-readout" aria-label="Current conversion stage">
+              <p class="panel-label">Current stage</p>
+              <strong data-acdc-stage-name>Adjusted AC</strong>
+              <p data-acdc-device>The voltage is prepared, but the device still needs one-direction DC.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="lab-controls ac-dc-controls" aria-label="AC to DC stage controls">
+          <label class="control">
+            <span>Conversion stage</span>
+            <input data-acdc-stage-range type="range" min="1" max="4" step="1" value="1" />
+            <output>1 to 4</output>
+          </label>
+          <div class="ac-dc-step-buttons" aria-label="Jump to a conversion stage">
+            <button class="button button-secondary ac-dc-step" type="button" data-acdc-stage-button="1" aria-pressed="true">Adjust</button>
+            <button class="button button-secondary ac-dc-step" type="button" data-acdc-stage-button="2" aria-pressed="false">Rectify</button>
+            <button class="button button-secondary ac-dc-step" type="button" data-acdc-stage-button="3" aria-pressed="false">Smooth</button>
+            <button class="button button-secondary ac-dc-step" type="button" data-acdc-stage-button="4" aria-pressed="false">Regulate</button>
+          </div>
+        </div>
+
+        <div class="meters ac-dc-readings" aria-label="AC to DC readings">
+          <div class="meter">
+            <span>Direction</span>
+            <strong data-acdc-direction>Reversing</strong>
+            <p>AC changes polarity repeatedly. DC keeps a one-direction pattern.</p>
+          </div>
+          <div class="meter">
+            <span>Output shape</span>
+            <strong data-acdc-stability>Not DC yet</strong>
+            <p>After rectification, the output is usually pulsing DC before smoothing.</p>
+          </div>
+        </div>
+
+        <aside class="formula-card ac-dc-pipeline-card" aria-label="AC to DC pipeline">
+          <h2>The conversion pipeline</h2>
+          <div class="ac-dc-pipeline">
+            <div class="ac-dc-pipeline-step is-current" data-acdc-panel="1">
+              <strong>1. Adjust</strong>
+              <p>Change or control the incoming voltage range.</p>
+            </div>
+            <div class="ac-dc-pipeline-step" data-acdc-panel="2">
+              <strong>2. Rectify</strong>
+              <p>Diodes make the reversing input mostly one direction.</p>
+            </div>
+            <div class="ac-dc-pipeline-step" data-acdc-panel="3">
+              <strong>3. Smooth</strong>
+              <p>Capacitors reduce the bumps in the pulsing output.</p>
+            </div>
+            <div class="ac-dc-pipeline-step" data-acdc-panel="4">
+              <strong>4. Regulate</strong>
+              <p>A regulator holds the final DC near the target voltage.</p>
+            </div>
+          </div>
+        </aside>
+      </section>
+    ) : (
+      <section class="container lab-shell" aria-labelledby="lab-title" data-energy-lab>
+        <div class="lab-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">Simple circuit model</p>
+              <h2 id="lab-title">Push, flow, work, loop.</h2>
+            </div>
+            <p class="lab-status" data-status>Closed loop. Current is flowing.</p>
+          </div>
+
+          <svg class="circuit" viewBox="0 0 760 380" role="img" aria-labelledby="circuit-title circuit-desc">
+            <title id="circuit-title">Interactive simple circuit diagram</title>
+            <desc id="circuit-desc">A battery, wire loop, resistance load, and moving charge markers controlled by voltage and resistance sliders.</desc>
+            <defs>
+              <linearGradient id="wireGradient" x1="0%" x2="100%">
+                <stop offset="0%" stop-color="#38bdf8" />
+                <stop offset="100%" stop-color="#f59e0b" />
+              </linearGradient>
+            </defs>
+            <path id="charge-path" class="wire" data-wire d="M170 190 H330 V110 H590 V270 H330 V190 H170" />
+            <g class="battery" transform="translate(110 135)">
+              <rect width="80" height="110" rx="16" />
+              <line x1="80" y1="55" x2="128" y2="55" />
+              <text x="40" y="48">Battery</text>
+              <text class="battery-voltage" data-svg-voltage x="40" y="72">5.0 V</text>
+            </g>
+            <g class="load" transform="translate(560 235)">
+              <circle cx="30" cy="35" r="38" data-bulb />
+              <path d="M14 35 C22 20 38 50 46 35" />
+              <text x="30" y="96">Load</text>
+            </g>
+            <g class="resistor" transform="translate(345 90)">
+              <path d="M0 20 h25 l10 -18 l20 36 l20 -36 l20 36 l10 -18 h25" />
+              <text x="65" y="62">Resistance</text>
+              <text class="resistance-label" data-svg-resistance x="65" y="84">20 Ω</text>
+            </g>
+            <circle class="charge charge-one" data-charge r="9">
+              <animateMotion data-charge-motion dur="4s" begin="0s" repeatCount="indefinite" calcMode="linear">
+                <mpath href="#charge-path" />
+              </animateMotion>
+            </circle>
+            <circle class="charge charge-two" data-charge r="9">
+              <animateMotion data-charge-motion dur="4s" begin="-1s" repeatCount="indefinite" calcMode="linear">
+                <mpath href="#charge-path" />
+              </animateMotion>
+            </circle>
+            <circle class="charge charge-three" data-charge r="9">
+              <animateMotion data-charge-motion dur="4s" begin="-2s" repeatCount="indefinite" calcMode="linear">
+                <mpath href="#charge-path" />
+              </animateMotion>
+            </circle>
+            <circle class="charge charge-four" data-charge r="9">
+              <animateMotion data-charge-motion dur="4s" begin="-3s" repeatCount="indefinite" calcMode="linear">
+                <mpath href="#charge-path" />
+              </animateMotion>
+            </circle>
+          </svg>
+        </div>
+
+        <div class="lab-controls" aria-label="Circuit controls">
+          <label class="control">
+            <span>Voltage, the push from the battery</span>
+            <input data-voltage type="range" min="1" max="12" step="0.1" value="5" />
+            <output data-voltage-output>5.0 V</output>
+          </label>
+          <label class="control">
+            <span>Resistance, the limit on flow</span>
+            <input data-resistance type="range" min="2" max="80" step="1" value="20" />
+            <output data-resistance-output>20 Ω</output>
+          </label>
+          <label class="control">
+            <span>Time, how long energy is transferred</span>
+            <input data-time type="range" min="1" max="60" step="1" value="10" />
+            <output data-time-output>10 s</output>
+          </label>
+          <label class="switch-control">
+            <input data-loop type="checkbox" checked />
+            <span>Close the loop</span>
+          </label>
+        </div>
+
+        <div class="meters" aria-label="Circuit readings">
+          <div class="meter">
+            <span>Current</span>
+            <strong data-current>0.25 A</strong>
+            <p>Current is flow. It rises with voltage and falls with resistance.</p>
+          </div>
+          <div class="meter">
+            <span>Power</span>
+            <strong data-power>1.25 W</strong>
+            <p>Power is work per second. It depends on both push and flow.</p>
+          </div>
+          <div class="meter">
+            <span>Energy transferred</span>
+            <strong data-energy>12.5 J</strong>
+            <p>Energy grows as power continues over time.</p>
+          </div>
+        </div>
+
+        <aside class="formula-card" aria-label="Formulas used in this lab">
+          <h2>The relationships</h2>
+          <ul>
+            <li><strong>Current</strong> = voltage divided by resistance.</li>
+            <li><strong>Power</strong> = voltage multiplied by current.</li>
+            <li><strong>Energy</strong> = power multiplied by time.</li>
+            <li>If the loop opens, sustained current stops.</li>
+          </ul>
+        </aside>
+      </section>
+    )}
+  {isStaticChargeLab ? (
+    <script type="module" src="/scripts/static-charge-lab.js"></script>
+  ) : isSwitchLab ? (
+    <script type="module" src="/scripts/switch-circuit-lab.js"></script>
+  ) : isOhmsLawLab ? (
+    <script type="module" src="/scripts/ohms-law-lab.js"></script>
+  ) : isDcVsAcLab ? (
+    <script type="module" src="/scripts/ac-dc-conversion-lab.js"></script>
+  ) : (
+    <script type="module" src="/scripts/energy-flow-lab.js"></script>
+  )}

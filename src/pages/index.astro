@@ -5,64 +5,44 @@ import { getCollection } from 'astro:content';
 const lessons = (await getCollection('lessons', ({ data }) => data.status === 'ready')).sort(
   (a, b) => a.data.order - b.data.order
 );
-const labs = (await getCollection('labs', ({ data }) => data.status === 'ready')).sort(
-  (a, b) => a.data.order - b.data.order
-);
-const firstLesson = lessons[0];
-const firstLab = labs[0];
 ---
 
 <BaseLayout>
   <section class="hero" aria-labelledby="hero-title">
-    <div class="container hero-grid">
-      <div class="hero-copy">
-        <p class="eyebrow">Energy, from first principles</p>
-        <h1 id="hero-title">Learn how energy moves through real systems.</h1>
-        <p class="lede">
-          Turtleand Energy starts small: one beginner pathway for electricity, one interactive lab, and a structure that can grow only when the artifacts are real.
-        </p>
-        <div class="hero-actions">
-          <a class="button button-primary" href="/labs/lesson-1-energy-flow/">Open the first lab</a>
-          <a class="button button-secondary" href="/lessons/lesson-1-electricity-from-first-principles/">Read lesson 1</a>
-        </div>
-      </div>
-      <aside class="hero-card" aria-label="Current surface status">
-        <p class="card-kicker">Now live</p>
-        <h2>Lesson 1 plus one lab</h2>
-        <p>
-          The homepage stays focused until more work exists. No empty circuit lab shelf. No empty energy map. Build the next section when the next artifact is ready.
-        </p>
-      </aside>
+    <div class="container hero-copy">
+      <p class="eyebrow">Energy, from first principles</p>
+      <h1 id="hero-title">Learn how energy moves through real systems.</h1>
+      <p class="lede">
+        Turtleand Energy starts small: clear articles first, with simulations inside the lesson when a model needs to become visible.
+      </p>
     </div>
   </section>
 
-  <section class="section" aria-labelledby="current-work-title">
-    <div class="container section-grid">
-      <div class="section-heading">
-        <p class="eyebrow">Start here</p>
-        <h2 id="current-work-title">The first energy-flow path.</h2>
-        <p>
-          The first artifact shows how source, loop, resistance, current, power, and energy relate in a simple circuit.
-        </p>
+  <section class="section article-index" aria-labelledby="article-index-title">
+    <div class="container">
+      <div class="index-heading">
+        <p class="eyebrow">Articles</p>
+        <h2 id="article-index-title">Current articles.</h2>
       </div>
 
-      <div class="content-cards">
-        {firstLesson && (
-          <article class="content-card">
-            <p class="card-kicker">Lesson</p>
-            <h3>{firstLesson.data.title}</h3>
-            <p>{firstLesson.data.summary}</p>
-            <a href={`/lessons/${firstLesson.id}/`}>Read the model</a>
-          </article>
-        )}
-        {firstLab && (
-          <article class="content-card content-card-accent">
-            <p class="card-kicker">Interactive lab</p>
-            <h3>{firstLab.data.title}</h3>
-            <p>{firstLab.data.summary}</p>
-            <a href={`/labs/${firstLab.id}/`}>Experiment with the circuit</a>
-          </article>
-        )}
+      <div class="content-cards article-cards">
+        {lessons.map((lesson) => (
+          <a
+            class="content-card article-card"
+            href={`/lessons/${lesson.id}/`}
+            aria-label={`Read ${lesson.data.title}`}
+          >
+            <div>
+              <p class="card-kicker">Lesson {lesson.data.order.toString().padStart(2, '0')}</p>
+              <h3>{lesson.data.title}</h3>
+              <p>{lesson.data.summary}</p>
+            </div>
+            <div class="card-footer">
+              <span class="card-link">Read article</span>
+              {lesson.data.labSlug && <span>Simulation inside</span>}
+            </div>
+          </a>
+        ))}
       </div>
     </div>
   </section>

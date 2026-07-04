@@ -2,13 +2,14 @@
 
 Turtleand Energy is a public learning surface for energy, electricity, circuits, and physical systems.
 
-## Lessons
-- [Lesson 1: Electricity from first principles](https://energy.turtleand.com/lessons/lesson-1-electricity-from-first-principles/): Start with source, push, flow, resistance, load, power, and energy before memorizing equations.
+## Articles
+- [Lesson 1: Electricity from first principles](https://energy.turtleand.com/lessons/lesson-1-electricity-from-first-principles/): Start with source, push, flow, resistance, load, power, and energy before memorizing equations. Includes embedded simulation: Adjust voltage, resistance, time, and loop state to see current, power, and transferred energy change together.
+- [Lesson 2: Static charge buildup](https://energy.turtleand.com/lessons/lesson-2-static-charge-buildup/): See how charge imbalance accumulates, reaches a critical point, and releases suddenly as a spark. Includes embedded simulation: Watch imbalance rise automatically until the spark discharges and the buildup starts again.
+- [Lesson 3: Simple circuits from first principles](https://energy.turtleand.com/lessons/lesson-3-simple-circuits-from-first-principles/): Understand source, path, load, switch, and return path before adding circuit formulas. Includes embedded simulation: Open and close a switch to see how a complete path turns circuit flow and the load on or off.
+- [Lesson 4: Ohm's Law without formula fear](https://energy.turtleand.com/lessons/lesson-4-ohms-law-without-formula-fear/): Learn voltage, current, and resistance as one visible relationship before treating Ohm's Law as algebra. Includes embedded simulation: Move voltage and resistance to see current rise, fall, and keep its units visible.
+- [Lesson 5: DC vs AC](https://energy.turtleand.com/lessons/lesson-5-dc-vs-ac/): Learn the difference between one-direction current and reversing current, then see how devices turn wall power into usable DC. Includes embedded simulation: Step through voltage adjustment, rectification, smoothing, and regulation to see why the first DC output is pulsing before it becomes stable.
 
-## Labs
-- [Lesson 1 Lab: Energy flow in a simple circuit](https://energy.turtleand.com/labs/lesson-1-energy-flow/): Adjust voltage, resistance, time, and loop state to see current, power, and transferred energy change together.
-
-## Lesson details
+## Article details
 ### Lesson 1: Electricity from first principles
 
 Electricity is easier to understand when the structure comes before the equations.
@@ -30,9 +31,428 @@ P = V * I
 Energy = P * time
 ```
 
-The lab connected to this lesson lets you adjust voltage, resistance, and time so the relationships become visible.
+The simulation below lets you adjust voltage, resistance, and time so the relationships become visible while you read.
 
-## Lab details
-### Lesson 1 Lab: Energy flow in a simple circuit
+Embedded simulation:
 
-This artifact turns the first circuit model into something visible. It keeps the physics simple on purpose: a battery, a loop, resistance, a useful load, and meters for the relationships.
+Adjust voltage, resistance, time, and loop state to see current, power, and transferred energy change together.
+
+### Lesson 2: Static charge buildup
+
+Static electricity begins when electric charge becomes imbalanced.
+
+One region has more negative charge. Another region has more positive charge. That separation creates electrical tension between them.
+
+The core model is:
+
+```text
+charge imbalance -> rising electrical tension -> sudden discharge
+```
+
+## The intuition
+
+Static charge is like tension building before a snap.
+
+As the imbalance grows, the system stores more electrical tension. At first nothing dramatic happens. The separated charge is just sitting there, held apart by the situation that created it.
+
+But the imbalance cannot grow forever. When the tension becomes large enough for charges to cross the gap, the stored imbalance releases suddenly. That release is the spark.
+
+A tiny shock from a doorknob and lightning are both examples of static discharge. The scale is different, but the lesson is the same: imbalance builds, reaches a limit, then releases.
+
+## Buildup
+
+Static charge buildup has three useful pieces:
+
+1. **Imbalance**: charge is unevenly distributed.
+2. **Electrical tension**: the separated charge creates a stronger field as the imbalance grows.
+3. **Critical point**: once the gap can no longer hold the separation, discharge happens.
+
+A simple mental model is:
+
+```text
+constant buildup -> larger imbalance -> critical point
+```
+
+The buildup can come from rubbing materials, contact and separation, clouds and air motion, or other charge-separating processes. The exact cause can change. The important structure is that charge separation increases over time.
+
+## Discharge
+
+Discharge is the sudden correction of the imbalance.
+
+When the critical point is reached, charge moves across the gap. The spark is brief because the built-up difference is being reduced. After the discharge, the system is closer to balance, so the buildup can begin again.
+
+```text
+critical imbalance -> spark -> lower imbalance -> buildup restarts
+```
+
+## Final model
+
+Static electricity is not about a steady working loop. It is about stored imbalance.
+
+```text
+charge becomes imbalanced,
+the imbalance grows,
+a critical point is reached,
+the imbalance releases as a spark,
+and the system resets.
+```
+
+This lesson is a model for understanding behavior, not a guide for working on electrical systems. Real electrical systems can be dangerous and should be handled with proper training, tools, and safety rules.
+
+Embedded simulation:
+
+Watch imbalance rise automatically until the spark discharges and the buildup starts again.
+
+### Lesson 3: Simple circuits from first principles
+
+A simple circuit is a closed working loop.
+
+The parts matter, but the relationship between the parts matters more. A battery by itself is only a source. A bulb by itself is only a load. A wire by itself is only a path. The circuit becomes useful when those pieces form a complete loop where electrical energy can be transferred.
+
+```text
+source -> path -> load -> return path -> source
+```
+
+## Source
+
+The source creates and maintains the electrical difference that makes energy transfer possible.
+
+A battery is the easiest first example. It keeps one terminal at a different electric potential than the other. That difference does not mean charge is already doing useful work. It means the circuit has stored electrical potential that can drive energy through a closed path.
+
+A practical first sentence is:
+
+> The source provides the energy lift for the loop.
+
+## Path
+
+The path is the conductive route that lets charge move around the circuit.
+
+In simple diagrams, the path is usually drawn as wire. The wire guides charge through the loop, but the wire is not the source of energy. It is more like the track that lets the loop stay organized.
+
+If the path is broken, sustained current stops. The source may still have voltage, but the loop no longer gives charge a complete route.
+
+## Load
+
+The load is the part that turns electrical energy into useful work.
+
+A bulb turns electrical energy into light and heat. A motor turns it into motion. A speaker turns it into sound. A chip can turn it into computation or signal processing.
+
+The load does not use up charge. Charge keeps moving around the closed loop. What changes is energy. The load receives electrical energy and converts it into another form.
+
+That distinction is one of the most important beginner corrections:
+
+```text
+charge keeps circulating
+energy gets transferred to the load
+```
+
+## Switch
+
+A switch is a gate in the path.
+
+When the switch is closed, the path is complete and sustained current can flow. When the switch is open, the path is broken and sustained current stops.
+
+```text
+closed switch -> complete loop -> current can flow
+open switch -> broken loop -> sustained current stops
+```
+
+The switch does not create energy. It controls whether the circuit has a complete route for energy transfer.
+
+## Return path
+
+The return path completes the loop back to the source.
+
+A common beginner picture says electricity leaves the battery, reaches the bulb, and disappears. That picture is wrong. The load receives energy, but charge is conserved around the circuit.
+
+The return path matters because a circuit is not a one-way delivery line. It is a loop.
+
+## Open and closed circuits
+
+A closed circuit has a complete path.
+
+```text
+source -> wire -> load -> wire -> source
+```
+
+An open circuit has a break somewhere in the path.
+
+```text
+source -> wire -> gap -> load -> wire -> source
+```
+
+The gap can be an open switch, a disconnected wire, a broken component, or any other interruption. In the beginner model, the result is the same: no complete loop, no sustained current.
+
+## Potential difference and the electric field
+
+Voltage is potential difference. It is energy per unit charge.
+
+When a complete circuit is connected, the source helps establish an electric field through the conducting path. That field organizes the movement of charge and transfers energy to the load.
+
+You do not need the full field model on day one. The useful beginner version is:
+
+1. The source maintains a difference.
+2. The closed path lets the circuit respond to that difference.
+3. The load is where useful energy transfer happens.
+
+## A safe thought experiment
+
+Imagine a battery, a switch, a bulb, and a return wire.
+
+Ask four questions:
+
+1. Is the path complete?
+2. Is the switch open or closed?
+3. Where does useful energy transfer happen?
+4. What continues around the loop?
+
+If the switch is open, the bulb stays off because the loop is broken. If the switch is closed, the bulb can turn on because the source, path, load, and return path now form a complete circuit.
+
+The bulb receives electrical energy. Charge continues around the loop.
+
+## Bottom line
+
+A simple circuit is not a line from battery to bulb. It is a closed loop for energy transfer.
+
+Remember the order:
+
+1. Source maintains potential difference.
+2. Path carries charge around the loop.
+3. Switch opens or closes the route.
+4. Load converts electrical energy into useful work.
+5. Return path completes the circuit.
+
+Equations become easier after this structure is clear. Ohm's law can wait until the reader can see the loop.
+
+This lesson is a simplified model for learning. It is not a guide for working on mains electricity, household wiring, panels, outlets, batteries, or unsafe hardware. Real electrical work needs proper training, tools, ratings, and safety rules.
+
+Embedded simulation:
+
+Open and close a switch to see how a complete path turns circuit flow and the load on or off.
+
+### Lesson 4: Ohm's Law without formula fear
+
+Ohm's Law is not a formula to fear. It is a relationship you can picture.
+
+Start with the simple model:
+
+```text
+voltage is push
+resistance is opposition
+current is flow
+```
+
+When the path is closed, more push tends to create more flow. More opposition tends to reduce flow. Ohm's Law compresses that idea into one relationship.
+
+```text
+current = voltage / resistance
+```
+
+That line is useful only after the picture is clear.
+
+## The three pieces
+
+**Voltage** is electrical difference. In a beginner circuit model, it is the push from the source.
+
+**Current** is the rate of charge flow. One ampere means one coulomb of charge passes a point each second.
+
+```text
+1 A = 1 C/s
+```
+
+**Resistance** is opposition to current. More resistance means the same push produces less flow.
+
+For a simple resistor, the relationship is:
+
+```text
+A = V / Ω
+```
+
+That means amps come from volts divided by ohms.
+
+## The proportionality idea
+
+Ohm's Law becomes less scary when you notice two patterns.
+
+### If resistance stays the same
+
+Increasing voltage increases current.
+
+```text
+same resistance + more voltage = more current
+```
+
+This is direct proportionality. Double the voltage across the same resistor, and the current doubles.
+
+### If voltage stays the same
+
+Increasing resistance decreases current.
+
+```text
+same voltage + more resistance = less current
+```
+
+This is inverse proportionality. Double the resistance with the same voltage, and the current is cut in half.
+
+## Solving without panic
+
+The formula can be rearranged depending on what is unknown.
+
+```text
+V = I × R
+I = V / R
+R = V / I
+```
+
+Do not memorize these as three separate spells. They are three views of the same relationship.
+
+Ask:
+
+1. What do I know?
+2. What is missing?
+3. Does the answer make physical sense?
+
+If voltage goes up while resistance stays fixed, current should go up. If resistance goes up while voltage stays fixed, current should go down. That sanity check prevents formula fear.
+
+## A simple example
+
+Suppose a small circuit has:
+
+```text
+V = 6 V
+R = 12 Ω
+```
+
+Current is:
+
+```text
+I = V / R
+I = 6 V / 12 Ω
+I = 0.5 A
+```
+
+So the circuit has half an ampere of current in this simplified model.
+
+## Where the model stops
+
+Ohm's Law fits ohmic components best: parts whose voltage-current relationship is roughly linear across the range you are using.
+
+A simple resistor is the classic teaching example. LEDs are different. Their voltage-current relationship is nonlinear, so they do not behave like constant-resistance ideal resistors.
+
+That does not make Ohm's Law useless. It means you must know when the simple model applies.
+
+## Bottom line
+
+Ohm's Law says the flow depends on push divided by opposition.
+
+```text
+current = voltage / resistance
+```
+
+Use the formula after the model is visible:
+
+1. Voltage pushes.
+2. Resistance opposes.
+3. Current flows.
+4. More push means more flow if resistance stays fixed.
+5. More resistance means less flow if voltage stays fixed.
+
+This lesson is a simplified educational circuit model. It is not a guide for working on mains electricity, household wiring, high-current batteries, panels, outlets, or unsafe hardware. Real electrical work needs proper training, tools, ratings, codes, and safety rules.
+
+Embedded simulation:
+
+Move voltage and resistance to see current rise, fall, and keep its units visible.
+
+### Lesson 5: DC vs AC
+
+DC and AC describe the pattern of electrical push and flow.
+
+```text
+DC keeps one direction.
+AC reverses direction again and again.
+```
+
+A battery is the simple DC picture. One side stays positive, the other side stays negative, and the circuit has a steady direction pattern.
+
+A wall outlet is the simple AC picture. The polarity switches back and forth many times each second, so the push reverses repeatedly.
+
+## The core difference
+
+**DC** means direct current. In the beginner model, current flows one way around the circuit.
+
+**AC** means alternating current. The voltage polarity alternates, so the current direction also alternates in a simple load.
+
+That contrast is the whole starting point:
+
+```text
+DC: one-direction pattern
+AC: reversing pattern
+```
+
+## Where they show up
+
+Batteries, phone power banks, USB power, solar panels, and most electronics use DC internally.
+
+Power grids and wall outlets usually deliver AC. AC became useful for large power systems because it can be transformed between voltage levels efficiently for transmission and distribution.
+
+Most electronic devices therefore need a conversion step. They receive AC from the wall, then create the DC their circuits actually use.
+
+## AC to usable DC
+
+A power supply usually follows this mental flow:
+
+```text
+change voltage
+rectify
+smooth
+regulate
+```
+
+### 1. Change or adjust voltage
+
+The device first gets the voltage into a useful range. Older supplies often used transformers. Many modern adapters use switching electronics, but the beginner idea is the same: the incoming power must be adjusted before the device can use it.
+
+### 2. Rectify AC into mostly one-direction current
+
+A rectifier uses diodes to let current pass mainly one way. A bridge rectifier can flip the negative half of the AC wave upward, so the output is mostly one-direction.
+
+This is not perfectly smooth DC yet. It is usually **pulsing DC**.
+
+```text
+AC reverses
+rectifier makes it mostly one direction
+```
+
+### 3. Smooth the bumpy output
+
+Capacitors help reduce the bumps. They store some charge when the voltage is high and release some when the voltage dips.
+
+The output becomes smoother, but it may still move up and down slightly.
+
+### 4. Regulate the final voltage
+
+A voltage regulator makes the final output stable enough for the device. If a phone, router, or microcontroller needs a specific DC voltage, regulation is what holds the output near that target.
+
+## Why the distinction matters
+
+Electronics usually care about stable DC because chips, LEDs, batteries, sensors, and logic circuits need predictable voltage levels.
+
+The grid usually uses AC because it is practical for moving energy across long distances and changing voltage levels across the system.
+
+So the common pattern is:
+
+```text
+wall AC -> power supply -> device DC
+```
+
+## Bottom line
+
+DC keeps a one-direction pattern. AC reverses back and forth.
+
+When a device needs DC from an AC outlet, the power supply adjusts voltage, rectifies AC into pulsing DC, smooths the bumps with capacitors, and regulates the final voltage.
+
+This is a simplified educational model. It is not a guide for opening power adapters, working on outlets, building mains circuits, or handling unsafe voltage or current. Real electrical work needs proper training, isolation, rated parts, tools, codes, and safety rules.
+
+Embedded simulation:
+
+Step through voltage adjustment, rectification, smoothing, and regulation to see why the first DC output is pulsing before it becomes stable.
