@@ -9,6 +9,7 @@ const isSwitchLab = labSlug === 'lesson-3-simple-circuit-switch';
 const isOhmsLawLab = labSlug === 'lesson-4-ohms-law-without-formula-fear';
 const isDcVsAcLab = labSlug === 'lesson-5-dc-vs-ac';
 const isAdapterLabelLab = labSlug === 'lesson-6-power-adapter-labels';
+const isPowerEnergyLab = labSlug === 'lesson-7-power-energy-bills';
 ---
 
     {isStaticChargeLab ? (
@@ -509,6 +510,86 @@ const isAdapterLabelLab = labSlug === 'lesson-6-power-adapter-labels';
           </ul>
         </aside>
       </section>
+    ) : isPowerEnergyLab ? (
+      <section class="container lab-shell power-energy-shell" aria-labelledby="lab-title" data-power-energy-lab>
+        <div class="lab-board power-energy-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">Power and energy bills</p>
+              <h2 id="lab-title">Watts times time becomes energy.</h2>
+            </div>
+            <p class="lab-status" data-bill-status>1500 W for 0.5 hours transfers 750 Wh.</p>
+          </div>
+
+          <div class="power-energy-stage" aria-label="Power multiplied by time becomes energy">
+            <section class="power-energy-card" aria-labelledby="bill-power-title">
+              <p class="panel-label">Power rate</p>
+              <h3 id="bill-power-title" data-bill-appliance-power>1500 W</h3>
+              <p>Watts tell you how fast energy is being transferred.</p>
+            </section>
+            <section class="power-energy-card power-energy-equation-card" aria-labelledby="bill-equation-title">
+              <p class="panel-label">Energy result</p>
+              <h3 id="bill-equation-title" data-bill-kwh>0.75 kWh</h3>
+              <p data-bill-equation>1500 W × 0.5 h = 750 Wh = 0.75 kWh</p>
+              <div class="bill-energy-track" aria-hidden="true">
+                <span data-bill-energy-bar></span>
+              </div>
+            </section>
+            <section class="power-energy-card" aria-labelledby="bill-time-title">
+              <p class="panel-label">Time running</p>
+              <h3 id="bill-time-title" data-bill-duration>0.5 hours</h3>
+              <p>More time means more total energy at the same power.</p>
+            </section>
+          </div>
+        </div>
+
+        <div class="lab-controls power-energy-controls" aria-label="Power and bill controls">
+          <label class="control">
+            <span>Power</span>
+            <input data-bill-power type="range" min="50" max="2000" step="50" value="1500" />
+            <output data-bill-power-output>1500 W</output>
+          </label>
+          <label class="control">
+            <span>Runtime</span>
+            <input data-bill-hours type="range" min="0.25" max="8" step="0.25" value="0.5" />
+            <output data-bill-hours-output>0.5 hours</output>
+          </label>
+          <label class="control">
+            <span>Price per kWh</span>
+            <input data-bill-price type="range" min="0.05" max="0.6" step="0.01" value="0.16" />
+            <output data-bill-price-output>$0.16 / kWh</output>
+          </label>
+        </div>
+
+        <div class="meters power-energy-readings" aria-label="Power, energy, and cost readings">
+          <div class="meter">
+            <span>Energy in Wh</span>
+            <strong data-bill-wh>750 Wh</strong>
+            <p>Watt-hours are power multiplied by hours.</p>
+          </div>
+          <div class="meter">
+            <span>Energy in kWh</span>
+            <strong data-bill-kwh>0.75 kWh</strong>
+            <p>Divide watt-hours by 1000 to get kilowatt-hours.</p>
+          </div>
+          <div class="meter">
+            <span>Estimated cost</span>
+            <strong data-bill-cost>$0.12</strong>
+            <p data-bill-cost-equation>0.75 kWh × $0.16/kWh = $0.12</p>
+          </div>
+        </div>
+
+        <aside class="formula-card power-energy-chain-card" aria-label="Bill math chain">
+          <h2>The bill chain</h2>
+          <ul>
+            <li><strong>Watts</strong> measure the rate of energy transfer.</li>
+            <li><strong>Watt-hours</strong> measure total energy transferred over time.</li>
+            <li><strong>Kilowatt-hours</strong> are watt-hours divided by 1000.</li>
+            <li><strong>Cost</strong> is kilowatt-hours multiplied by the price per kWh.</li>
+          </ul>
+          <p class="bill-price-note">Current price input: <strong data-bill-price-readout>$0.16 per kWh</strong>.</p>
+        </aside>
+      </section>
     ) : (
       <section class="container lab-shell" aria-labelledby="lab-title" data-energy-lab>
         <div class="lab-board">
@@ -630,6 +711,8 @@ const isAdapterLabelLab = labSlug === 'lesson-6-power-adapter-labels';
     <script type="module" src="/scripts/ac-dc-conversion-lab.js"></script>
   ) : isAdapterLabelLab ? (
     <script type="module" src="/scripts/power-adapter-label-lab.js"></script>
+  ) : isPowerEnergyLab ? (
+    <script type="module" src="/scripts/power-energy-bill-lab.js"></script>
   ) : (
     <script type="module" src="/scripts/energy-flow-lab.js"></script>
   )}
