@@ -20,6 +20,7 @@ const canonical = new URL(Astro.url.pathname, site.url).toString();
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <link rel="alternate" type="application/rss+xml" title="Turtleand Energy RSS" href="/rss.xml" />
     <meta name="robots" content="index,follow" />
     <meta property="og:site_name" content={site.name} />
@@ -33,7 +34,9 @@ const canonical = new URL(Astro.url.pathname, site.url).toString();
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header">
       <a class="brand" href="/" aria-label="Turtleand Energy home">
-        <span class="brand-mark" aria-hidden="true">E</span>
+        <span class="brand-mark" aria-hidden="true">
+          <img src="/logo.svg" alt="" loading="eager" decoding="async" />
+        </span>
         <span>Turtleand Energy</span>
       </a>
     </header>
