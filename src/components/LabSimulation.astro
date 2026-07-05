@@ -10,6 +10,7 @@ const isOhmsLawLab = labSlug === 'lesson-4-ohms-law-without-formula-fear';
 const isDcVsAcLab = labSlug === 'lesson-5-dc-vs-ac';
 const isAdapterLabelLab = labSlug === 'lesson-6-power-adapter-labels';
 const isPowerEnergyLab = labSlug === 'lesson-7-power-energy-bills';
+const isGroundingSafetyLab = labSlug === 'lesson-8-conductors-insulators-grounding-safety';
 ---
 
     {isStaticChargeLab ? (
@@ -590,6 +591,110 @@ const isPowerEnergyLab = labSlug === 'lesson-7-power-energy-bills';
           <p class="bill-price-note">Current price input: <strong data-bill-price-readout>$0.16 per kWh</strong>.</p>
         </aside>
       </section>
+    ) : isGroundingSafetyLab ? (
+      <section
+        class="container lab-shell grounding-safety-shell"
+        aria-labelledby="lab-title"
+        data-grounding-safety-lab
+        data-grounding-state="normal"
+      >
+        <div class="lab-board grounding-safety-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">Fault paths and protection</p>
+              <h2 id="lab-title">Current follows the available path.</h2>
+            </div>
+            <p class="lab-status" data-grounding-status>Normal operation. Current stays on the intended conductor path.</p>
+          </div>
+
+          <div class="grounding-stage" aria-label="Fault path model">
+            <section class="grounding-card grounding-conductor-card" aria-labelledby="grounding-conductor-title">
+              <p class="panel-label">Conductor</p>
+              <h3 id="grounding-conductor-title">Intended road</h3>
+              <div class="grounding-path-line" aria-hidden="true">
+                <span class="path-dot path-dot-one"></span>
+                <span class="path-dot path-dot-two"></span>
+                <span class="path-dot path-dot-three"></span>
+              </div>
+              <p data-grounding-conductor>Carrying load current</p>
+            </section>
+
+            <section class="grounding-card grounding-insulator-card" aria-labelledby="grounding-insulation-title">
+              <p class="panel-label">Insulator</p>
+              <h3 id="grounding-insulation-title">Barrier</h3>
+              <div class="insulation-barrier" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <p data-grounding-insulation>Keeping current separated</p>
+            </section>
+
+            <section class="grounding-card grounding-backup-card" aria-labelledby="grounding-backup-title">
+              <p class="panel-label">Grounding</p>
+              <h3 id="grounding-backup-title">Backup route</h3>
+              <div class="ground-symbol" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <p data-grounding-ground>Ready as backup</p>
+            </section>
+          </div>
+        </div>
+
+        <div class="lab-controls grounding-controls" aria-label="Fault scenario controls">
+          <button class="button button-secondary grounding-step is-current" type="button" data-grounding-scenario-button="normal" aria-pressed="true">
+            Normal
+          </button>
+          <button class="button button-secondary grounding-step" type="button" data-grounding-scenario-button="unsafe" aria-pressed="false">
+            Ungrounded fault
+          </button>
+          <button class="button button-secondary grounding-step" type="button" data-grounding-scenario-button="grounded" aria-pressed="false">
+            Grounded fault
+          </button>
+          <button class="button button-secondary grounding-step" type="button" data-grounding-scenario-button="leakage" aria-pressed="false">
+            Leakage fault
+          </button>
+        </div>
+
+        <div class="meters grounding-readings" aria-label="Fault path readings">
+          <div class="meter">
+            <span>Likely path</span>
+            <strong data-grounding-path>Intended conductor path</strong>
+            <p>Current follows the easiest available route through the circuit.</p>
+          </div>
+          <div class="meter">
+            <span>Person hazard</span>
+            <strong data-grounding-hazard>Low in this simplified model</strong>
+            <p>The danger rises when a person can become part of the path.</p>
+          </div>
+          <div class="meter">
+            <span>Protection response</span>
+            <strong data-grounding-protection>No trip needed</strong>
+            <p>Different devices react to different fault patterns.</p>
+          </div>
+        </div>
+
+        <aside class="formula-card grounding-protection-card" aria-label="Protection comparison">
+          <h2>What protection sees</h2>
+          <div class="grounding-protection-grid">
+            <div>
+              <span>Breaker or fuse</span>
+              <strong data-grounding-breaker>Breaker idle</strong>
+              <p>Standard breakers mainly respond to overcurrent.</p>
+            </div>
+            <div>
+              <span>GFCI or RCD</span>
+              <strong data-grounding-gfci>GFCI/RCD balanced</strong>
+              <p>GFCI and RCD devices respond to live-neutral imbalance.</p>
+            </div>
+          </div>
+          <p class="grounding-note" data-grounding-note>
+            The conductor carries current where it is supposed to go. The insulation keeps that path separated from people and cases.
+          </p>
+        </aside>
+      </section>
     ) : (
       <section class="container lab-shell" aria-labelledby="lab-title" data-energy-lab>
         <div class="lab-board">
@@ -713,6 +818,8 @@ const isPowerEnergyLab = labSlug === 'lesson-7-power-energy-bills';
     <script type="module" src="/scripts/power-adapter-label-lab.js"></script>
   ) : isPowerEnergyLab ? (
     <script type="module" src="/scripts/power-energy-bill-lab.js"></script>
+  ) : isGroundingSafetyLab ? (
+    <script type="module" src="/scripts/grounding-safety-lab.js"></script>
   ) : (
     <script type="module" src="/scripts/energy-flow-lab.js"></script>
   )}

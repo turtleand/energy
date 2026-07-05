@@ -1033,6 +1033,195 @@ h3 {
   color: var(--green-dark);
 }
 
+.grounding-safety-shell {
+  grid-template-columns: 1fr;
+}
+
+.grounding-safety-board,
+.grounding-controls,
+.grounding-readings,
+.grounding-protection-card {
+  grid-column: 1 / -1;
+}
+
+.grounding-stage {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.grounding-card {
+  min-height: 300px;
+  padding: clamp(1rem, 3vw, 1.4rem);
+  border: 1px solid rgba(255, 247, 220, 0.22);
+  border-radius: 24px;
+  background: rgba(255, 250, 240, 0.08);
+}
+
+.grounding-card h3 {
+  color: #fff7dc;
+  font-size: clamp(1.7rem, 4vw, 2.8rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.grounding-card p:not(.panel-label) {
+  color: rgba(255, 247, 220, 0.82);
+  font-weight: 850;
+  line-height: 1.5;
+}
+
+.grounding-path-line {
+  position: relative;
+  height: 28px;
+  margin: 2.8rem 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #38bdf8, #f8d98a, #f59e0b);
+  box-shadow: 0 0 26px rgba(248, 217, 138, 0.45);
+}
+
+.grounding-path-line .path-dot {
+  position: absolute;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #fff7dc;
+  transform: translateY(-50%);
+}
+
+.path-dot-one {
+  left: 14%;
+}
+
+.path-dot-two {
+  left: 48%;
+}
+
+.path-dot-three {
+  left: 80%;
+}
+
+.insulation-barrier {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin: 2.4rem 0;
+}
+
+.insulation-barrier span {
+  min-height: 64px;
+  border: 2px solid rgba(56, 189, 248, 0.7);
+  border-radius: 18px;
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.ground-symbol {
+  display: grid;
+  justify-items: center;
+  gap: 0.45rem;
+  margin: 2.45rem 0;
+}
+
+.ground-symbol span {
+  display: block;
+  height: 7px;
+  border-radius: 999px;
+  background: #f8d98a;
+}
+
+.ground-symbol span:nth-child(1) {
+  width: 84px;
+}
+
+.ground-symbol span:nth-child(2) {
+  width: 56px;
+}
+
+.ground-symbol span:nth-child(3) {
+  width: 28px;
+}
+
+.grounding-controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.grounding-step.is-current {
+  border-color: rgba(38, 125, 89, 0.45);
+  background: var(--green-dark);
+  color: #fff7dc;
+}
+
+.grounding-readings {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.grounding-readings .meter strong {
+  font-size: clamp(1.35rem, 4vw, 2.4rem);
+}
+
+.grounding-protection-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.grounding-protection-grid div {
+  padding: 1rem;
+  border: 1px solid rgba(31, 58, 47, 0.14);
+  border-radius: 18px;
+  background: rgba(38, 125, 89, 0.07);
+}
+
+.grounding-protection-grid span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.grounding-protection-grid strong {
+  display: block;
+  margin: 0.35rem 0;
+  color: var(--green-dark);
+  font-size: clamp(1.25rem, 3vw, 1.8rem);
+  letter-spacing: -0.03em;
+}
+
+.grounding-protection-grid p,
+.grounding-note {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.grounding-note {
+  margin-bottom: 0;
+}
+
+[data-grounding-state='unsafe'] .grounding-card,
+[data-grounding-state='unsafe'] .meter {
+  border-color: rgba(180, 70, 44, 0.35);
+}
+
+[data-grounding-state='unsafe'] .grounding-readings .meter strong {
+  color: #7f1d1d;
+}
+
+[data-grounding-state='grounded'] .grounding-backup-card,
+[data-grounding-state='leakage'] .grounding-insulator-card {
+  border-color: rgba(248, 217, 138, 0.45);
+  box-shadow: 0 18px 45px rgba(248, 217, 138, 0.16);
+}
+
+[data-grounding-state='grounded'] .ground-symbol span,
+[data-grounding-state='leakage'] .insulation-barrier span {
+  background: #f59e0b;
+}
+
 .meters {
   display: grid;
   gap: 1rem;
@@ -1489,6 +1678,10 @@ h3 {
   .power-energy-stage,
   .power-energy-controls,
   .power-energy-readings,
+  .grounding-stage,
+  .grounding-controls,
+  .grounding-readings,
+  .grounding-protection-grid,
   .lab-shell,
   .lab-board-header {
     display: grid;
