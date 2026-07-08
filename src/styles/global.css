@@ -1222,6 +1222,190 @@ h3 {
   background: #f59e0b;
 }
 
+.battery-chemistry-shell {
+  --battery-chemical-level: 70%;
+  grid-template-columns: 1fr;
+}
+
+.battery-chemistry-board,
+.battery-controls,
+.battery-readings,
+.battery-model-card {
+  grid-column: 1 / -1;
+}
+
+.battery-stage {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.battery-terminal-card,
+.battery-path-card,
+.battery-device-card {
+  min-height: 260px;
+  padding: clamp(1rem, 3vw, 1.4rem);
+  border: 1px solid rgba(255, 247, 220, 0.22);
+  border-radius: 24px;
+  background: rgba(255, 250, 240, 0.08);
+}
+
+.battery-terminal-card h3,
+.battery-path-card h3,
+.battery-device-card h3 {
+  color: #fff7dc;
+  font-size: clamp(1.45rem, 4vw, 2.3rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.battery-terminal-card p:not(.panel-label),
+.battery-path-card p:not(.panel-label),
+.battery-device-card p:not(.panel-label) {
+  color: rgba(255, 247, 220, 0.82);
+  font-weight: 850;
+  line-height: 1.5;
+}
+
+.battery-flow-line {
+  position: relative;
+  height: 22px;
+  margin: 2.4rem 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 250, 240, 0.12);
+}
+
+.battery-flow-line::before {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: linear-gradient(90deg, #38bdf8, #f8d98a, #f59e0b);
+  opacity: 0.86;
+}
+
+.battery-flow-line span {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #fff7dc;
+  box-shadow: 0 0 14px rgba(255, 247, 220, 0.72);
+  transform: translateY(-50%);
+  animation: battery-flow 2.4s linear infinite;
+  animation-delay: calc(var(--battery-dot-delay, 0) * -1s);
+}
+
+.battery-flow-line span:nth-child(1) {
+  --battery-dot-delay: 0;
+}
+
+.battery-flow-line span:nth-child(2) {
+  --battery-dot-delay: 0.8;
+}
+
+.battery-flow-line span:nth-child(3) {
+  --battery-dot-delay: 1.6;
+}
+
+.inside-flow span {
+  background: #f8d98a;
+}
+
+@keyframes battery-flow {
+  from {
+    left: -12%;
+  }
+
+  to {
+    left: 112%;
+  }
+}
+
+[data-battery-mode='rundown'] .battery-flow-line span {
+  animation-duration: 5s;
+  opacity: 0.38;
+}
+
+[data-battery-mode='charging'] .battery-flow-line span {
+  animation-direction: reverse;
+}
+
+[data-battery-mode='rundown'] .battery-terminal-card,
+[data-battery-mode='rundown'] .battery-path-card,
+[data-battery-mode='rundown'] .battery-device-card {
+  border-color: rgba(180, 70, 44, 0.35);
+}
+
+[data-battery-mode='charging'] .inside-path-card,
+[data-battery-mode='charging'] .outside-path-card {
+  border-color: rgba(248, 217, 138, 0.48);
+  box-shadow: 0 18px 45px rgba(248, 217, 138, 0.14);
+}
+
+.battery-chemical-meter {
+  display: grid;
+  grid-template-columns: auto minmax(160px, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 1.2rem;
+  color: rgba(255, 247, 220, 0.78);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.battery-chemical-track {
+  height: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 247, 220, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 250, 240, 0.12);
+}
+
+.battery-chemical-track span {
+  display: block;
+  inline-size: var(--battery-chemical-level, 70%);
+  block-size: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #7f1d1d, #f8d98a, #38bdf8);
+  box-shadow: 0 0 18px rgba(248, 217, 138, 0.55);
+  transition: inline-size 160ms ease;
+}
+
+.battery-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.battery-step.is-current {
+  border-color: rgba(38, 125, 89, 0.45);
+  background: var(--green-dark);
+  color: #fff7dc;
+}
+
+.battery-chemical-control {
+  grid-column: 1 / -1;
+  margin-bottom: 0;
+}
+
+.battery-readings {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.battery-readings .meter strong {
+  font-size: clamp(1.35rem, 4vw, 2.4rem);
+}
+
+.battery-note {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
 .meters {
   display: grid;
   gap: 1rem;
@@ -1682,6 +1866,10 @@ h3 {
   .grounding-controls,
   .grounding-readings,
   .grounding-protection-grid,
+  .battery-stage,
+  .battery-controls,
+  .battery-readings,
+  .battery-chemical-meter,
   .lab-shell,
   .lab-board-header {
     display: grid;
