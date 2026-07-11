@@ -1222,6 +1222,269 @@ h3 {
   background: #f59e0b;
 }
 
+.generator-induction-shell {
+  --generator-motion: 55%;
+  --generator-magnet-speed: 3.6s;
+  --generator-flux-opacity: 0.64;
+  --generator-voltage-opacity: 0.72;
+  grid-template-columns: 1fr;
+}
+
+.generator-induction-board,
+.generator-controls,
+.generator-readings,
+.generator-chain-card {
+  grid-column: 1 / -1;
+}
+
+.generator-stage {
+  display: grid;
+  gap: 1rem;
+}
+
+.generator-visual {
+  display: block;
+  width: 100%;
+  min-height: 300px;
+  border: 1px solid rgba(255, 247, 220, 0.2);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 26% 48%, rgba(56, 189, 248, 0.16), transparent 30%),
+    radial-gradient(circle at 72% 50%, rgba(245, 158, 11, 0.16), transparent 32%),
+    rgba(255, 250, 240, 0.07);
+}
+
+.generator-field-window {
+  fill: rgba(12, 36, 35, 0.38);
+  stroke: rgba(255, 247, 220, 0.14);
+}
+
+.generator-moving-magnet {
+  animation: generator-magnet-sweep var(--generator-magnet-speed) ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 18px rgba(56, 189, 248, 0.28));
+}
+
+.generator-bar-magnet {
+  fill: url(#generatorMagnetGradient);
+  stroke: rgba(255, 247, 220, 0.72);
+  stroke-width: 3;
+}
+
+.generator-magnet-split {
+  stroke: rgba(8, 51, 68, 0.45);
+  stroke-width: 3;
+}
+
+.generator-moving-magnet text {
+  fill: #05201e;
+  font-size: 34px;
+  font-weight: 950;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+@keyframes generator-magnet-sweep {
+  from {
+    transform: translateX(-26px);
+  }
+
+  to {
+    transform: translateX(170px);
+  }
+}
+
+.generator-flux-line {
+  fill: none;
+  stroke: #38bdf8;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 12 14;
+  marker-end: url(#generatorFluxArrow);
+  opacity: var(--generator-flux-opacity);
+  animation: generator-flux-flow var(--generator-magnet-speed) linear infinite;
+}
+
+.flux-line-b,
+.flux-line-d {
+  stroke: #f8d98a;
+  animation-delay: -0.7s;
+}
+
+.flux-line-c {
+  stroke-width: 5;
+}
+
+@keyframes generator-flux-flow {
+  to {
+    stroke-dashoffset: -52;
+  }
+}
+
+.generator-wire-lead,
+.generator-coil-loop {
+  fill: none;
+  stroke: url(#generatorWireGradient);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 8;
+}
+
+.generator-coil-loop {
+  filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.28));
+}
+
+.generator-svg-label {
+  fill: rgba(255, 247, 220, 0.78);
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  text-anchor: middle;
+}
+
+.generator-flux-label,
+.generator-voltage-label {
+  font-size: 20px;
+}
+
+.generator-terminal {
+  fill: #fff7dc;
+  stroke: #f59e0b;
+  stroke-width: 4;
+  filter: url(#generatorVoltageGlow);
+  opacity: var(--generator-voltage-opacity);
+}
+
+.generator-voltage-gap {
+  fill: none;
+  stroke: rgba(255, 247, 220, 0.46);
+  stroke-dasharray: 7 8;
+  stroke-width: 4;
+}
+
+.generator-voltage-symbol {
+  fill: #fff7dc;
+  font-size: 44px;
+  font-weight: 950;
+  dominant-baseline: middle;
+  opacity: var(--generator-voltage-opacity);
+}
+
+.generator-voltage-pulse {
+  fill: none;
+  stroke: #f8d98a;
+  stroke-linecap: round;
+  stroke-width: 5;
+  opacity: var(--generator-voltage-opacity);
+  animation: generator-voltage-pulse var(--generator-magnet-speed) ease-in-out infinite alternate;
+}
+
+.pulse-two {
+  animation-delay: -0.45s;
+}
+
+@keyframes generator-voltage-pulse {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(6px);
+  }
+}
+
+.generator-current-path {
+  fill: none;
+  stroke: rgba(56, 189, 248, 0.7);
+  stroke-linecap: round;
+  stroke-width: 6;
+  stroke-dasharray: 10 12;
+  animation: generator-flux-flow 2.4s linear infinite;
+}
+
+.generator-current-dot {
+  fill: #38bdf8;
+  opacity: 0.8;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
+}
+
+[data-generator-circuit='open'] .generator-current-path,
+[data-generator-circuit='open'] .generator-current-dot {
+  opacity: 0;
+}
+
+[data-generator-circuit='open'] .generator-voltage-gap {
+  stroke: rgba(180, 70, 44, 0.72);
+}
+
+.generator-legend {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7rem;
+  color: rgba(255, 247, 220, 0.82);
+  font-size: 0.9rem;
+  font-weight: 850;
+}
+
+.generator-legend div {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 247, 220, 0.16);
+  border-radius: 16px;
+  background: rgba(255, 250, 240, 0.07);
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 28px;
+  height: 12px;
+  border-radius: 999px;
+}
+
+.magnet-swatch {
+  background: linear-gradient(90deg, #38bdf8 0 50%, #f8d98a 50% 100%);
+}
+
+.flux-swatch {
+  background: #38bdf8;
+}
+
+.wire-swatch {
+  background: #f59e0b;
+}
+
+.voltage-swatch {
+  background: #fff7dc;
+  box-shadow: 0 0 12px rgba(248, 217, 138, 0.75);
+}
+
+.generator-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.38fr);
+  gap: 1rem;
+  align-items: end;
+}
+
+.generator-circuit-control {
+  margin-bottom: 1.1rem;
+}
+
+.generator-readings {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.generator-readings .meter strong {
+  font-size: clamp(1.25rem, 3.5vw, 2.1rem);
+}
+
+.generator-note {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+
 .meters {
   display: grid;
   gap: 1rem;
@@ -1682,6 +1945,10 @@ h3 {
   .grounding-controls,
   .grounding-readings,
   .grounding-protection-grid,
+  .generator-stage,
+  .generator-controls,
+  .generator-readings,
+  .generator-legend,
   .lab-shell,
   .lab-board-header {
     display: grid;
@@ -1721,6 +1988,10 @@ h3 {
   .charge-dot,
   .field-line,
   .spark-active,
+  .generator-moving-magnet,
+  .generator-flux-line,
+  .generator-voltage-pulse,
+  .generator-current-path,
   [data-static-state='critical'] .charged-object {
     animation: none !important;
   }

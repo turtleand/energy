@@ -11,6 +11,7 @@ const isDcVsAcLab = labSlug === 'lesson-5-dc-vs-ac';
 const isAdapterLabelLab = labSlug === 'lesson-6-power-adapter-labels';
 const isPowerEnergyLab = labSlug === 'lesson-7-power-energy-bills';
 const isGroundingSafetyLab = labSlug === 'lesson-8-conductors-insulators-grounding-safety';
+const isGeneratorLab = labSlug === 'lesson-9-generators-electromagnetic-induction';
 ---
 
     {isStaticChargeLab ? (
@@ -695,6 +696,147 @@ const isGroundingSafetyLab = labSlug === 'lesson-8-conductors-insulators-groundi
           </p>
         </aside>
       </section>
+    ) : isGeneratorLab ? (
+      <section
+        class="container lab-shell generator-induction-shell"
+        aria-labelledby="lab-title"
+        data-generator-induction-lab
+        data-generator-circuit="closed"
+      >
+        <div class="lab-board generator-induction-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">Generator induction model</p>
+              <h2 id="lab-title">Move the magnet. Change the flux. See voltage appear.</h2>
+            </div>
+            <p class="lab-status" data-generator-status>The magnet is moving past the wire coil. Flux through the coil is changing, so voltage appears at the wire ends.</p>
+          </div>
+
+          <div class="generator-stage" aria-label="Visual model of a magnet moving near a wire coil">
+            <svg class="generator-visual" viewBox="0 0 900 430" role="img" aria-labelledby="generator-visual-title generator-visual-desc">
+              <title id="generator-visual-title">Magnet, wire coil, changing magnetic flux, and induced voltage</title>
+              <desc id="generator-visual-desc">A bar magnet moves back and forth near a wire coil. Magnetic flux lines pass through the coil. The wire ends glow to show induced voltage when the flux changes.</desc>
+              <defs>
+                <linearGradient id="generatorMagnetGradient" x1="0%" x2="100%">
+                  <stop offset="0%" stop-color="#38bdf8" />
+                  <stop offset="50%" stop-color="#38bdf8" />
+                  <stop offset="50%" stop-color="#f8d98a" />
+                  <stop offset="100%" stop-color="#f8d98a" />
+                </linearGradient>
+                <linearGradient id="generatorWireGradient" x1="0%" x2="100%">
+                  <stop offset="0%" stop-color="#f59e0b" />
+                  <stop offset="100%" stop-color="#f8d98a" />
+                </linearGradient>
+                <marker id="generatorFluxArrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                  <path d="M0 0 L10 5 L0 10 Z" fill="#38bdf8" />
+                </marker>
+                <filter id="generatorVoltageGlow" x="-40%" y="-40%" width="180%" height="180%">
+                  <feGaussianBlur stdDeviation="4" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+
+              <rect class="generator-field-window" x="42" y="42" width="816" height="300" rx="28" />
+
+              <g class="generator-flux-lines" aria-hidden="true">
+                <path class="generator-flux-line flux-line-a" d="M240 128 C355 58 516 74 642 142" />
+                <path class="generator-flux-line flux-line-b" d="M236 174 C354 126 514 130 650 182" />
+                <path class="generator-flux-line flux-line-c" d="M236 216 C352 216 516 216 650 216" />
+                <path class="generator-flux-line flux-line-d" d="M236 258 C354 306 514 302 650 250" />
+                <path class="generator-flux-line flux-line-e" d="M240 304 C355 374 516 358 642 290" />
+              </g>
+
+              <g class="generator-moving-magnet" aria-hidden="true">
+                <rect class="generator-bar-magnet" x="116" y="174" width="180" height="82" rx="20" />
+                <line class="generator-magnet-split" x1="206" y1="174" x2="206" y2="256" />
+                <text x="162" y="224">N</text>
+                <text x="250" y="224">S</text>
+              </g>
+
+              <g class="generator-coil-assembly" aria-hidden="true">
+                <path class="generator-wire-lead generator-wire-lead-top" d="M650 164 H730 Q762 164 762 196" />
+                <path class="generator-wire-lead generator-wire-lead-bottom" d="M650 268 H730 Q762 268 762 236" />
+                <ellipse class="generator-coil-loop coil-loop-1" cx="558" cy="216" rx="36" ry="108" />
+                <ellipse class="generator-coil-loop coil-loop-2" cx="590" cy="216" rx="36" ry="108" />
+                <ellipse class="generator-coil-loop coil-loop-3" cx="622" cy="216" rx="36" ry="108" />
+                <ellipse class="generator-coil-loop coil-loop-4" cx="654" cy="216" rx="36" ry="108" />
+                <text class="generator-svg-label" x="580" y="352">wire coil</text>
+              </g>
+
+              <g class="generator-voltage-indicator" aria-hidden="true">
+                <circle class="generator-terminal terminal-top" cx="762" cy="196" r="13" />
+                <circle class="generator-terminal terminal-bottom" cx="762" cy="236" r="13" />
+                <path class="generator-voltage-gap" d="M794 186 v60" />
+                <text class="generator-voltage-symbol" x="816" y="224">V</text>
+                <path class="generator-voltage-pulse pulse-one" d="M734 196 C756 184 782 184 804 196" />
+                <path class="generator-voltage-pulse pulse-two" d="M734 236 C756 248 782 248 804 236" />
+              </g>
+
+              <g class="generator-closed-path" aria-hidden="true">
+                <path class="generator-current-path" d="M762 196 H830 V236 H762" />
+                <circle class="generator-current-dot dot-one" cx="830" cy="204" r="6" />
+                <circle class="generator-current-dot dot-two" cx="830" cy="228" r="6" />
+              </g>
+
+              <text class="generator-svg-label generator-flux-label" x="366" y="92">changing magnetic flux</text>
+              <text class="generator-svg-label generator-voltage-label" x="706" y="112">induced voltage at the wire ends</text>
+            </svg>
+
+            <div class="generator-legend" aria-label="Generator visual legend">
+              <div><span class="legend-swatch magnet-swatch"></span>Moving magnet</div>
+              <div><span class="legend-swatch flux-swatch"></span>Magnetic flux through the coil</div>
+              <div><span class="legend-swatch wire-swatch"></span>Wire coil and wire ends</div>
+              <div><span class="legend-swatch voltage-swatch"></span>Induced voltage</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lab-controls generator-controls" aria-label="Generator controls">
+          <label class="control">
+            <span>Motion between magnet and coil</span>
+            <input data-generator-motion-input type="range" min="10" max="100" step="1" value="55" />
+            <output data-generator-motion-output>Steady motion</output>
+          </label>
+          <label class="switch-control generator-circuit-control">
+            <input data-generator-circuit-input type="checkbox" checked />
+            <span>Connect the wire ends</span>
+          </label>
+        </div>
+
+        <div class="meters generator-readings" aria-label="Generator visual readings">
+          <div class="meter">
+            <span>Magnetic flux</span>
+            <strong data-generator-flux>Flux is changing</strong>
+            <p>Field lines through the coil are changing as the magnet moves.</p>
+          </div>
+          <div class="meter">
+            <span>Induced voltage</span>
+            <strong data-generator-voltage>Voltage appears</strong>
+            <p>Changing flux creates electrical push at the wire ends.</p>
+          </div>
+          <div class="meter">
+            <span>Wire path</span>
+            <strong data-generator-wire-state>Closed loop</strong>
+            <p data-generator-wire-note>The wire ends are connected, so the induced voltage has a complete path.</p>
+          </div>
+        </div>
+
+        <aside class="formula-card generator-chain-card" aria-label="Generator induction chain">
+          <h2>The visual chain</h2>
+          <ul>
+            <li><strong>Move the magnet near the coil.</strong></li>
+            <li><strong>Magnetic flux through the coil changes.</strong></li>
+            <li><strong>Changing flux induces voltage in the wire.</strong></li>
+            <li><strong>A connected wire path lets that voltage push charge around the loop.</strong></li>
+          </ul>
+          <p class="generator-note" data-generator-note>
+            Watch the relationship, not the numbers: motion changes flux, and changing flux makes voltage appear.
+          </p>
+        </aside>
+      </section>
     ) : (
       <section class="container lab-shell" aria-labelledby="lab-title" data-energy-lab>
         <div class="lab-board">
@@ -820,6 +962,8 @@ const isGroundingSafetyLab = labSlug === 'lesson-8-conductors-insulators-groundi
     <script type="module" src="/scripts/power-energy-bill-lab.js"></script>
   ) : isGroundingSafetyLab ? (
     <script type="module" src="/scripts/grounding-safety-lab.js"></script>
+  ) : isGeneratorLab ? (
+    <script type="module" src="/scripts/generator-induction-lab.js"></script>
   ) : (
     <script type="module" src="/scripts/energy-flow-lab.js"></script>
   )}
