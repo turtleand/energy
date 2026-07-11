@@ -11,7 +11,7 @@ Turtleand Energy is a public learning surface for energy, electricity, circuits,
 - [Lesson 6: How to Read a Power Adapter Label Without Burning Your Device](https://energy.turtleand.com/lessons/lesson-6-power-adapter-labels/): Learn the label checks that matter before plugging an adapter into a device: voltage, type, current, connector, polarity, and USB-C negotiation. Includes embedded simulation: Change a sample adapter label and see which field makes the device safe, underpowered, or dangerous.
 - [Lesson 7: Power and Energy: Watts, Watt-hours, and Electric Bills](https://energy.turtleand.com/lessons/lesson-7-power-energy-bills/): Learn why watts measure the rate of energy transfer, why watt-hours measure total energy, and how kilowatt-hours become an electric bill. Includes embedded simulation: Change watts, runtime, and price to see how power times time becomes watt-hours, kilowatt-hours, and cost.
 - [Lesson 8: Conductors, Insulators, Grounding, and Safety](https://energy.turtleand.com/lessons/lesson-8-conductors-insulators-grounding-safety/): Learn how conductors guide current, how insulators resist unwanted paths, and how grounding gives fault current a safer route. Includes embedded simulation: Switch between normal operation, an unsafe fault, a grounded fault, and a leakage fault to see which path current takes and which protection responds.
-- [Lesson 9: Generators and Electromagnetic Induction](https://energy.turtleand.com/lessons/lesson-9-generators-electromagnetic-induction/): See how motion between a magnet and coil changes magnetic flux, induces voltage, and sends current through a closed circuit to power a load. Includes embedded simulation: Adjust motion, circuit state, and load to see changing flux induce voltage, closed circuits produce current, and heavier loads require more mechanical effort.
+- [Lesson 9: Generators and Electromagnetic Induction](https://energy.turtleand.com/lessons/lesson-9-generators-electromagnetic-induction/): See how motion between a magnet and wire coil changes magnetic flux and makes voltage appear at the wire ends. Includes embedded simulation: Move a magnet near a wire coil to see magnetic flux change and voltage appear at the wire ends.
 
 ## Article details
 ### Lesson 1: Electricity from first principles
@@ -873,4 +873,4 @@ This is a simplified educational model. It is not a guide for building, wiring, 
 
 Embedded simulation:
 
-Adjust motion, circuit state, and load to see changing flux induce voltage, closed circuits produce current, and heavier loads require more mechanical effort.
+Move a magnet near a wire coil to see magnetic flux change and voltage appear at the wire ends.

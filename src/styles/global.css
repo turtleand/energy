@@ -1224,9 +1224,9 @@ h3 {
 
 .generator-induction-shell {
   --generator-motion: 55%;
-  --generator-spin-speed: 3.5s;
-  --generator-load: 55%;
-  --generator-current-opacity: 0.64;
+  --generator-magnet-speed: 3.6s;
+  --generator-flux-opacity: 0.64;
+  --generator-voltage-opacity: 0.72;
   grid-template-columns: 1fr;
 }
 
@@ -1239,143 +1239,229 @@ h3 {
 
 .generator-stage {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
 }
 
-.generator-card {
+.generator-visual {
+  display: block;
+  width: 100%;
   min-height: 300px;
-  padding: clamp(1rem, 3vw, 1.4rem);
-  border: 1px solid rgba(255, 247, 220, 0.22);
-  border-radius: 24px;
-  background: rgba(255, 250, 240, 0.08);
+  border: 1px solid rgba(255, 247, 220, 0.2);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 26% 48%, rgba(56, 189, 248, 0.16), transparent 30%),
+    radial-gradient(circle at 72% 50%, rgba(245, 158, 11, 0.16), transparent 32%),
+    rgba(255, 250, 240, 0.07);
 }
 
-.generator-card h3 {
-  color: #fff7dc;
-  font-size: clamp(1.6rem, 4vw, 2.5rem);
-  line-height: 1;
-  letter-spacing: -0.05em;
+.generator-field-window {
+  fill: rgba(12, 36, 35, 0.38);
+  stroke: rgba(255, 247, 220, 0.14);
 }
 
-.generator-card p:not(.panel-label) {
-  color: rgba(255, 247, 220, 0.82);
-  font-weight: 850;
-  line-height: 1.5;
+.generator-moving-magnet {
+  animation: generator-magnet-sweep var(--generator-magnet-speed) ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 18px rgba(56, 189, 248, 0.28));
 }
 
-.generator-rotor {
-  position: relative;
-  width: min(180px, 68vw);
-  aspect-ratio: 1;
-  margin: 1.3rem auto;
-  border: 3px solid rgba(255, 247, 220, 0.26);
-  border-radius: 999px;
-  animation: generator-spin var(--generator-spin-speed) linear infinite;
+.generator-bar-magnet {
+  fill: url(#generatorMagnetGradient);
+  stroke: rgba(255, 247, 220, 0.72);
+  stroke-width: 3;
 }
 
-.generator-rotor::before,
-.generator-rotor::after {
-  position: absolute;
-  left: 50%;
-  width: 10px;
-  height: 42%;
-  content: '';
-  background: #f8d98a;
-  border-radius: 999px;
-  transform: translateX(-50%);
-  box-shadow: 0 0 20px rgba(248, 217, 138, 0.45);
+.generator-magnet-split {
+  stroke: rgba(8, 51, 68, 0.45);
+  stroke-width: 3;
 }
 
-.generator-rotor::before {
-  top: 8%;
-}
-
-.generator-rotor::after {
-  bottom: 8%;
-}
-
-.generator-magnet {
-  position: absolute;
-  left: 50%;
-  display: grid;
-  place-items: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 999px;
+.generator-moving-magnet text {
+  fill: #05201e;
+  font-size: 34px;
   font-weight: 950;
-  transform: translateX(-50%);
+  text-anchor: middle;
+  dominant-baseline: middle;
 }
 
-.generator-magnet-n {
-  top: -8px;
-  color: #083344;
-  background: #38bdf8;
-}
+@keyframes generator-magnet-sweep {
+  from {
+    transform: translateX(-26px);
+  }
 
-.generator-magnet-s {
-  bottom: -8px;
-  color: #5f3700;
-  background: #f8d98a;
-}
-
-@keyframes generator-spin {
   to {
-    transform: rotate(360deg);
+    transform: translateX(170px);
   }
 }
 
-.generator-coil {
+.generator-flux-line {
+  fill: none;
+  stroke: #38bdf8;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 12 14;
+  marker-end: url(#generatorFluxArrow);
+  opacity: var(--generator-flux-opacity);
+  animation: generator-flux-flow var(--generator-magnet-speed) linear infinite;
+}
+
+.flux-line-b,
+.flux-line-d {
+  stroke: #f8d98a;
+  animation-delay: -0.7s;
+}
+
+.flux-line-c {
+  stroke-width: 5;
+}
+
+@keyframes generator-flux-flow {
+  to {
+    stroke-dashoffset: -52;
+  }
+}
+
+.generator-wire-lead,
+.generator-coil-loop {
+  fill: none;
+  stroke: url(#generatorWireGradient);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 8;
+}
+
+.generator-coil-loop {
+  filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.28));
+}
+
+.generator-svg-label {
+  fill: rgba(255, 247, 220, 0.78);
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  text-anchor: middle;
+}
+
+.generator-flux-label,
+.generator-voltage-label {
+  font-size: 20px;
+}
+
+.generator-terminal {
+  fill: #fff7dc;
+  stroke: #f59e0b;
+  stroke-width: 4;
+  filter: url(#generatorVoltageGlow);
+  opacity: var(--generator-voltage-opacity);
+}
+
+.generator-voltage-gap {
+  fill: none;
+  stroke: rgba(255, 247, 220, 0.46);
+  stroke-dasharray: 7 8;
+  stroke-width: 4;
+}
+
+.generator-voltage-symbol {
+  fill: #fff7dc;
+  font-size: 44px;
+  font-weight: 950;
+  dominant-baseline: middle;
+  opacity: var(--generator-voltage-opacity);
+}
+
+.generator-voltage-pulse {
+  fill: none;
+  stroke: #f8d98a;
+  stroke-linecap: round;
+  stroke-width: 5;
+  opacity: var(--generator-voltage-opacity);
+  animation: generator-voltage-pulse var(--generator-magnet-speed) ease-in-out infinite alternate;
+}
+
+.pulse-two {
+  animation-delay: -0.45s;
+}
+
+@keyframes generator-voltage-pulse {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(6px);
+  }
+}
+
+.generator-current-path {
+  fill: none;
+  stroke: rgba(56, 189, 248, 0.7);
+  stroke-linecap: round;
+  stroke-width: 6;
+  stroke-dasharray: 10 12;
+  animation: generator-flux-flow 2.4s linear infinite;
+}
+
+.generator-current-dot {
+  fill: #38bdf8;
+  opacity: 0.8;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
+}
+
+[data-generator-circuit='open'] .generator-current-path,
+[data-generator-circuit='open'] .generator-current-dot {
+  opacity: 0;
+}
+
+[data-generator-circuit='open'] .generator-voltage-gap {
+  stroke: rgba(180, 70, 44, 0.72);
+}
+
+.generator-legend {
   display: grid;
-  gap: 0.45rem;
-  margin: 2rem 0;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7rem;
+  color: rgba(255, 247, 220, 0.82);
+  font-size: 0.9rem;
+  font-weight: 850;
 }
 
-.generator-coil span {
-  display: block;
-  height: 18px;
-  border: 2px solid rgba(56, 189, 248, 0.82);
+.generator-legend div {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 247, 220, 0.16);
+  border-radius: 16px;
+  background: rgba(255, 250, 240, 0.07);
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 28px;
+  height: 12px;
   border-radius: 999px;
-  background: linear-gradient(90deg, rgba(56, 189, 248, 0.16), rgba(248, 217, 138, 0.22));
-  box-shadow: 0 0 18px rgba(56, 189, 248, 0.28);
 }
 
-.generator-coil span:nth-child(2),
-.generator-coil span:nth-child(3) {
-  transform: translateX(10%);
+.magnet-swatch {
+  background: linear-gradient(90deg, #38bdf8 0 50%, #f8d98a 50% 100%);
 }
 
-.generator-load-meter {
-  height: 22px;
-  margin: 2.35rem 0;
-  overflow: hidden;
-  border: 1px solid rgba(255, 247, 220, 0.28);
-  border-radius: 999px;
-  background: rgba(255, 250, 240, 0.12);
+.flux-swatch {
+  background: #38bdf8;
 }
 
-.generator-load-meter span {
-  display: block;
-  inline-size: var(--generator-load);
-  block-size: 100%;
-  border-radius: inherit;
-  opacity: var(--generator-current-opacity);
-  background: linear-gradient(90deg, #38bdf8, #f8d98a, #f59e0b);
-  box-shadow: 0 0 18px rgba(248, 217, 138, 0.55);
-  transition: inline-size 160ms ease, opacity 160ms ease;
+.wire-swatch {
+  background: #f59e0b;
 }
 
-[data-generator-circuit='open'] .generator-load-meter span {
-  inline-size: 8%;
-}
-
-[data-generator-circuit='open'] .generator-load-card {
-  border-color: rgba(180, 70, 44, 0.35);
+.voltage-swatch {
+  background: #fff7dc;
+  box-shadow: 0 0 12px rgba(248, 217, 138, 0.75);
 }
 
 .generator-controls {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(220px, 0.5fr);
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.38fr);
   gap: 1rem;
   align-items: end;
 }
@@ -1385,11 +1471,11 @@ h3 {
 }
 
 .generator-readings {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .generator-readings .meter strong {
-  font-size: clamp(1.35rem, 4vw, 2.25rem);
+  font-size: clamp(1.25rem, 3.5vw, 2.1rem);
 }
 
 .generator-note {
@@ -1397,6 +1483,7 @@ h3 {
   color: var(--muted);
   line-height: 1.5;
 }
+
 
 .meters {
   display: grid;
@@ -1861,6 +1948,7 @@ h3 {
   .generator-stage,
   .generator-controls,
   .generator-readings,
+  .generator-legend,
   .lab-shell,
   .lab-board-header {
     display: grid;
@@ -1900,7 +1988,10 @@ h3 {
   .charge-dot,
   .field-line,
   .spark-active,
-  .generator-rotor,
+  .generator-moving-magnet,
+  .generator-flux-line,
+  .generator-voltage-pulse,
+  .generator-current-path,
   [data-static-state='critical'] .charged-object {
     animation: none !important;
   }

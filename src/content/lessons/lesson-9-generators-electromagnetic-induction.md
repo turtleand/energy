@@ -1,6 +1,6 @@
 ---
 title: "Lesson 9: Generators and Electromagnetic Induction"
-summary: "See how motion between a magnet and coil changes magnetic flux, induces voltage, and sends current through a closed circuit to power a load."
+summary: "See how motion between a magnet and wire coil changes magnetic flux and makes voltage appear at the wire ends."
 module: "Foundations"
 order: 9
 status: ready

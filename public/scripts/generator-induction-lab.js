@@ -2,79 +2,67 @@ const lab = document.querySelector('[data-generator-induction-lab]');
 
 if (lab) {
   const motionInput = lab.querySelector('[data-generator-motion-input]');
-  const loadInput = lab.querySelector('[data-generator-load-input]');
   const circuitInput = lab.querySelector('[data-generator-circuit-input]');
   const output = {
     status: lab.querySelector('[data-generator-status]'),
     motion: lab.querySelector('[data-generator-motion-output]'),
-    load: lab.querySelector('[data-generator-load-output]'),
     flux: lab.querySelector('[data-generator-flux]'),
     voltage: lab.querySelector('[data-generator-voltage]'),
-    current: lab.querySelector('[data-generator-current]'),
-    power: lab.querySelector('[data-generator-power]'),
-    effort: lab.querySelector('[data-generator-effort]'),
-    loadState: lab.querySelector('[data-generator-load-state]'),
+    wireState: lab.querySelector('[data-generator-wire-state]'),
+    wireNote: lab.querySelector('[data-generator-wire-note]'),
     note: lab.querySelector('[data-generator-note]'),
   };
 
-  function labelForMotion(value) {
-    if (value < 35) return 'Slow motion';
+  function motionLabel(value) {
+    if (value < 35) return 'Gentle motion';
     if (value < 75) return 'Steady motion';
-    return 'Fast motion';
+    return 'Quick motion';
   }
 
-  function labelForLoad(value) {
-    if (value < 35) return 'Light load';
-    if (value < 75) return 'Medium load';
-    return 'Heavy load';
+  function fluxLabel(value) {
+    if (value < 35) return 'Flux changes slowly';
+    if (value < 75) return 'Flux is changing';
+    return 'Flux changes quickly';
   }
 
-  function formatWatts(value) {
-    if (value === 0) return '0 W';
-    return `${value.toFixed(1)} W`;
+  function voltageLabel(value) {
+    if (value < 35) return 'Small voltage appears';
+    if (value < 75) return 'Voltage appears';
+    return 'Stronger voltage pulses';
   }
 
   function updateGenerator() {
     const motion = Number(motionInput.value);
-    const load = Number(loadInput.value);
     const isClosed = circuitInput.checked;
-    const fluxRate = motion / 100;
-    const voltage = 2 + fluxRate * 10;
-    const loadFactor = load / 100;
-    const current = isClosed ? voltage * (0.12 + loadFactor * 0.28) : 0;
-    const power = voltage * current;
-    const effort = isClosed ? 18 + motion * 0.32 + load * 0.48 : 10 + motion * 0.22;
-    const spinDuration = `${(5.2 - fluxRate * 3.1).toFixed(2)}s`;
+    const motionRatio = motion / 100;
+    const animationDuration = `${(5.4 - motionRatio * 3.2).toFixed(2)}s`;
+    const fluxOpacity = String(0.32 + motionRatio * 0.58);
+    const voltageOpacity = String(0.36 + motionRatio * 0.62);
 
     lab.dataset.generatorCircuit = isClosed ? 'closed' : 'open';
     lab.style.setProperty('--generator-motion', `${motion}%`);
-    lab.style.setProperty('--generator-spin-speed', spinDuration);
-    lab.style.setProperty('--generator-load', `${load}%`);
-    lab.style.setProperty('--generator-current-opacity', isClosed ? String(0.25 + loadFactor * 0.75) : '0.08');
+    lab.style.setProperty('--generator-magnet-speed', animationDuration);
+    lab.style.setProperty('--generator-flux-opacity', fluxOpacity);
+    lab.style.setProperty('--generator-voltage-opacity', voltageOpacity);
 
-    output.motion.textContent = labelForMotion(motion);
-    output.load.textContent = labelForLoad(load);
-    output.flux.textContent = `${Math.round(fluxRate * 100)}% changing`;
-    output.voltage.textContent = `${voltage.toFixed(1)} V induced`;
-    output.current.textContent = isClosed ? `${current.toFixed(1)} A` : '0 A';
-    output.power.textContent = formatWatts(power);
-    output.effort.textContent = `${Math.round(effort)}% effort`;
-    output.loadState.textContent = isClosed ? 'Receiving power' : 'Disconnected';
+    output.motion.textContent = motionLabel(motion);
+    output.flux.textContent = fluxLabel(motion);
+    output.voltage.textContent = voltageLabel(motion);
+    output.wireState.textContent = isClosed ? 'Closed loop' : 'Open wire ends';
 
-    if (!isClosed) {
-      output.status.textContent = 'Open circuit. Motion still changes flux and induces voltage, but load current is zero.';
-      output.note.textContent = 'Voltage can appear at the terminals, but sustained load current needs a complete path.';
+    if (isClosed) {
+      output.status.textContent = 'The magnet is moving past the wire coil. Flux through the coil is changing, so voltage appears and the closed wire path can carry charge.';
+      output.wireNote.textContent = 'The wire ends are connected, so the induced voltage has a complete path.';
+      output.note.textContent = 'Follow the picture: moving magnet, changing flux, induced voltage, connected wire loop.';
       return;
     }
 
-    output.status.textContent = `${labelForMotion(motion)} with a ${labelForLoad(load).toLowerCase()}. Changing flux induces voltage and current powers the load.`;
-    output.note.textContent = load > 70
-      ? 'The heavy load draws more current, so the generator needs more mechanical work to keep turning.'
-      : 'The closed circuit lets induced voltage push current. The load receives power from the supplied motion.';
+    output.status.textContent = 'The magnet is still changing flux through the coil. Voltage appears at the wire ends, but the open gap prevents a complete loop.';
+    output.wireNote.textContent = 'The wire ends are open. Voltage can appear, but there is no complete path around the loop.';
+    output.note.textContent = 'Opening the wire path does not stop induction. It only stops the complete circuit path.';
   }
 
   motionInput.addEventListener('input', updateGenerator);
-  loadInput.addEventListener('input', updateGenerator);
   circuitInput.addEventListener('change', updateGenerator);
 
   updateGenerator();
