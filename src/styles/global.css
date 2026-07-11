@@ -1222,6 +1222,182 @@ h3 {
   background: #f59e0b;
 }
 
+.generator-induction-shell {
+  --generator-motion: 55%;
+  --generator-spin-speed: 3.5s;
+  --generator-load: 55%;
+  --generator-current-opacity: 0.64;
+  grid-template-columns: 1fr;
+}
+
+.generator-induction-board,
+.generator-controls,
+.generator-readings,
+.generator-chain-card {
+  grid-column: 1 / -1;
+}
+
+.generator-stage {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.generator-card {
+  min-height: 300px;
+  padding: clamp(1rem, 3vw, 1.4rem);
+  border: 1px solid rgba(255, 247, 220, 0.22);
+  border-radius: 24px;
+  background: rgba(255, 250, 240, 0.08);
+}
+
+.generator-card h3 {
+  color: #fff7dc;
+  font-size: clamp(1.6rem, 4vw, 2.5rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.generator-card p:not(.panel-label) {
+  color: rgba(255, 247, 220, 0.82);
+  font-weight: 850;
+  line-height: 1.5;
+}
+
+.generator-rotor {
+  position: relative;
+  width: min(180px, 68vw);
+  aspect-ratio: 1;
+  margin: 1.3rem auto;
+  border: 3px solid rgba(255, 247, 220, 0.26);
+  border-radius: 999px;
+  animation: generator-spin var(--generator-spin-speed) linear infinite;
+}
+
+.generator-rotor::before,
+.generator-rotor::after {
+  position: absolute;
+  left: 50%;
+  width: 10px;
+  height: 42%;
+  content: '';
+  background: #f8d98a;
+  border-radius: 999px;
+  transform: translateX(-50%);
+  box-shadow: 0 0 20px rgba(248, 217, 138, 0.45);
+}
+
+.generator-rotor::before {
+  top: 8%;
+}
+
+.generator-rotor::after {
+  bottom: 8%;
+}
+
+.generator-magnet {
+  position: absolute;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  font-weight: 950;
+  transform: translateX(-50%);
+}
+
+.generator-magnet-n {
+  top: -8px;
+  color: #083344;
+  background: #38bdf8;
+}
+
+.generator-magnet-s {
+  bottom: -8px;
+  color: #5f3700;
+  background: #f8d98a;
+}
+
+@keyframes generator-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.generator-coil {
+  display: grid;
+  gap: 0.45rem;
+  margin: 2rem 0;
+}
+
+.generator-coil span {
+  display: block;
+  height: 18px;
+  border: 2px solid rgba(56, 189, 248, 0.82);
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.16), rgba(248, 217, 138, 0.22));
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.28);
+}
+
+.generator-coil span:nth-child(2),
+.generator-coil span:nth-child(3) {
+  transform: translateX(10%);
+}
+
+.generator-load-meter {
+  height: 22px;
+  margin: 2.35rem 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 247, 220, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 250, 240, 0.12);
+}
+
+.generator-load-meter span {
+  display: block;
+  inline-size: var(--generator-load);
+  block-size: 100%;
+  border-radius: inherit;
+  opacity: var(--generator-current-opacity);
+  background: linear-gradient(90deg, #38bdf8, #f8d98a, #f59e0b);
+  box-shadow: 0 0 18px rgba(248, 217, 138, 0.55);
+  transition: inline-size 160ms ease, opacity 160ms ease;
+}
+
+[data-generator-circuit='open'] .generator-load-meter span {
+  inline-size: 8%;
+}
+
+[data-generator-circuit='open'] .generator-load-card {
+  border-color: rgba(180, 70, 44, 0.35);
+}
+
+.generator-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(220px, 0.5fr);
+  gap: 1rem;
+  align-items: end;
+}
+
+.generator-circuit-control {
+  margin-bottom: 1.1rem;
+}
+
+.generator-readings {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.generator-readings .meter strong {
+  font-size: clamp(1.35rem, 4vw, 2.25rem);
+}
+
+.generator-note {
+  margin-bottom: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
 .meters {
   display: grid;
   gap: 1rem;
@@ -1682,6 +1858,9 @@ h3 {
   .grounding-controls,
   .grounding-readings,
   .grounding-protection-grid,
+  .generator-stage,
+  .generator-controls,
+  .generator-readings,
   .lab-shell,
   .lab-board-header {
     display: grid;
@@ -1721,6 +1900,7 @@ h3 {
   .charge-dot,
   .field-line,
   .spark-active,
+  .generator-rotor,
   [data-static-state='critical'] .charged-object {
     animation: none !important;
   }

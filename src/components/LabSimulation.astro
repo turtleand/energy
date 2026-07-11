@@ -11,6 +11,7 @@ const isDcVsAcLab = labSlug === 'lesson-5-dc-vs-ac';
 const isAdapterLabelLab = labSlug === 'lesson-6-power-adapter-labels';
 const isPowerEnergyLab = labSlug === 'lesson-7-power-energy-bills';
 const isGroundingSafetyLab = labSlug === 'lesson-8-conductors-insulators-grounding-safety';
+const isGeneratorLab = labSlug === 'lesson-9-generators-electromagnetic-induction';
 ---
 
     {isStaticChargeLab ? (
@@ -695,6 +696,110 @@ const isGroundingSafetyLab = labSlug === 'lesson-8-conductors-insulators-groundi
           </p>
         </aside>
       </section>
+    ) : isGeneratorLab ? (
+      <section
+        class="container lab-shell generator-induction-shell"
+        aria-labelledby="lab-title"
+        data-generator-induction-lab
+        data-generator-circuit="closed"
+      >
+        <div class="lab-board generator-induction-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">Generator induction model</p>
+              <h2 id="lab-title">Changing flux makes voltage.</h2>
+            </div>
+            <p class="lab-status" data-generator-status>Steady motion with a medium load. Changing flux induces voltage and current powers the load.</p>
+          </div>
+
+          <div class="generator-stage" aria-label="Generator induction chain">
+            <section class="generator-card generator-motion-card" aria-labelledby="generator-motion-title">
+              <p class="panel-label">Mechanical input</p>
+              <h3 id="generator-motion-title">Turbine motion</h3>
+              <div class="generator-rotor" aria-hidden="true">
+                <span class="generator-magnet generator-magnet-n">N</span>
+                <span class="generator-magnet generator-magnet-s">S</span>
+              </div>
+              <p>Motion turns a magnet near the coil, or turns the coil through a magnetic field.</p>
+            </section>
+
+            <section class="generator-card generator-coil-card" aria-labelledby="generator-coil-title">
+              <p class="panel-label">Magnetic flux</p>
+              <h3 id="generator-coil-title">Flux keeps changing</h3>
+              <div class="generator-coil" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <p data-generator-flux>55% changing</p>
+            </section>
+
+            <section class="generator-card generator-load-card" aria-labelledby="generator-load-title">
+              <p class="panel-label">Closed circuit</p>
+              <h3 id="generator-load-title" data-generator-load-state>Receiving power</h3>
+              <div class="generator-load-meter" aria-hidden="true">
+                <span data-generator-load-bar></span>
+              </div>
+              <p>The load receives power only when the circuit path is closed.</p>
+            </section>
+          </div>
+        </div>
+
+        <div class="lab-controls generator-controls" aria-label="Generator controls">
+          <label class="control">
+            <span>Motion between magnet and coil</span>
+            <input data-generator-motion-input type="range" min="10" max="100" step="1" value="55" />
+            <output data-generator-motion-output>Steady motion</output>
+          </label>
+          <label class="control">
+            <span>Electrical load</span>
+            <input data-generator-load-input type="range" min="10" max="100" step="1" value="55" />
+            <output data-generator-load-output>Medium load</output>
+          </label>
+          <label class="switch-control generator-circuit-control">
+            <input data-generator-circuit-input type="checkbox" checked />
+            <span>Close the circuit</span>
+          </label>
+        </div>
+
+        <div class="meters generator-readings" aria-label="Generator readings">
+          <div class="meter">
+            <span>Induced voltage</span>
+            <strong data-generator-voltage>7.5 V induced</strong>
+            <p>Changing magnetic flux induces voltage in the coil.</p>
+          </div>
+          <div class="meter">
+            <span>Load current</span>
+            <strong data-generator-current>2.1 A</strong>
+            <p>Current flows only when the circuit is closed.</p>
+          </div>
+          <div class="meter">
+            <span>Electrical power</span>
+            <strong data-generator-power>15.4 W</strong>
+            <p>Power delivered to the load comes from mechanical input.</p>
+          </div>
+          <div class="meter">
+            <span>Mechanical effort</span>
+            <strong data-generator-effort>62% effort</strong>
+            <p>A heavier electrical load makes the generator harder to turn.</p>
+          </div>
+        </div>
+
+        <aside class="formula-card generator-chain-card" aria-label="Generator induction chain">
+          <h2>The induction chain</h2>
+          <ul>
+            <li><strong>Motion:</strong> a turbine, engine, or crank moves the magnet-coil relationship.</li>
+            <li><strong>Flux:</strong> magnetic field through the coil changes.</li>
+            <li><strong>Voltage:</strong> changing flux induces electrical push.</li>
+            <li><strong>Current:</strong> a closed circuit lets current power the load.</li>
+            <li><strong>Load:</strong> more current requires more mechanical work.</li>
+          </ul>
+          <p class="generator-note" data-generator-note>
+            The closed circuit lets induced voltage push current. The load receives power from the supplied motion.
+          </p>
+        </aside>
+      </section>
     ) : (
       <section class="container lab-shell" aria-labelledby="lab-title" data-energy-lab>
         <div class="lab-board">
@@ -820,6 +925,8 @@ const isGroundingSafetyLab = labSlug === 'lesson-8-conductors-insulators-groundi
     <script type="module" src="/scripts/power-energy-bill-lab.js"></script>
   ) : isGroundingSafetyLab ? (
     <script type="module" src="/scripts/grounding-safety-lab.js"></script>
+  ) : isGeneratorLab ? (
+    <script type="module" src="/scripts/generator-induction-lab.js"></script>
   ) : (
     <script type="module" src="/scripts/energy-flow-lab.js"></script>
   )}
