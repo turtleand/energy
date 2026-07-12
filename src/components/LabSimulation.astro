@@ -12,6 +12,7 @@ const isAdapterLabelLab = labSlug === 'lesson-6-power-adapter-labels';
 const isPowerEnergyLab = labSlug === 'lesson-7-power-energy-bills';
 const isGroundingSafetyLab = labSlug === 'lesson-8-conductors-insulators-grounding-safety';
 const isGeneratorLab = labSlug === 'lesson-9-generators-electromagnetic-induction';
+const isTransformerGridLab = labSlug === 'lesson-10-why-ac-won-the-grid-transformers-voltage-heat-loss';
 ---
 
     {isStaticChargeLab ? (
@@ -837,6 +838,109 @@ const isGeneratorLab = labSlug === 'lesson-9-generators-electromagnetic-inductio
           </p>
         </aside>
       </section>
+    ) : isTransformerGridLab ? (
+      <section
+        class="container lab-shell transformer-grid-shell"
+        aria-labelledby="lab-title"
+        data-transformer-grid-lab
+        data-transformer-voltage-level="medium"
+      >
+        <div class="lab-board transformer-grid-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">Transformer grid model</p>
+              <h2 id="lab-title">Step up voltage. Lower current. Reduce heat.</h2>
+            </div>
+            <p class="lab-status" data-transformer-status>10 kW sent at 1,000 V needs about 10 A of current in this simplified model.</p>
+          </div>
+
+          <div class="transformer-stage" aria-label="Simplified transformer transmission model">
+            <section class="transformer-node step-up-node" aria-labelledby="step-up-title">
+              <p class="panel-label">Step up</p>
+              <h3 id="step-up-title">Raise voltage</h3>
+              <div class="transformer-coils" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <p>Transformer raises voltage before the long line.</p>
+            </section>
+
+            <section class="transformer-line-card" aria-labelledby="transformer-line-title">
+              <p class="panel-label">Long line</p>
+              <h3 id="transformer-line-title" data-transformer-line-state>Medium educational line voltage</h3>
+              <div class="transformer-line" aria-hidden="true">
+                <span class="line-flow flow-one"></span>
+                <span class="line-flow flow-two"></span>
+                <span class="line-flow flow-three"></span>
+              </div>
+              <div class="heat-track" aria-label="Relative wire heat loss">
+                <span data-transformer-heat-bar></span>
+              </div>
+              <p>Relative heat falls when current falls.</p>
+            </section>
+
+            <section class="transformer-node step-down-node" aria-labelledby="step-down-title">
+              <p class="panel-label">Step down</p>
+              <h3 id="step-down-title">Lower voltage</h3>
+              <div class="transformer-coils transformer-coils-small" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <p>Transformer lowers voltage near users.</p>
+            </section>
+          </div>
+        </div>
+
+        <div class="lab-controls transformer-controls" aria-label="Transformer model controls">
+          <label class="control">
+            <span>Power being sent</span>
+            <input data-transformer-power-input type="range" min="1000" max="100000" step="1000" value="10000" />
+            <output data-transformer-power-output>10 kW</output>
+          </label>
+          <label class="control">
+            <span>Transmission voltage</span>
+            <select data-transformer-voltage-input>
+              <option value="100">100 V, low educational line voltage</option>
+              <option value="1000" selected>1,000 V, medium educational line voltage</option>
+              <option value="10000">10,000 V, high educational line voltage</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="meters transformer-readings" aria-label="Transformer transmission readings">
+          <div class="meter">
+            <span>Line voltage</span>
+            <strong data-transformer-voltage-output>1,000 V</strong>
+            <p>Voltage is the electrical push used for the transmission line.</p>
+          </div>
+          <div class="meter">
+            <span>Line current</span>
+            <strong data-transformer-current>10 A</strong>
+            <p>For the same power, higher voltage means lower current.</p>
+          </div>
+          <div class="meter">
+            <span>Relative heat loss</span>
+            <strong data-transformer-heat>Medium relative heat loss</strong>
+            <p>In this model, wire heating is proportional to I².</p>
+          </div>
+        </div>
+
+        <aside class="formula-card transformer-model-card" aria-label="Transformer model summary">
+          <h2>The grid chain</h2>
+          <ul>
+            <li><strong>P = V × I:</strong> the same power can travel with different voltage and current combinations.</li>
+            <li><strong>Step up:</strong> higher voltage lowers current for travel.</li>
+            <li><strong>I²R:</strong> lower current strongly reduces wire heating in the simplified model.</li>
+            <li><strong>Step down:</strong> voltage is lowered again near use.</li>
+          </ul>
+          <p class="transformer-note" data-transformer-note>
+            For the same power, raising voltage lowers current. Because heat loss grows with current squared, the line gets much cooler in the relative model.
+          </p>
+        </aside>
+      </section>
     ) : (
       <section class="container lab-shell" aria-labelledby="lab-title" data-energy-lab>
         <div class="lab-board">
@@ -964,6 +1068,8 @@ const isGeneratorLab = labSlug === 'lesson-9-generators-electromagnetic-inductio
     <script type="module" src="/scripts/grounding-safety-lab.js"></script>
   ) : isGeneratorLab ? (
     <script type="module" src="/scripts/generator-induction-lab.js"></script>
+  ) : isTransformerGridLab ? (
+    <script type="module" src="/scripts/transformer-grid-lab.js"></script>
   ) : (
     <script type="module" src="/scripts/energy-flow-lab.js"></script>
   )}
