@@ -34,10 +34,11 @@ async function readCollection(dir, routePrefix) {
       slug,
       labSlug: data.labSlug,
       lessonSlug: data.lessonSlug,
+      order: Number(data.order) || 0,
       body,
     });
   }
-  return items;
+  return items.sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
 }
 
 const lessons = await readCollection(lessonsDir, '/lessons');
