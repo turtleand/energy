@@ -2148,6 +2148,189 @@ h3 {
   line-height: 1.55;
 }
 
+.house-wiring-shell {
+  grid-template-columns: 1fr;
+}
+
+.house-wiring-board,
+.house-controls,
+.house-readings,
+.house-comparison-card {
+  grid-column: 1 / -1;
+}
+
+.house-wiring-stage {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.7fr) minmax(0, 1.4fr) minmax(160px, 0.7fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.house-node,
+.house-path-card {
+  min-height: 250px;
+  padding: clamp(1rem, 3vw, 1.4rem);
+  border: 1px solid rgba(255, 247, 220, 0.22);
+  border-radius: 24px;
+  background: rgba(255, 250, 240, 0.08);
+}
+
+.house-node h3,
+.house-path-card h3 {
+  color: #fff7dc;
+  font-size: clamp(1.7rem, 4vw, 2.7rem);
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+}
+
+.house-node p:not(.panel-label),
+.house-path-card p:not(.panel-label) {
+  color: rgba(255, 247, 220, 0.82);
+  font-weight: 850;
+  line-height: 1.5;
+}
+
+.house-node-wire {
+  display: grid;
+  gap: 0.55rem;
+  margin: 1.1rem 0;
+}
+
+.house-node-wire span {
+  display: block;
+  height: 11px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #38bdf8, #f8d98a);
+  box-shadow: 0 0 18px rgba(248, 217, 138, 0.4);
+}
+
+.neutral-wire span {
+  background: linear-gradient(90deg, rgba(255, 247, 220, 0.78), #38bdf8);
+}
+
+.house-path-map {
+  display: grid;
+  grid-template-columns: minmax(70px, 1fr) auto minmax(110px, 1.1fr) auto minmax(70px, 1fr);
+  gap: 0.5rem;
+  align-items: center;
+  margin: 1.1rem 0;
+}
+
+.house-path-segment,
+.house-path-arrow {
+  display: grid;
+  min-height: 56px;
+  place-items: center;
+  border-radius: 16px;
+  font-weight: 900;
+}
+
+.house-path-segment {
+  border: 1px solid rgba(255, 247, 220, 0.18);
+  color: #fff7dc;
+  background: rgba(255, 250, 240, 0.08);
+}
+
+.live-segment {
+  color: #f8d98a;
+}
+
+.return-segment {
+  color: #38bdf8;
+}
+
+.house-path-arrow {
+  color: #f8d98a;
+  font-size: 1.4rem;
+}
+
+.house-ground-symbol {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  margin: 1.2rem 0;
+}
+
+.house-ground-symbol span {
+  display: block;
+  height: 7px;
+  border-radius: 999px;
+  background: #f8d98a;
+  box-shadow: 0 0 14px rgba(248, 217, 138, 0.42);
+}
+
+.house-ground-symbol span:nth-child(1) {
+  width: 70%;
+}
+
+.house-ground-symbol span:nth-child(2) {
+  width: 46%;
+}
+
+.house-ground-symbol span:nth-child(3) {
+  width: 24%;
+}
+
+.house-controls {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.house-step {
+  color: var(--green-dark);
+  cursor: pointer;
+}
+
+.house-step.is-current {
+  border-color: rgba(20, 108, 83, 0.42);
+  background: rgba(20, 108, 83, 0.12);
+}
+
+.house-readings {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.house-rule-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.house-rule-grid div {
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.36);
+}
+
+.house-rule-grid span {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.house-rule-grid strong {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--green-dark);
+  font-size: 1.18rem;
+}
+
+[data-house-state='overload'] .house-path-card,
+[data-house-state='short'] .house-path-card,
+[data-house-state='ground'] .ground-node,
+[data-house-state='leakage'] .house-path-card {
+  border-color: rgba(248, 217, 138, 0.72);
+  box-shadow: 0 0 0 1px rgba(248, 217, 138, 0.18), 0 16px 38px rgba(245, 158, 11, 0.12);
+}
+
 .site-footer {
   display: flex;
   justify-content: space-between;
@@ -2196,6 +2379,11 @@ h3 {
   .transformer-stage,
   .transformer-controls,
   .transformer-readings,
+  .house-wiring-stage,
+  .house-controls,
+  .house-readings,
+  .house-rule-grid,
+  .house-path-map,
   .lab-shell,
   .lab-board-header {
     display: grid;

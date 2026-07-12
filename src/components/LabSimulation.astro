@@ -13,6 +13,7 @@ const isPowerEnergyLab = labSlug === 'lesson-7-power-energy-bills';
 const isGroundingSafetyLab = labSlug === 'lesson-8-conductors-insulators-grounding-safety';
 const isGeneratorLab = labSlug === 'lesson-9-generators-electromagnetic-induction';
 const isTransformerGridLab = labSlug === 'lesson-10-why-ac-won-the-grid-transformers-voltage-heat-loss';
+const isHouseWiringLab = labSlug === 'lesson-11-house-wiring-faults-and-protection';
 ---
 
     {isStaticChargeLab ? (
@@ -973,6 +974,128 @@ const isTransformerGridLab = labSlug === 'lesson-10-why-ac-won-the-grid-transfor
           </p>
         </aside>
       </section>
+    ) : isHouseWiringLab ? (
+      <section
+        class="container lab-shell house-wiring-shell"
+        aria-labelledby="lab-title"
+        data-house-wiring-lab
+        data-house-state="normal"
+      >
+        <div class="lab-board house-wiring-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">House wiring fault classifier</p>
+              <h2 id="lab-title">Name the path. Then name the protection.</h2>
+            </div>
+            <p class="lab-status" data-house-status>Normal operation. Current leaves on live, passes through the load, and returns on neutral.</p>
+          </div>
+
+          <div class="house-wiring-stage" aria-label="Simplified house wiring current paths">
+            <section class="house-node live-node" aria-labelledby="house-live-title">
+              <p class="panel-label">Live or hot</p>
+              <h3 id="house-live-title">Sends push</h3>
+              <div class="house-node-wire live-wire" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <p>Current starts from the energized conductor.</p>
+            </section>
+
+            <section class="house-path-card" aria-labelledby="house-path-title">
+              <p class="panel-label">Selected condition</p>
+              <h3 id="house-path-title" data-house-path>Live -> device -> neutral</h3>
+              <div class="house-path-map" aria-hidden="true">
+                <span class="house-path-segment live-segment">Live</span>
+                <span class="house-path-arrow">→</span>
+                <span class="house-path-segment load-segment">Load or fault</span>
+                <span class="house-path-arrow">→</span>
+                <span class="house-path-segment return-segment">Return</span>
+              </div>
+              <p data-house-note>Ground is present for safety, but it is not part of the normal working loop.</p>
+            </section>
+
+            <section class="house-node neutral-node" aria-labelledby="house-neutral-title">
+              <p class="panel-label">Neutral</p>
+              <h3 id="house-neutral-title">Normal return</h3>
+              <div class="house-node-wire neutral-wire" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <p>Neutral completes the intended working loop.</p>
+            </section>
+
+            <section class="house-node ground-node" aria-labelledby="house-ground-title">
+              <p class="panel-label">Ground</p>
+              <h3 id="house-ground-title" data-house-ground>Quiet backup path</h3>
+              <div class="house-ground-symbol" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <p>Ground should not carry normal current.</p>
+            </section>
+          </div>
+        </div>
+
+        <div class="lab-controls house-controls" aria-label="House wiring scenario controls">
+          <button class="button button-secondary house-step is-current" type="button" data-house-scenario-button="normal" aria-pressed="true">
+            Normal
+          </button>
+          <button class="button button-secondary house-step" type="button" data-house-scenario-button="overload" aria-pressed="false">
+            Overload
+          </button>
+          <button class="button button-secondary house-step" type="button" data-house-scenario-button="short" aria-pressed="false">
+            Live-neutral short
+          </button>
+          <button class="button button-secondary house-step" type="button" data-house-scenario-button="ground" aria-pressed="false">
+            Live-ground fault
+          </button>
+          <button class="button button-secondary house-step" type="button" data-house-scenario-button="leakage" aria-pressed="false">
+            Leakage
+          </button>
+        </div>
+
+        <div class="meters house-readings" aria-label="House wiring fault readings">
+          <div class="meter">
+            <span>Current level</span>
+            <strong data-house-current>Normal load current</strong>
+            <p>Overcurrent can mean overload or short-circuit current.</p>
+          </div>
+          <div class="meter">
+            <span>Normal breaker</span>
+            <strong data-house-breaker>Breaker idle</strong>
+            <p>Breakers mainly detect overcurrent.</p>
+          </div>
+          <div class="meter">
+            <span>GFCI or RCD</span>
+            <strong data-house-gfci>GFCI/RCD balanced</strong>
+            <p>GFCI and RCD devices detect live-neutral imbalance.</p>
+          </div>
+        </div>
+
+        <aside class="formula-card house-comparison-card" aria-label="House wiring protection rule">
+          <h2>The protection rule</h2>
+          <div class="house-rule-grid">
+            <div>
+              <span>Breaker or fuse</span>
+              <strong>Overcurrent</strong>
+              <p>Trips for overloads and short circuits.</p>
+            </div>
+            <div>
+              <span>GFCI or RCD</span>
+              <strong>Imbalance</strong>
+              <p>Trips when live current does not match neutral return current.</p>
+            </div>
+            <div>
+              <span>Ground</span>
+              <strong>Fault path</strong>
+              <p>Not for normal current. It helps faults become safer and detectable.</p>
+            </div>
+          </div>
+        </aside>
+      </section>
     ) : (
       <section class="container lab-shell" aria-labelledby="lab-title" data-energy-lab>
         <div class="lab-board">
@@ -1102,6 +1225,8 @@ const isTransformerGridLab = labSlug === 'lesson-10-why-ac-won-the-grid-transfor
     <script type="module" src="/scripts/generator-induction-lab.js"></script>
   ) : isTransformerGridLab ? (
     <script type="module" src="/scripts/transformer-grid-lab.js"></script>
+  ) : isHouseWiringLab ? (
+    <script type="module" src="/scripts/house-wiring-protection-lab.js"></script>
   ) : (
     <script type="module" src="/scripts/energy-flow-lab.js"></script>
   )}
