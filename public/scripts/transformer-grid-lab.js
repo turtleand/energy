@@ -13,6 +13,7 @@ if (lab) {
     line: lab.querySelector('[data-transformer-line-state]'),
     note: lab.querySelector('[data-transformer-note]'),
   };
+  const comparisonRows = Array.from(lab.querySelectorAll('[data-transformer-comparison-row]'));
 
   const voltageLabels = {
     '100': 'Low educational line voltage',
@@ -40,16 +41,51 @@ if (lab) {
     return `${(ratio * 100).toFixed(2)}% of the low-voltage case`;
   }
 
+  function formatMultiplier(value) {
+    return value >= 1000 ? value.toLocaleString() : value.toFixed(0);
+  }
+
+  function visualCurrentScale(voltage) {
+    if (voltage >= 10000) return 0.28;
+    if (voltage >= 1000) return 0.58;
+    return 1;
+  }
+
+  function visualHeatPercent(voltage) {
+    if (voltage >= 10000) return 6;
+    if (voltage >= 1000) return 18;
+    return 100;
+  }
+
+  function updateComparisonRows(power, selectedVoltage) {
+    const baselineCurrent = power / 100;
+
+    comparisonRows.forEach((row) => {
+      const rowVoltage = Number(row.dataset.voltage);
+      const rowCurrent = power / rowVoltage;
+      const relativeHeat = (rowCurrent * rowCurrent) / (baselineCurrent * baselineCurrent);
+      const currentPercent = Math.max(4, Math.min(100, (rowCurrent / baselineCurrent) * 100));
+
+      row.dataset.selected = rowVoltage === selectedVoltage ? 'true' : 'false';
+      row.querySelector('[data-transformer-comparison-current]').textContent = `${formatCurrent(rowCurrent)} current, ${currentPercent.toFixed(0)}% as much`;
+      row.querySelector('[data-transformer-comparison-heat]').textContent = `${(relativeHeat * 100).toFixed(2)}% heat`;
+      row.querySelector('[data-transformer-comparison-current-bar]').style.width = `${currentPercent}%`;
+      row.querySelector('[data-transformer-comparison-heat-bar]').style.width = `${visualHeatPercent(rowVoltage)}%`;
+    });
+  }
+
   function updateTransformer() {
     const power = Number(powerInput.value);
     const voltage = Number(voltageInput.value);
     const current = power / voltage;
     const lowVoltageCurrent = power / 100;
     const relativeHeat = (current * current) / (lowVoltageCurrent * lowVoltageCurrent);
-    const heatPercent = Math.max(4, Math.min(100, relativeHeat * 100));
+    const heatPercent = visualHeatPercent(voltage);
+    const currentDrop = lowVoltageCurrent / current;
+    const heatDrop = 1 / relativeHeat;
 
     lab.style.setProperty('--transformer-heat-level', `${heatPercent}%`);
-    lab.style.setProperty('--transformer-current-scale', String(Math.max(0.18, Math.min(1, current / lowVoltageCurrent))));
+    lab.style.setProperty('--transformer-current-scale', String(visualCurrentScale(voltage)));
     lab.dataset.transformerVoltageLevel = voltage >= 10000 ? 'high' : voltage >= 1000 ? 'medium' : 'low';
 
     output.power.textContent = formatWatts(power);
@@ -58,9 +94,12 @@ if (lab) {
     output.heat.textContent = `${heatLabel(relativeHeat)} (${formatHeatRatio(relativeHeat)})`;
     output.heatBar.style.width = `${heatPercent}%`;
     output.line.textContent = voltageLabels[String(voltage)];
+    updateComparisonRows(power, voltage);
 
     output.status.textContent = `${formatWatts(power)} sent at ${voltage.toLocaleString()} V needs about ${formatCurrent(current)} of current in this simplified model.`;
-    output.note.textContent = 'For the same power, raising voltage lowers current. Because heat loss grows with current squared, the line gets much cooler in the relative model.';
+    output.note.textContent = voltage === 100
+      ? '100 V is the baseline in this lab. The other rows show what changes when the same power is sent at higher voltage.'
+      : `Compared with 100 V, this is ${formatMultiplier(currentDrop)}× lower current and ${formatMultiplier(heatDrop)}× lower heat in the simplified I²R model. The heat bar is magnified so tiny values stay visible.`;
   }
 
   powerInput.addEventListener('input', updateTransformer);

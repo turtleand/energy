@@ -879,6 +879,38 @@ const isTransformerGridLab = labSlug === 'lesson-10-why-ac-won-the-grid-transfor
                 <span data-transformer-heat-bar></span>
               </div>
               <p>Relative heat falls when current falls.</p>
+
+              <div class="transformer-scale-ladder" aria-label="Same-power comparison across line voltages">
+                <h4>Same power, three line choices</h4>
+                <p class="scale-ladder-intro">Use this ladder to compare the choices side by side. The heat bars are magnified for tiny values, but the numbers show the real simplified ratio.</p>
+                <div class="transformer-scale-row" data-transformer-comparison-row data-voltage="100">
+                  <strong>100 V</strong>
+                  <div>
+                    <span data-transformer-comparison-current>100 A current, 100% as much</span>
+                    <div class="scale-mini-track current-track" aria-hidden="true"><span data-transformer-comparison-current-bar></span></div>
+                    <span data-transformer-comparison-heat>100.00% heat</span>
+                    <div class="scale-mini-track heat-mini-track" aria-hidden="true"><span data-transformer-comparison-heat-bar></span></div>
+                  </div>
+                </div>
+                <div class="transformer-scale-row" data-transformer-comparison-row data-voltage="1000" data-selected="true">
+                  <strong>1,000 V</strong>
+                  <div>
+                    <span data-transformer-comparison-current>10 A current, 10% as much</span>
+                    <div class="scale-mini-track current-track" aria-hidden="true"><span data-transformer-comparison-current-bar></span></div>
+                    <span data-transformer-comparison-heat>1.00% heat</span>
+                    <div class="scale-mini-track heat-mini-track" aria-hidden="true"><span data-transformer-comparison-heat-bar></span></div>
+                  </div>
+                </div>
+                <div class="transformer-scale-row" data-transformer-comparison-row data-voltage="10000">
+                  <strong>10,000 V</strong>
+                  <div>
+                    <span data-transformer-comparison-current>1.0 A current, 1% as much</span>
+                    <div class="scale-mini-track current-track" aria-hidden="true"><span data-transformer-comparison-current-bar></span></div>
+                    <span data-transformer-comparison-heat>0.01% heat</span>
+                    <div class="scale-mini-track heat-mini-track" aria-hidden="true"><span data-transformer-comparison-heat-bar></span></div>
+                  </div>
+                </div>
+              </div>
             </section>
 
             <section class="transformer-node step-down-node" aria-labelledby="step-down-title">
@@ -923,7 +955,7 @@ const isTransformerGridLab = labSlug === 'lesson-10-why-ac-won-the-grid-transfor
           </div>
           <div class="meter">
             <span>Relative heat loss</span>
-            <strong data-transformer-heat>Medium relative heat loss</strong>
+            <strong data-transformer-heat>Low relative heat loss (1.00% of the low-voltage case)</strong>
             <p>In this model, wire heating is proportional to I².</p>
           </div>
         </div>
@@ -937,7 +969,7 @@ const isTransformerGridLab = labSlug === 'lesson-10-why-ac-won-the-grid-transfor
             <li><strong>Step down:</strong> voltage is lowered again near use.</li>
           </ul>
           <p class="transformer-note" data-transformer-note>
-            For the same power, raising voltage lowers current. Because heat loss grows with current squared, the line gets much cooler in the relative model.
+            Compared with 100 V, the default 1,000 V choice uses 10× lower current and 100× lower heat in the simplified I²R model.
           </p>
         </aside>
       </section>
