@@ -13,6 +13,7 @@ const isPowerEnergyLab = labSlug === 'lesson-7-power-energy-bills';
 const isGroundingSafetyLab = labSlug === 'lesson-8-conductors-insulators-grounding-safety';
 const isGeneratorLab = labSlug === 'lesson-9-generators-electromagnetic-induction';
 const isTransformerGridLab = labSlug === 'lesson-10-why-ac-won-the-grid-transformers-voltage-heat-loss';
+const isHouseWiringLab = labSlug === 'lesson-11-house-wiring-faults-and-protection';
 ---
 
     {isStaticChargeLab ? (
@@ -973,6 +974,91 @@ const isTransformerGridLab = labSlug === 'lesson-10-why-ac-won-the-grid-transfor
           </p>
         </aside>
       </section>
+    ) : isHouseWiringLab ? (
+      <section
+        class="container lab-shell house-wiring-shell"
+        aria-labelledby="lab-title"
+        data-house-wiring-lab
+        data-house-state="normal"
+      >
+        <div class="lab-board house-wiring-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">House wiring protection</p>
+              <h2 id="lab-title">One loop. Two kinds of protection.</h2>
+            </div>
+            <p class="lab-status" data-house-status>Normal use. Current leaves on live, does work in the load, and returns on neutral.</p>
+          </div>
+
+          <div class="house-wiring-stage" aria-label="Simplified house wiring protection model">
+            <section class="house-loop-card" aria-labelledby="house-loop-title">
+              <p class="panel-label">The working loop</p>
+              <h3 id="house-loop-title" data-house-route>Live -> load -> neutral</h3>
+              <div class="house-loop-diagram" aria-hidden="true">
+                <span class="house-loop-node house-live-node">Live</span>
+                <span class="house-loop-flow"></span>
+                <span class="house-loop-node house-load-node">Load</span>
+                <span class="house-loop-flow"></span>
+                <span class="house-loop-node house-neutral-node">Neutral</span>
+                <span class="house-leak-path">leak</span>
+              </div>
+              <p data-house-note>Ground is nearby for safety, but it is not part of the normal working loop.</p>
+            </section>
+
+            <section class="house-answer-card" aria-labelledby="house-answer-title">
+              <p class="panel-label">What protection notices</p>
+              <h3 id="house-answer-title" data-house-protection>No trip needed</h3>
+              <p data-house-answer>The amount of current is normal, and live and neutral still match.</p>
+              <div class="house-watchers" aria-label="Protection devices">
+                <div class="house-watcher" data-house-breaker-state="idle">
+                  <span>Breaker or fuse watches</span>
+                  <strong data-house-breaker>too much current</strong>
+                </div>
+                <div class="house-watcher" data-house-gfci-state="idle">
+                  <span>GFCI/RCD watches</span>
+                  <strong data-house-gfci>missing return current</strong>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <div class="lab-controls house-controls" aria-label="Choose a house wiring condition">
+          <button class="button button-secondary house-step is-current" type="button" data-house-scenario-button="normal" aria-pressed="true">
+            <span>1</span>
+            Normal use
+          </button>
+          <button class="button button-secondary house-step" type="button" data-house-scenario-button="overcurrent" aria-pressed="false">
+            <span>2</span>
+            Too much current
+          </button>
+          <button class="button button-secondary house-step" type="button" data-house-scenario-button="leakage" aria-pressed="false">
+            <span>3</span>
+            Current leaks away
+          </button>
+        </div>
+
+        <aside class="formula-card house-comparison-card" aria-label="House wiring protection rule">
+          <h2>The whole mental model</h2>
+          <div class="house-rule-grid">
+            <div>
+              <span>Normal</span>
+              <strong>Live -> load -> neutral</strong>
+              <p>The intended loop is complete. Ground stays quiet.</p>
+            </div>
+            <div>
+              <span>Breaker or fuse</span>
+              <strong>Too much current</strong>
+              <p>Overloads and short circuits both belong in this bucket.</p>
+            </div>
+            <div>
+              <span>GFCI/RCD</span>
+              <strong>Current leaks away</strong>
+              <p>It trips when live current and neutral return current do not match.</p>
+            </div>
+          </div>
+        </aside>
+      </section>
     ) : (
       <section class="container lab-shell" aria-labelledby="lab-title" data-energy-lab>
         <div class="lab-board">
@@ -1102,6 +1188,8 @@ const isTransformerGridLab = labSlug === 'lesson-10-why-ac-won-the-grid-transfor
     <script type="module" src="/scripts/generator-induction-lab.js"></script>
   ) : isTransformerGridLab ? (
     <script type="module" src="/scripts/transformer-grid-lab.js"></script>
+  ) : isHouseWiringLab ? (
+    <script type="module" src="/scripts/house-wiring-protection-lab.js"></script>
   ) : (
     <script type="module" src="/scripts/energy-flow-lab.js"></script>
   )}

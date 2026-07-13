@@ -2148,6 +2148,212 @@ h3 {
   line-height: 1.55;
 }
 
+.house-wiring-shell {
+  grid-template-columns: 1fr;
+}
+
+.house-wiring-board,
+.house-controls,
+.house-comparison-card {
+  grid-column: 1 / -1;
+}
+
+.house-wiring-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.house-loop-card,
+.house-answer-card {
+  min-height: 300px;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid rgba(255, 247, 220, 0.22);
+  border-radius: 24px;
+  background: rgba(255, 250, 240, 0.08);
+}
+
+.house-loop-card h3,
+.house-answer-card h3 {
+  max-width: 14ch;
+  color: #fff7dc;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+.house-loop-card p:not(.panel-label),
+.house-answer-card p:not(.panel-label) {
+  color: rgba(255, 247, 220, 0.82);
+  font-weight: 800;
+  line-height: 1.55;
+}
+
+.house-loop-diagram {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(44px, 1fr) auto minmax(44px, 1fr) auto;
+  gap: 0.55rem;
+  align-items: center;
+  margin: 1.4rem 0;
+  min-height: 90px;
+}
+
+.house-loop-node {
+  display: grid;
+  min-height: 58px;
+  min-width: 84px;
+  place-items: center;
+  border: 1px solid rgba(255, 247, 220, 0.22);
+  border-radius: 18px;
+  background: rgba(255, 250, 240, 0.09);
+  color: #fff7dc;
+  font-weight: 950;
+}
+
+.house-live-node {
+  color: #f8d98a;
+}
+
+.house-neutral-node {
+  color: #38bdf8;
+}
+
+.house-loop-flow {
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f8d98a, #38bdf8);
+  box-shadow: 0 0 18px rgba(248, 217, 138, 0.3);
+}
+
+.house-leak-path {
+  position: absolute;
+  right: clamp(1rem, 10vw, 7rem);
+  bottom: -0.3rem;
+  display: grid;
+  min-width: 68px;
+  min-height: 38px;
+  place-items: center;
+  border: 1px dashed rgba(248, 217, 138, 0.42);
+  border-radius: 999px;
+  color: rgba(255, 247, 220, 0.56);
+  font-size: 0.78rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  opacity: 0.35;
+  text-transform: uppercase;
+}
+
+.house-answer-card {
+  display: grid;
+  align-content: start;
+  gap: 0.8rem;
+}
+
+.house-watchers {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.5rem;
+}
+
+.house-watcher {
+  padding: 0.9rem;
+  border: 1px solid rgba(255, 247, 220, 0.18);
+  border-radius: 18px;
+  background: rgba(255, 250, 240, 0.08);
+}
+
+.house-watcher span {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: rgba(255, 247, 220, 0.62);
+  font-size: 0.75rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.house-watcher strong {
+  color: #fff7dc;
+  font-size: 1.1rem;
+}
+
+.house-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.house-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  color: var(--green-dark);
+  cursor: pointer;
+}
+
+.house-step span {
+  display: inline-grid;
+  width: 1.6rem;
+  height: 1.6rem;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(20, 108, 83, 0.12);
+  font-size: 0.78rem;
+  font-weight: 950;
+}
+
+.house-step.is-current {
+  border-color: rgba(20, 108, 83, 0.42);
+  background: rgba(20, 108, 83, 0.12);
+}
+
+.house-rule-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.house-rule-grid div {
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.36);
+}
+
+.house-rule-grid span {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.house-rule-grid strong {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--green-dark);
+  font-size: 1.18rem;
+}
+
+[data-house-state='overcurrent'] .house-loop-card,
+[data-house-breaker-state='active'] {
+  border-color: rgba(248, 217, 138, 0.72);
+  box-shadow: 0 0 0 1px rgba(248, 217, 138, 0.18), 0 16px 38px rgba(245, 158, 11, 0.12);
+}
+
+[data-house-state='leakage'] .house-leak-path,
+[data-house-gfci-state='active'] {
+  opacity: 1;
+  border-color: rgba(248, 217, 138, 0.72);
+  color: #fff7dc;
+  box-shadow: 0 0 0 1px rgba(248, 217, 138, 0.18), 0 16px 38px rgba(245, 158, 11, 0.12);
+}
+
 .site-footer {
   display: flex;
   justify-content: space-between;
@@ -2196,6 +2402,10 @@ h3 {
   .transformer-stage,
   .transformer-controls,
   .transformer-readings,
+  .house-wiring-stage,
+  .house-controls,
+  .house-rule-grid,
+  .house-loop-diagram,
   .lab-shell,
   .lab-board-header {
     display: grid;
