@@ -14,6 +14,7 @@ const isGroundingSafetyLab = labSlug === 'lesson-8-conductors-insulators-groundi
 const isGeneratorLab = labSlug === 'lesson-9-generators-electromagnetic-induction';
 const isTransformerGridLab = labSlug === 'lesson-10-why-ac-won-the-grid-transformers-voltage-heat-loss';
 const isHouseWiringLab = labSlug === 'lesson-11-house-wiring-faults-and-protection';
+const isNeighborhoodDistributionLab = labSlug === 'lesson-12-neighborhood-distribution';
 ---
 
     {isStaticChargeLab ? (
@@ -1059,6 +1060,119 @@ const isHouseWiringLab = labSlug === 'lesson-11-house-wiring-faults-and-protecti
           </div>
         </aside>
       </section>
+    ) : isNeighborhoodDistributionLab ? (
+      <section
+        class="container lab-shell neighborhood-distribution-shell"
+        aria-labelledby="lab-title"
+        data-neighborhood-distribution-lab
+        data-neighborhood-voltage-level="medium"
+      >
+        <div class="lab-board neighborhood-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">Neighborhood distribution</p>
+              <h2 id="lab-title">Feeder, transformer, service.</h2>
+            </div>
+            <p class="lab-status" data-neighborhood-status>60 kW neighborhood load at 7,200 V needs about 8.3 A on the feeder.</p>
+          </div>
+
+          <div class="neighborhood-stage" aria-label="Simplified neighborhood distribution model">
+            <section class="neighborhood-node substation-node" aria-labelledby="substation-title">
+              <p class="panel-label">Substation</p>
+              <h3 id="substation-title">Lower from transmission</h3>
+              <p>Transmission power is stepped down before it enters local distribution feeders.</p>
+            </section>
+
+            <section class="neighborhood-feeder-card" aria-labelledby="feeder-title">
+              <p class="panel-label">Distribution feeder</p>
+              <h3 id="feeder-title" data-neighborhood-feeder-label>7,200 V feeder</h3>
+              <div class="neighborhood-feeder-line" aria-hidden="true">
+                <span class="line-flow flow-one"></span>
+                <span class="line-flow flow-two"></span>
+                <span class="line-flow flow-three"></span>
+              </div>
+              <div class="heat-track neighborhood-heat-track" aria-label="Relative feeder heat loss">
+                <span data-neighborhood-heat-bar></span>
+              </div>
+              <p data-neighborhood-feeder-note>Same neighborhood power, higher feeder voltage, lower feeder current.</p>
+            </section>
+
+            <section class="neighborhood-node transformer-service-node" aria-labelledby="local-transformer-title">
+              <p class="panel-label">Local transformer</p>
+              <h3 id="local-transformer-title">Step down near homes</h3>
+              <div class="neighborhood-transformer" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <strong>240 V service</strong>
+              </div>
+              <p>The local transformer lowers feeder voltage for nearby service connections.</p>
+            </section>
+
+            <section class="neighborhood-home-card" aria-labelledby="home-load-title">
+              <p class="panel-label">Home service</p>
+              <h3 id="home-load-title">Load decides current</h3>
+              <div class="home-load-stack" aria-hidden="true">
+                <span class="home-load-chip is-on">lights</span>
+                <span class="home-load-chip is-on">laptop</span>
+                <span class="home-load-chip" data-home-heavy-chip>heater</span>
+              </div>
+              <p data-home-current-note>5 kW at 240 V needs about 20.8 A. Change the load to change the home current.</p>
+            </section>
+          </div>
+        </div>
+
+        <div class="lab-controls neighborhood-controls" aria-label="Neighborhood distribution controls">
+          <label class="control">
+            <span>Neighborhood load</span>
+            <input data-neighborhood-power-input type="range" min="10" max="200" step="10" value="60" />
+            <output data-neighborhood-power-output>60 kW</output>
+          </label>
+          <label class="control">
+            <span>Feeder voltage</span>
+            <select data-neighborhood-feeder-voltage-input>
+              <option value="240">240 V, low educational feeder voltage</option>
+              <option value="7200" selected>7,200 V, neighborhood feeder voltage</option>
+              <option value="13200">13,200 V, higher feeder voltage</option>
+            </select>
+          </label>
+          <label class="control">
+            <span>Home active load</span>
+            <input data-home-load-input type="range" min="1" max="12" step="1" value="5" />
+            <output data-home-load-output>5 kW</output>
+          </label>
+        </div>
+
+        <div class="meters neighborhood-readings" aria-label="Neighborhood distribution readings">
+          <div class="meter">
+            <span>Feeder current</span>
+            <strong data-neighborhood-feeder-current>8.3 A</strong>
+            <p>P = V × I, so feeder current falls when feeder voltage rises for the same load.</p>
+          </div>
+          <div class="meter">
+            <span>Relative feeder heat</span>
+            <strong data-neighborhood-heat>Low relative heat loss (0.11% of the 240 V case)</strong>
+            <p>P_loss = I²R, so current has a squared effect in this simplified model.</p>
+          </div>
+          <div class="meter">
+            <span>Home service current</span>
+            <strong data-home-current>20.8 A</strong>
+            <p>Home current changes with what devices are running.</p>
+          </div>
+        </div>
+
+        <aside class="formula-card neighborhood-model-card" aria-label="Neighborhood distribution model summary">
+          <h2>The distribution chain</h2>
+          <ul>
+            <li><strong>Substation:</strong> lowers transmission voltage for local distribution.</li>
+            <li><strong>Feeder:</strong> carries neighborhood power at distribution voltage.</li>
+            <li><strong>Local transformer:</strong> lowers voltage near homes.</li>
+            <li><strong>Service current:</strong> changes with the active load inside the home.</li>
+          </ul>
+          <p class="neighborhood-note" data-neighborhood-note>
+            Compared with 240 V, the default 7,200 V feeder uses 30× lower current and 900× lower heat in the simplified I²R model.
+          </p>
+        </aside>
+      </section>
     ) : (
       <section class="container lab-shell" aria-labelledby="lab-title" data-energy-lab>
         <div class="lab-board">
@@ -1190,6 +1304,8 @@ const isHouseWiringLab = labSlug === 'lesson-11-house-wiring-faults-and-protecti
     <script type="module" src="/scripts/transformer-grid-lab.js"></script>
   ) : isHouseWiringLab ? (
     <script type="module" src="/scripts/house-wiring-protection-lab.js"></script>
+  ) : isNeighborhoodDistributionLab ? (
+    <script type="module" src="/scripts/neighborhood-distribution-lab.js"></script>
   ) : (
     <script type="module" src="/scripts/energy-flow-lab.js"></script>
   )}
