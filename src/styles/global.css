@@ -2354,6 +2354,150 @@ h3 {
   box-shadow: 0 0 0 1px rgba(248, 217, 138, 0.18), 0 16px 38px rgba(245, 158, 11, 0.12);
 }
 
+.neighborhood-distribution-shell {
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+}
+
+.neighborhood-board,
+.neighborhood-readings,
+.neighborhood-model-card {
+  grid-column: 1 / -1;
+}
+
+.neighborhood-stage {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.8fr) minmax(260px, 1.2fr) minmax(180px, 0.9fr) minmax(180px, 0.9fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.neighborhood-node,
+.neighborhood-feeder-card,
+.neighborhood-home-card {
+  min-height: 260px;
+  padding: clamp(1rem, 3vw, 1.35rem);
+  border: 1px solid rgba(255, 247, 220, 0.22);
+  border-radius: 24px;
+  background: rgba(255, 250, 240, 0.08);
+}
+
+.neighborhood-node h3,
+.neighborhood-feeder-card h3,
+.neighborhood-home-card h3 {
+  color: #fff7dc;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  line-height: 1.05;
+}
+
+.neighborhood-node p:not(.panel-label),
+.neighborhood-feeder-card p:not(.panel-label),
+.neighborhood-home-card p:not(.panel-label) {
+  color: rgba(255, 247, 220, 0.82);
+  line-height: 1.5;
+}
+
+.neighborhood-feeder-line {
+  position: relative;
+  height: 90px;
+  margin: 1.2rem 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.2), rgba(248, 217, 138, 0.28));
+  box-shadow: inset 0 0 0 1px rgba(255, 247, 220, 0.18);
+}
+
+.neighborhood-feeder-line::before,
+.neighborhood-feeder-line::after {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  height: 8px;
+  content: '';
+  border-radius: 999px;
+  background: rgba(255, 247, 220, 0.78);
+}
+
+.neighborhood-feeder-line::before {
+  top: 28px;
+}
+
+.neighborhood-feeder-line::after {
+  bottom: 28px;
+}
+
+.neighborhood-feeder-line .line-flow {
+  transform: translateY(-50%) scale(var(--neighborhood-current-scale, 0.45));
+}
+
+.neighborhood-distribution-shell[data-neighborhood-voltage-level='medium'] .flow-three {
+  opacity: 0.35;
+}
+
+.neighborhood-distribution-shell[data-neighborhood-voltage-level='high'] .flow-two,
+.neighborhood-distribution-shell[data-neighborhood-voltage-level='high'] .flow-three {
+  opacity: 0;
+}
+
+.neighborhood-heat-track span {
+  width: var(--neighborhood-heat-level, 14%);
+}
+
+.neighborhood-transformer {
+  display: grid;
+  gap: 0.55rem;
+  margin: 1rem 0;
+}
+
+.neighborhood-transformer span {
+  height: 42px;
+  border: 3px solid #f8d98a;
+  border-radius: 999px;
+  box-shadow: 0 0 18px rgba(248, 217, 138, 0.28);
+}
+
+.neighborhood-transformer strong {
+  color: #fff7dc;
+}
+
+.home-load-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 1rem 0;
+}
+
+.home-load-chip {
+  padding: 0.5rem 0.7rem;
+  border: 1px solid rgba(255, 247, 220, 0.2);
+  border-radius: 999px;
+  color: rgba(255, 247, 220, 0.62);
+  font-size: 0.82rem;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.home-load-chip.is-on {
+  border-color: rgba(248, 217, 138, 0.72);
+  color: #fff7dc;
+  background: rgba(248, 217, 138, 0.12);
+}
+
+.neighborhood-controls {
+  grid-column: 1 / 2;
+}
+
+.neighborhood-readings {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.neighborhood-note {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
 .site-footer {
   display: flex;
   justify-content: space-between;
@@ -2406,6 +2550,9 @@ h3 {
   .house-controls,
   .house-rule-grid,
   .house-loop-diagram,
+  .neighborhood-stage,
+  .neighborhood-controls,
+  .neighborhood-readings,
   .lab-shell,
   .lab-board-header {
     display: grid;
