@@ -13,7 +13,7 @@ Turtleand Energy is a public learning surface for energy, electricity, circuits,
 - [Lesson 8: Conductors, Insulators, Grounding, and Safety](https://energy.turtleand.com/lessons/lesson-8-conductors-insulators-grounding-safety/): Learn how conductors guide current, how insulators resist unwanted paths, and how grounding gives fault current a safer route. Includes embedded simulation: Switch between normal operation, an unsafe fault, a grounded fault, and a leakage fault to see which path current takes and which protection responds.
 - [Lesson 9: Generators and Electromagnetic Induction](https://energy.turtleand.com/lessons/lesson-9-generators-electromagnetic-induction/): See how motion between a magnet and wire coil changes magnetic flux and makes voltage appear at the wire ends. Includes embedded simulation: Move a magnet near a wire coil to see magnetic flux change and voltage appear at the wire ends.
 - [Lesson 10: Why AC Won the Grid](https://energy.turtleand.com/lessons/lesson-10-why-ac-won-the-grid-transformers-voltage-heat-loss/): Learn how transformers made long-distance AC power practical by raising voltage, lowering current, and reducing wire heat loss before power is stepped down near users. Includes embedded simulation: Adjust transmitted power and line voltage in a simplified model to see how higher voltage lowers current and reduces relative wire heat loss.
-- [Lesson 11: House Wiring Faults and Protection](https://energy.turtleand.com/lessons/lesson-11-house-wiring-faults-and-protection/): Separate overloads, live-neutral shorts, live-ground faults, breakers, GFCI/RCD devices, neutral, and ground in one safe mental model. Includes embedded simulation: Choose normal operation, overload, live-neutral short, live-ground fault, or leakage and see which path current takes and which protection responds.
+- [Lesson 11: House Wiring Faults and Protection](https://energy.turtleand.com/lessons/lesson-11-house-wiring-faults-and-protection/): Use one simple mental model: live and neutral form the normal loop, breakers/fuses watch too much current, and GFCI/RCD devices watch leakage. Includes embedded simulation: Pick normal use, too much current, or leaking current and see whether the breaker/fuse or GFCI/RCD is the device that reacts.
 
 ## Article details
 ### Lesson 1: Electricity from first principles
@@ -984,7 +984,7 @@ Adjust transmitted power and line voltage in a simplified model to see how highe
 
 ### Lesson 11: House Wiring Faults and Protection
 
-House wiring is easier to reason about when every part has one job.
+House wiring is easier to reason about when the simulation asks fewer questions. Start with one loop and two kinds of protection.
 
 ```text
 live or hot -> sends electrical push into the circuit
@@ -1083,13 +1083,15 @@ That is why a GFCI/RCD can trip even when the current is too small to trip a nor
 
 ## The comparison
 
+For a first mental model, use only three buckets:
+
 | Case | Simple meaning | Main protection response |
 | --- | --- | --- |
 | Normal operation | Live sends power through a device, neutral returns it | No trip needed |
-| Overload | Too many devices or too much demand | Breaker trips on overcurrent |
-| Live-neutral short | Live takes a very low-resistance path to neutral | Breaker or fuse trips quickly |
-| Live-ground fault | Live touches a grounded path, such as a metal case | Breaker or fuse trips if fault current is high enough |
-| Leakage fault | Some current leaves the live-neutral loop | GFCI/RCD trips on imbalance |
+| Too much current | The circuit is overloaded or a short creates a very easy path | Breaker or fuse trips on overcurrent |
+| Current leaks away | Some current leaves the live-neutral loop | GFCI/RCD trips on imbalance |
+
+The detailed names still matter, but the first intuition is simpler: amount problem means breaker or fuse, balance problem means GFCI/RCD.
 
 ## Safety boundary
 
@@ -1105,4 +1107,4 @@ Normal breakers detect overcurrent. That includes overloads and short circuits. 
 
 Embedded simulation:
 
-Choose normal operation, overload, live-neutral short, live-ground fault, or leakage and see which path current takes and which protection responds.
+Pick normal use, too much current, or leaking current and see whether the breaker/fuse or GFCI/RCD is the device that reacts.

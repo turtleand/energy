@@ -1,13 +1,13 @@
 ---
 title: "Lesson 11: House Wiring Faults and Protection"
-summary: "Separate overloads, live-neutral shorts, live-ground faults, breakers, GFCI/RCD devices, neutral, and ground in one safe mental model."
+summary: "Use one simple mental model: live and neutral form the normal loop, breakers/fuses watch too much current, and GFCI/RCD devices watch leakage."
 module: "Foundations"
 order: 11
 status: ready
 labSlug: "lesson-11-house-wiring-faults-and-protection"
 ---
 
-House wiring is easier to reason about when every part has one job.
+House wiring is easier to reason about when the simulation asks fewer questions. Start with one loop and two kinds of protection.
 
 ```text
 live or hot -> sends electrical push into the circuit
@@ -106,13 +106,15 @@ That is why a GFCI/RCD can trip even when the current is too small to trip a nor
 
 ## The comparison
 
+For a first mental model, use only three buckets:
+
 | Case | Simple meaning | Main protection response |
 | --- | --- | --- |
 | Normal operation | Live sends power through a device, neutral returns it | No trip needed |
-| Overload | Too many devices or too much demand | Breaker trips on overcurrent |
-| Live-neutral short | Live takes a very low-resistance path to neutral | Breaker or fuse trips quickly |
-| Live-ground fault | Live touches a grounded path, such as a metal case | Breaker or fuse trips if fault current is high enough |
-| Leakage fault | Some current leaves the live-neutral loop | GFCI/RCD trips on imbalance |
+| Too much current | The circuit is overloaded or a short creates a very easy path | Breaker or fuse trips on overcurrent |
+| Current leaks away | Some current leaves the live-neutral loop | GFCI/RCD trips on imbalance |
+
+The detailed names still matter, but the first intuition is simpler: amount problem means breaker or fuse, balance problem means GFCI/RCD.
 
 ## Safety boundary
 
