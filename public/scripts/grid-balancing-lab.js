@@ -50,15 +50,22 @@ if (lab) {
     return `${Math.round(value).toLocaleString()} MW`;
   }
 
-  function frequencyFromResidual(residualRatio, direction) {
-    const shift = Math.min(0.85, residualRatio * 0.85) * direction;
+  const referenceDisturbanceMw = 1000;
+
+  function fractionOfLabScale(remainingMw) {
+    return Math.min(1, remainingMw / referenceDisturbanceMw);
+  }
+
+  function frequencyFromResidual(remainingMw, direction) {
+    const shift = fractionOfLabScale(remainingMw) * 0.85 * direction;
     return 50 + shift;
   }
 
-  function stateFor(remainingRatio, direction) {
+  function stateFor(remainingMw, direction) {
+    const remainingScale = fractionOfLabScale(remainingMw);
     if (direction === 0) return 'balanced';
-    if (remainingRatio <= 0.12) return 'restoring';
-    if (remainingRatio <= 0.45) return 'stressed';
+    if (remainingScale <= 0.12) return 'restoring';
+    if (remainingScale <= 0.45) return 'stressed';
     return 'protection';
   }
 
@@ -103,9 +110,8 @@ if (lab) {
     const totalResponsePercent = Math.min(100, reservePercent + demandResponsePercent);
     const correction = eventSize * (totalResponsePercent / 100);
     const remaining = Math.max(0, eventSize - correction);
-    const remainingRatio = eventSize === 0 ? 0 : remaining / eventSize;
-    const frequency = frequencyFromResidual(remainingRatio, scenario.direction);
-    const state = stateFor(remainingRatio, scenario.direction);
+    const frequency = frequencyFromResidual(remaining, scenario.direction);
+    const state = stateFor(remaining, scenario.direction);
 
     lab.dataset.gridState = state;
     lab.dataset.gridDirection = scenario.direction < 0 ? 'low' : scenario.direction > 0 ? 'high' : 'balanced';
