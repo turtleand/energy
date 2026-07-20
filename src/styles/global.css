@@ -2613,7 +2613,7 @@ h3 {
 .grid-frequency-needle {
   position: absolute;
   top: -10px;
-  left: 41.5%;
+  left: 49%;
   width: 5px;
   height: 48px;
   transform: translateX(-50%);
@@ -2712,6 +2712,16 @@ h3 {
   background: #f87171;
 }
 
+.grid-response-stage[data-stage-state='unavailable'] {
+  border-color: rgba(255, 247, 220, 0.2);
+  background: rgba(15, 23, 42, 0.3);
+  opacity: 0.74;
+}
+
+.grid-response-stage[data-stage-state='unavailable']::before {
+  background: rgba(255, 247, 220, 0.46);
+}
+
 .grid-balancing-shell[data-grid-state='protection'] .grid-frequency-panel {
   border-color: rgba(248, 113, 113, 0.58);
   box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.12), 0 18px 42px rgba(127, 29, 29, 0.14);
@@ -2738,6 +2748,12 @@ h3 {
 .grid-model-note {
   color: var(--muted);
   line-height: 1.55;
+}
+
+@media (max-width: 980px) and (min-width: 761px) {
+  .grid-response-ladder {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .site-footer {
@@ -2835,6 +2851,12 @@ h3 {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .grid-power-track span,
+  .grid-frequency-needle,
+  .grid-response-stage {
+    transition: none !important;
+  }
+
   .charge-dot,
   .field-line,
   .spark-active,

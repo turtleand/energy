@@ -1188,7 +1188,7 @@ const isGridBalancingLab = labSlug === 'lesson-13-grid-balancing-frequency-black
               <p class="eyebrow">Grid balancing</p>
               <h2 id="lab-title">Keep the shared rhythm.</h2>
             </div>
-            <p class="lab-status" data-grid-status>
+            <p class="lab-status" role="status" aria-live="polite" aria-atomic="true" data-grid-status>
               Generation loss: fast response covers most of the 500 MW disturbance.
             </p>
           </div>
@@ -1214,7 +1214,7 @@ const isGridBalancingLab = labSlug === 'lesson-13-grid-balancing-frequency-black
 
             <section class="grid-frequency-panel" aria-labelledby="grid-frequency-title">
               <p class="panel-label">Frequency signal</p>
-              <h3 id="grid-frequency-title" data-grid-frequency>49.83 Hz</h3>
+              <h3 id="grid-frequency-title" data-grid-frequency>49.98 Hz</h3>
               <div class="grid-frequency-scale" aria-hidden="true">
                 <span class="grid-frequency-zone grid-frequency-zone-low"></span>
                 <span class="grid-frequency-zone grid-frequency-zone-nominal"></span>
@@ -1232,7 +1232,7 @@ const isGridBalancingLab = labSlug === 'lesson-13-grid-balancing-frequency-black
             </section>
           </div>
 
-          <div class="grid-response-ladder" aria-label="Grid response stages">
+          <div class="grid-response-ladder" aria-label="Grid response roles across different timescales">
             <article class="grid-response-stage" data-grid-stage="immediate" data-stage-state="active">
               <span>First instant</span>
               <h3>Immediate response</h3>
@@ -1286,12 +1286,12 @@ const isGridBalancingLab = labSlug === 'lesson-13-grid-balancing-frequency-black
           <div class="meter">
             <span>Fast correction</span>
             <strong data-grid-correction>475 MW</strong>
-            <p>Primary reserves and controllable demand counter the disturbance.</p>
+            <p data-grid-correction-note>Primary reserves and controllable demand counter the disturbance.</p>
           </div>
           <div class="meter">
             <span>Remaining imbalance</span>
             <strong data-grid-remaining>25 MW</strong>
-            <p>Slower controls must restore the target and replace used reserves.</p>
+            <p data-grid-remaining-note>Slower controls must restore the target and replace used reserves.</p>
           </div>
           <div class="meter">
             <span>Protection state</span>

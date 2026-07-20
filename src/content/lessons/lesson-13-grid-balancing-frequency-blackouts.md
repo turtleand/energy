@@ -12,7 +12,7 @@ An electricity grid is a shared rhythm.
 Generators, storage, and other resources put power into the system. Homes, buildings, factories, and devices take power out. Those two sides must remain closely matched.
 
 ```text
-generation + discharge + imports ≈ consumption + charging + exports
+generation + discharge + imports ≈ consumption + charging + exports + losses
 ```
 
 The match does not need to be perfect at every instant. It must be corrected quickly enough to keep the system inside safe operating limits.

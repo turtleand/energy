@@ -14,7 +14,9 @@ if (lab) {
     frequencyNote: lab.querySelector('[data-grid-frequency-note]'),
     balance: lab.querySelector('[data-grid-balance]'),
     correction: lab.querySelector('[data-grid-correction]'),
+    correctionNote: lab.querySelector('[data-grid-correction-note]'),
     remaining: lab.querySelector('[data-grid-remaining]'),
+    remainingNote: lab.querySelector('[data-grid-remaining-note]'),
     protection: lab.querySelector('[data-grid-protection]'),
     protectionNote: lab.querySelector('[data-grid-protection-note]'),
     needle: lab.querySelector('[data-grid-frequency-needle]'),
@@ -69,9 +71,10 @@ if (lab) {
     return 'protection';
   }
 
-  function stageState(stage, state) {
+  function stageState(stage, state, hasFastResponse) {
     if (state === 'balanced') return stage === 'immediate' ? 'ready' : 'standby';
-    if (stage === 'immediate' || stage === 'primary') return 'active';
+    if (stage === 'immediate') return 'active';
+    if (stage === 'primary') return hasFastResponse ? 'active' : 'unavailable';
     if (stage === 'secondary') return state === 'protection' ? 'limited' : 'active';
     return state === 'restoring' ? 'active' : state === 'stressed' ? 'limited' : 'blocked';
   }
@@ -85,6 +88,7 @@ if (lab) {
       primary: {
         standby: 'Automatic primary response is standing by.',
         active: 'Governors, batteries, and responsive loads act within seconds.',
+        unavailable: 'No fast reserve or responsive load is available in this scenario.',
       },
       secondary: {
         standby: 'Secondary control is standing by.',
@@ -131,35 +135,56 @@ if (lab) {
       : `${scenario.shortLabel} by ${formatPower(eventSize)}`;
     output.correction.textContent = formatPower(correction);
     output.remaining.textContent = formatPower(remaining);
-    output.frequency.textContent = `${frequency.toFixed(2)} Hz`;
+    const frequencyLabel = `${frequency.toFixed(2)} Hz`;
+    const hasFastResponse = correction > 0;
+    output.frequency.textContent = frequencyLabel;
 
     if (state === 'balanced') {
       output.status.textContent = 'Generation and consumption are in rhythm. Frequency is at the 50 Hz reference used by this lab.';
       output.frequencyNote.textContent = 'No power imbalance is pushing the shared frequency up or down.';
+      output.correctionNote.textContent = 'No fast correction is needed while generation and consumption match.';
+      output.remainingNote.textContent = 'No remaining imbalance needs slower restoration.';
       output.protection.textContent = 'Not needed';
       output.protectionNote.textContent = 'Protection remains ready while normal balancing controls stand by.';
     } else if (state === 'restoring') {
-      output.status.textContent = `${scenario.label}: fast response covers most of the ${formatPower(eventSize)} disturbance.`;
+      output.status.textContent = `${scenario.label}. Illustrative frequency is ${frequencyLabel} with ${formatPower(remaining)} remaining. Normal controls can restore the target.`;
       output.frequencyNote.textContent = scenario.direction < 0
         ? 'The shortfall pushes frequency down, then layered controls bring it back toward nominal.'
         : 'The surplus pushes frequency up, then layered controls bring it back toward nominal.';
       output.protection.textContent = 'Normal controls contain it';
       output.protectionNote.textContent = 'Secondary and tertiary control can restore the target and replenish fast reserves.';
     } else if (state === 'stressed') {
-      output.status.textContent = `${scenario.label}: response reduces the disturbance, but ${formatPower(remaining)} remains unbalanced.`;
+      output.status.textContent = `${scenario.label}. Illustrative frequency is ${frequencyLabel} with ${formatPower(remaining)} still unbalanced.`;
       output.frequencyNote.textContent = 'Frequency remains away from nominal while slower controls and replacement reserves work.';
       output.protection.textContent = 'Protection is alert';
-      output.protectionNote.textContent = 'The system is stressed. Additional reserves, redispatch, or controlled demand reduction are needed.';
+      output.protectionNote.textContent = scenario.direction < 0
+        ? 'The system needs more supply, storage discharge, or controlled demand reduction.'
+        : 'The system needs lower generation, more storage charging, or more flexible demand.';
     } else {
-      output.status.textContent = `${scenario.label}: available response is too small for the ${formatPower(eventSize)} disturbance.`;
+      output.status.textContent = `${scenario.label}. Illustrative frequency is ${frequencyLabel} with ${formatPower(remaining)} remaining, so emergency protection may be needed.`;
       output.frequencyNote.textContent = 'The large remaining imbalance creates a severe illustrative frequency deviation.';
       output.protection.textContent = scenario.direction < 0 ? 'Load shedding or islanding' : 'Generation trip or islanding';
-      output.protectionNote.textContent = 'Emergency action may sacrifice part of the system to prevent equipment damage or a wider collapse.';
+      output.protectionNote.textContent = scenario.direction < 0
+        ? 'Emergency under-frequency action may shed selected load or island part of the system.'
+        : 'Emergency over-frequency action may disconnect generation or island part of the system.';
+    }
+
+    if (state !== 'balanced') {
+      output.correctionNote.textContent = hasFastResponse
+        ? scenario.direction < 0
+          ? 'Fast resources add supply or reduce controllable demand during the shortfall.'
+          : 'Fast resources reduce generation or absorb surplus power.'
+        : 'No fast reserve or responsive load is available in this scenario.';
+      output.remainingNote.textContent = remaining === 0
+        ? 'No imbalance remains for slower controls to correct.'
+        : scenario.direction < 0
+          ? 'Slower controls must add supply or reduce demand to restore the target.'
+          : 'Slower controls must reduce generation or absorb more surplus power.';
     }
 
     output.stages.forEach((stage) => {
       const stageName = stage.dataset.gridStage;
-      const nextState = stageState(stageName, state);
+      const nextState = stageState(stageName, state, hasFastResponse);
       stage.dataset.stageState = nextState;
       const detail = stage.querySelector('[data-grid-stage-detail]');
       if (detail) detail.textContent = stageText(stageName, nextState);
