@@ -15,6 +15,7 @@ const isGeneratorLab = labSlug === 'lesson-9-generators-electromagnetic-inductio
 const isTransformerGridLab = labSlug === 'lesson-10-why-ac-won-the-grid-transformers-voltage-heat-loss';
 const isHouseWiringLab = labSlug === 'lesson-11-house-wiring-faults-and-protection';
 const isNeighborhoodDistributionLab = labSlug === 'lesson-12-neighborhood-distribution';
+const isGridBalancingLab = labSlug === 'lesson-13-grid-balancing-frequency-blackouts';
 ---
 
     {isStaticChargeLab ? (
@@ -1173,6 +1174,145 @@ const isNeighborhoodDistributionLab = labSlug === 'lesson-12-neighborhood-distri
           </p>
         </aside>
       </section>
+    ) : isGridBalancingLab ? (
+      <section
+        class="container lab-shell grid-balancing-shell"
+        aria-labelledby="lab-title"
+        data-grid-balancing-lab
+        data-grid-state="restoring"
+        data-grid-direction="low"
+      >
+        <div class="lab-board grid-balancing-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">Grid balancing</p>
+              <h2 id="lab-title">Keep the shared rhythm.</h2>
+            </div>
+            <p class="lab-status" data-grid-status>
+              Generation loss: fast response covers most of the 500 MW disturbance.
+            </p>
+          </div>
+
+          <div class="grid-balance-stage" aria-label="Simplified power balance and frequency model">
+            <section class="grid-balance-panel" aria-labelledby="grid-balance-title">
+              <p class="panel-label">Power balance</p>
+              <h3 id="grid-balance-title">Supply and consumption</h3>
+              <div class="grid-balance-row">
+                <span>Generation</span>
+                <div class="grid-power-track" aria-hidden="true">
+                  <span class="grid-generation-bar" data-grid-generation-bar></span>
+                </div>
+              </div>
+              <div class="grid-balance-row">
+                <span>Demand</span>
+                <div class="grid-power-track" aria-hidden="true">
+                  <span class="grid-demand-bar" data-grid-demand-bar></span>
+                </div>
+              </div>
+              <p class="grid-balance-caption" data-grid-balance>Supply falls by 500 MW</p>
+            </section>
+
+            <section class="grid-frequency-panel" aria-labelledby="grid-frequency-title">
+              <p class="panel-label">Frequency signal</p>
+              <h3 id="grid-frequency-title" data-grid-frequency>49.83 Hz</h3>
+              <div class="grid-frequency-scale" aria-hidden="true">
+                <span class="grid-frequency-zone grid-frequency-zone-low"></span>
+                <span class="grid-frequency-zone grid-frequency-zone-nominal"></span>
+                <span class="grid-frequency-zone grid-frequency-zone-high"></span>
+                <span class="grid-frequency-needle" data-grid-frequency-needle></span>
+              </div>
+              <div class="grid-frequency-labels" aria-hidden="true">
+                <span>49 Hz</span>
+                <span>50 Hz reference</span>
+                <span>51 Hz</span>
+              </div>
+              <p data-grid-frequency-note>
+                The shortfall pushes frequency down, then layered controls bring it back toward nominal.
+              </p>
+            </section>
+          </div>
+
+          <div class="grid-response-ladder" aria-label="Grid response stages">
+            <article class="grid-response-stage" data-grid-stage="immediate" data-stage-state="active">
+              <span>First instant</span>
+              <h3>Immediate response</h3>
+              <p data-grid-stage-detail>Inertia and fast inverter response slow the first frequency movement.</p>
+            </article>
+            <article class="grid-response-stage" data-grid-stage="primary" data-stage-state="active">
+              <span>Seconds</span>
+              <h3>Primary control</h3>
+              <p data-grid-stage-detail>Governors, batteries, and responsive loads act within seconds.</p>
+            </article>
+            <article class="grid-response-stage" data-grid-stage="secondary" data-stage-state="active">
+              <span>Seconds to minutes</span>
+              <h3>Secondary control</h3>
+              <p data-grid-stage-detail>Secondary control can restore nominal frequency and scheduled transfers.</p>
+            </article>
+            <article class="grid-response-stage" data-grid-stage="tertiary" data-stage-state="active">
+              <span>Minutes and longer</span>
+              <h3>Tertiary control</h3>
+              <p data-grid-stage-detail>Tertiary control can replace used reserves and sustain the correction.</p>
+            </article>
+          </div>
+        </div>
+
+        <div class="lab-controls grid-balancing-controls" aria-label="Grid balancing controls">
+          <label class="control">
+            <span>Grid event</span>
+            <select data-grid-scenario-input>
+              <option value="balanced">Balanced system</option>
+              <option value="generation-loss" selected>Generation loss</option>
+              <option value="demand-surge">Demand surge</option>
+              <option value="excess-generation">Excess generation</option>
+            </select>
+          </label>
+          <label class="control">
+            <span>Event size</span>
+            <input data-grid-event-size-input type="range" min="100" max="1000" step="100" value="500" />
+            <output data-grid-event-size-output>500 MW</output>
+          </label>
+          <label class="control">
+            <span>Fast reserves available</span>
+            <input data-grid-reserve-input type="range" min="0" max="100" step="10" value="80" />
+            <output data-grid-reserve-output>80%</output>
+          </label>
+          <label class="switch-control grid-demand-response-control">
+            <input data-grid-demand-response-input type="checkbox" checked />
+            <span>Allow controllable demand to help during a shortfall</span>
+          </label>
+        </div>
+
+        <div class="meters grid-balancing-readings" aria-label="Grid balancing readings">
+          <div class="meter">
+            <span>Fast correction</span>
+            <strong data-grid-correction>475 MW</strong>
+            <p>Primary reserves and controllable demand counter the disturbance.</p>
+          </div>
+          <div class="meter">
+            <span>Remaining imbalance</span>
+            <strong data-grid-remaining>25 MW</strong>
+            <p>Slower controls must restore the target and replace used reserves.</p>
+          </div>
+          <div class="meter">
+            <span>Protection state</span>
+            <strong data-grid-protection>Normal controls contain it</strong>
+            <p data-grid-protection-note>Secondary and tertiary control can restore the target and replenish fast reserves.</p>
+          </div>
+        </div>
+
+        <aside class="formula-card grid-balancing-model-card" aria-label="Grid balancing model summary">
+          <h2>The response chain</h2>
+          <ul>
+            <li><strong>Frequency:</strong> signals whether incoming and outgoing power are out of balance.</li>
+            <li><strong>Immediate and primary response:</strong> slow and arrest the frequency movement.</li>
+            <li><strong>Secondary and tertiary control:</strong> restore the target and replenish reserves.</li>
+            <li><strong>Protection:</strong> isolates faults or sheds selected load when normal control is not enough.</li>
+          </ul>
+          <p class="grid-model-note">
+            The 50 Hz scale and response thresholds in this lab are illustrative. Real settings vary by grid.
+          </p>
+        </aside>
+      </section>
     ) : (
       <section class="container lab-shell" aria-labelledby="lab-title" data-energy-lab>
         <div class="lab-board">
@@ -1306,6 +1446,8 @@ const isNeighborhoodDistributionLab = labSlug === 'lesson-12-neighborhood-distri
     <script type="module" src="/scripts/house-wiring-protection-lab.js"></script>
   ) : isNeighborhoodDistributionLab ? (
     <script type="module" src="/scripts/neighborhood-distribution-lab.js"></script>
+  ) : isGridBalancingLab ? (
+    <script type="module" src="/scripts/grid-balancing-lab.js"></script>
   ) : (
     <script type="module" src="/scripts/energy-flow-lab.js"></script>
   )}
