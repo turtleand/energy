@@ -1,0 +1,861 @@
+---
+import { districts } from '@game/content/districts';
+
+interface Props {
+  game: {
+    title: string;
+    summary: string;
+    accessibilityDescription: string;
+  };
+}
+
+const { game } = Astro.props;
+---
+
+<section class="gridkeeper" data-game-root data-effects="full" aria-labelledby="game-title">
+  <header class="gridkeeper-topbar">
+    <a class="gridkeeper-brand" href="/" aria-label="Back to Turtleand Energy articles">
+      <img src="/logo.svg" alt="" width="44" height="44" />
+      <span>Energy</span>
+    </a>
+
+    <div class="gridkeeper-title-block">
+      <p class="gridkeeper-kicker">Island restoration</p>
+      <h1 id="game-title">{game.title}</h1>
+    </div>
+
+    <div class="gridkeeper-status" aria-label="Game progress">
+      <span class="gridkeeper-status-mark" aria-hidden="true"></span>
+      <span data-restoration-count>0 of 6 districts</span>
+    </div>
+
+    <div class="gridkeeper-actions" aria-label="Game tools">
+      <button
+        class="game-button game-button-tool"
+        type="button"
+        data-lens-button
+        aria-label="Toggle Flow Lens"
+        aria-pressed="false"
+      >
+        <span aria-hidden="true">◎</span>
+        <span>Flow Lens</span>
+      </button>
+      <button class="game-button game-button-icon" type="button" data-pause-button aria-label="Pause game">
+        <span aria-hidden="true">Ⅱ</span>
+      </button>
+      <button class="game-button game-button-icon" type="button" data-settings-button aria-label="Open settings">
+        <span aria-hidden="true">⚙</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="gridkeeper-layout">
+    <nav class="district-rail" aria-label="Island districts">
+      {districts.map((district, index) => (
+        <button
+          class="district-tab"
+          type="button"
+          data-district-button={district.id}
+          aria-current={index === 0 ? 'step' : undefined}
+          aria-disabled={index > 0 ? 'true' : undefined}
+        >
+          <span class="district-tab-number" aria-hidden="true">{district.order}</span>
+          <span>
+            <strong>{district.shortName}</strong>
+            <small data-district-state={district.id}>{index === 0 ? 'Current' : 'Locked'}</small>
+          </span>
+        </button>
+      ))}
+    </nav>
+
+    <div class="island-stage" data-island-stage>
+      <div
+        class="phaser-mount"
+        data-phaser-mount
+        tabindex="0"
+        role="application"
+        aria-label="Gridkeeper island. Move freely with arrow keys or W A S D. Click or tap anywhere to walk there. Enter a district ring to operate its controls."
+      ></div>
+
+      <div class="movement-guide" data-movement-guide>
+        <span class="movement-keys" aria-hidden="true"><kbd>WASD</kbd><kbd>↑↓←→</kbd></span>
+        <span><strong>Move freely</strong><small>Keys or click / tap</small></span>
+      </div>
+
+      <div class="game-start-card" data-start-card>
+        <p class="gridkeeper-kicker" data-start-kicker>Your island is dark</p>
+        <h2 data-start-heading>Bring the grid back district by district.</h2>
+        <p>{game.summary}</p>
+        <ul class="start-instructions">
+          <li><span aria-hidden="true">↗</span> Move anywhere with W A S D, arrows, pointer, or touch</li>
+          <li><span aria-hidden="true">◌</span> Enter a station ring before operating its system</li>
+          <li><span aria-hidden="true">◎</span> Use the Flow Lens when you want to see why</li>
+        </ul>
+        <button class="game-button game-button-primary" type="button" data-start-button>
+          Enter the island
+        </button>
+        <p class="start-safety">Educational model only. No real wiring procedures are shown.</p>
+      </div>
+
+      <div class="flow-lens-panel" data-flow-lens-panel hidden aria-label="Flow Lens readout">
+        <div class="flow-lens-heading">
+          <span class="flow-lens-orbit" aria-hidden="true"></span>
+          <div>
+            <p>Flow Lens</p>
+            <strong data-lens-mode>Path waiting</strong>
+          </div>
+        </div>
+        <dl>
+          <div><dt>Push</dt><dd><span data-lens-metric="voltage"></span></dd></div>
+          <div><dt>Current rate</dt><dd><span data-lens-metric="current"></span></dd></div>
+          <div><dt>Energy transfer</dt><dd><span data-lens-metric="energy"></span></dd></div>
+          <div><dt>Heat</dt><dd><span data-lens-metric="heat"></span></dd></div>
+          <div><dt>Leakage</dt><dd><span data-lens-metric="leakage"></span></dd></div>
+        </dl>
+        <p>Dot density shows current rate. Dot speed is kept steady so it does not imply faster electrons.</p>
+      </div>
+
+      <div class="pause-card" data-pause-card hidden>
+        <p class="gridkeeper-kicker">Paused</p>
+        <h2>The island will wait.</h2>
+        <button class="game-button game-button-primary" type="button" data-resume-button>Resume</button>
+      </div>
+
+      <div class="world-caption" data-world-caption aria-hidden="true"></div>
+    </div>
+
+    <aside class="control-dock" id="gridkeeper-controls" aria-labelledby="district-title">
+      <div class="district-heading">
+        <div>
+          <p class="gridkeeper-kicker" data-district-place>Southwest shore</p>
+          <h2 id="district-title" data-district-title>Workshop Cove</h2>
+        </div>
+        <span class="district-badge" data-district-badge>01</span>
+      </div>
+
+      <p class="district-summary" data-district-summary></p>
+
+      <div class="proximity-banner" data-proximity-banner data-phase="near">
+        <span class="proximity-signal" aria-hidden="true"></span>
+        <span>
+          <strong data-proximity-title>Move to Workshop Cove</strong>
+          <small data-proximity-detail>Enter the glowing service ring to operate.</small>
+        </span>
+      </div>
+
+      <div class="objective-card">
+        <div class="objective-heading">
+          <span>Restoration goal</span>
+          <strong data-objective-percent>0%</strong>
+        </div>
+        <p data-objective-text></p>
+        <div
+          class="objective-meter"
+          role="progressbar"
+          aria-label="District restoration progress"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+          data-objective-meter
+        ><span></span></div>
+        <ol class="objective-steps" data-objective-steps></ol>
+        <div class="optional-challenge">
+          <span data-efficiency-text>Optional: keep path heat low</span>
+          <strong data-efficiency-status>Explore</strong>
+        </div>
+      </div>
+
+      <fieldset class="district-controls-fieldset" data-control-fieldset disabled>
+        <legend class="visually-hidden">District controls</legend>
+        <div class="control-stack" data-control-stack></div>
+      </fieldset>
+
+      <section class="system-readout" aria-labelledby="system-readout-title">
+        <div class="system-readout-heading">
+          <h3 id="system-readout-title">What is happening</h3>
+          <span data-system-status>Waiting</span>
+        </div>
+        <p data-system-caption></p>
+        <dl class="metric-grid">
+          <div><dt>Push</dt><dd data-metric="voltage">0</dd></div>
+          <div><dt>Current rate</dt><dd data-metric="current">0</dd></div>
+          <div><dt>Power</dt><dd data-metric="power">0</dd></div>
+          <div><dt>Heat</dt><dd data-metric="heat">0</dd></div>
+        </dl>
+      </section>
+
+      <div class="dock-actions">
+        <button class="game-button" type="button" data-rewind-button disabled>Rewind one move</button>
+        <button class="game-button game-button-primary" type="button" data-next-button hidden>Travel onward</button>
+      </div>
+
+      <p class="model-boundary">
+        This game simplifies electrical behavior to make relationships visible. It is not a design tool or a guide for mains work.
+      </p>
+    </aside>
+  </div>
+
+  <dialog class="game-dialog" data-settings-dialog aria-labelledby="settings-title">
+    <form method="dialog">
+      <div class="dialog-heading">
+        <div>
+          <p class="gridkeeper-kicker">Play your way</p>
+          <h2 id="settings-title">Settings</h2>
+        </div>
+        <button class="game-button game-button-icon" value="cancel" aria-label="Close settings">×</button>
+      </div>
+
+      <label class="setting-row">
+        <span><strong>Assisted play</strong><small>Wider restoration bands and faster travel</small></span>
+        <input type="checkbox" data-setting="assisted" />
+      </label>
+      <label class="setting-row">
+        <span><strong>Reduced motion</strong><small>Stops nonessential movement and pulses</small></span>
+        <input type="checkbox" data-setting="reducedMotion" />
+      </label>
+      <label class="setting-row">
+        <span><strong>Reduced effects</strong><small>Quieter glows, sparks, and color changes</small></span>
+        <input type="checkbox" data-setting="reducedEffects" />
+      </label>
+      <label class="setting-row">
+        <span><strong>Mute sound</strong><small>Visual cues remain available</small></span>
+        <input type="checkbox" data-setting="muted" />
+      </label>
+
+      <div class="keyboard-card">
+        <strong>Keyboard</strong>
+        <p>Move with arrows or W A S D. Press F for the Flow Lens, P to pause, and Escape to close this panel.</p>
+      </div>
+
+      <button class="game-button danger-button" type="button" data-fresh-button>Start a fresh island</button>
+    </form>
+  </dialog>
+
+  <p class="visually-hidden" aria-live="polite" aria-atomic="true" data-live-region>
+    Workshop Cove is ready.
+  </p>
+  <p class="visually-hidden" data-accessibility-description>{game.accessibilityDescription}</p>
+</section>
+
+<script>
+  import { districtControls, type ControlDefinition } from '@game/content/controls';
+  import { districtById, districts, type DistrictId } from '@game/content/districts';
+  import {
+    buildNavigationSnapshot,
+    getInitialRoverPosition,
+    type NavigationSnapshot,
+  } from '@game/core/navigation';
+  import {
+    GRIDKEEPER_SAVE_KEY,
+    advanceTime,
+    chargeWorkshopVane,
+    clearWorkshopDischarge,
+    createInitialGameState,
+    getDistrictReadout,
+    isDistrictUnlocked,
+    parseSavedGameState,
+    rewindGameState,
+    runConverterDiagnostic,
+    serializeGameState,
+    setDistrictControl,
+    setGameSettings,
+    visitDistrict,
+    type GameState,
+  } from '@game/core/simulation';
+  import type { GridkeeperRenderer } from '@game/bootstrap';
+
+  const root = document.querySelector<HTMLElement>('[data-game-root]');
+
+  if (root) {
+    const required = <T extends Element>(selector: string) => {
+      const element = root.querySelector<T>(selector);
+      if (!element) throw new Error(`Gridkeeper element missing: ${selector}`);
+      return element;
+    };
+
+    const startButton = required<HTMLButtonElement>('[data-start-button]');
+    const startCard = required<HTMLElement>('[data-start-card]');
+    const mount = required<HTMLElement>('[data-phaser-mount]');
+    const controlStack = required<HTMLElement>('[data-control-stack]');
+    const controlFieldset = required<HTMLFieldSetElement>('[data-control-fieldset]');
+    const lensButton = required<HTMLButtonElement>('[data-lens-button]');
+    const lensPanel = required<HTMLElement>('[data-flow-lens-panel]');
+    const pauseButton = required<HTMLButtonElement>('[data-pause-button]');
+    const pauseCard = required<HTMLElement>('[data-pause-card]');
+    const resumeButton = required<HTMLButtonElement>('[data-resume-button]');
+    const settingsButton = required<HTMLButtonElement>('[data-settings-button]');
+    const settingsDialog = required<HTMLDialogElement>('[data-settings-dialog]');
+    const rewindButton = required<HTMLButtonElement>('[data-rewind-button]');
+    const nextButton = required<HTMLButtonElement>('[data-next-button]');
+    const liveRegion = required<HTMLElement>('[data-live-region]');
+    const worldCaption = required<HTMLElement>('[data-world-caption]');
+
+    let hadSavedGame = false;
+    let state = loadState();
+    let movementGuideExpanded = !hadSavedGame;
+    let navigation = initialNavigationSnapshot();
+    let renderer: GridkeeperRenderer | null = null;
+    let lensActive = false;
+    let paused = false;
+    let audioContext: AudioContext | null = null;
+    liveRegion.textContent = hadSavedGame
+      ? `${districtById[state.activeDistrict].name} is in range.`
+      : 'Move freely and enter the Workshop Cove service ring.';
+
+    function loadState() {
+      let saved: string | null = null;
+      try {
+        saved = window.localStorage.getItem(GRIDKEEPER_SAVE_KEY);
+      } catch {
+        saved = null;
+      }
+      hadSavedGame = Boolean(saved);
+      const loaded = parseSavedGameState(saved);
+      if (!saved && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return setGameSettings(loaded, { reducedMotion: true });
+      }
+      return loaded;
+    }
+
+    function initialNavigationSnapshot(): NavigationSnapshot {
+      const mode = hadSavedGame ? 'resume' : 'fresh';
+      const position = getInitialRoverPosition(state.activeDistrict, mode);
+      const unlocked = districts
+        .filter((district) => isDistrictUnlocked(state, district.id))
+        .map((district) => district.id);
+      return buildNavigationSnapshot(position, unlocked, null, null);
+    }
+
+    function saveState() {
+      try {
+        window.localStorage.setItem(GRIDKEEPER_SAVE_KEY, serializeGameState(state));
+      } catch {
+        announce('Progress could not be saved in this browser. The game remains playable.');
+      }
+    }
+
+    function announce(message: string) {
+      liveRegion.textContent = '';
+      window.setTimeout(() => {
+        liveRegion.textContent = message;
+      }, 20);
+    }
+
+    function playRestoreTone() {
+      if (state.settings.muted) return;
+      try {
+        audioContext ??= new AudioContext();
+        const now = audioContext.currentTime;
+        [392, 523.25, 659.25].forEach((frequency, index) => {
+          const oscillator = audioContext!.createOscillator();
+          const gain = audioContext!.createGain();
+          oscillator.frequency.value = frequency;
+          oscillator.type = 'sine';
+          gain.gain.setValueAtTime(0.0001, now + index * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.08, now + index * 0.08 + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.08 + 0.28);
+          oscillator.connect(gain).connect(audioContext!.destination);
+          oscillator.start(now + index * 0.08);
+          oscillator.stop(now + index * 0.08 + 0.3);
+        });
+      } catch {
+        // Sound is optional and every cue has a visual and textual equivalent.
+      }
+    }
+
+    function mutate(next: GameState, message?: string, options: { preserveControls?: boolean } = {}) {
+      const previousRestored = state.restored.length;
+      state = next;
+      saveState();
+      render(options);
+      if (state.restored.length > previousRestored) {
+        const restoredDistrict = districtById[state.restored.at(-1)!];
+        root.dataset.celebrate = 'true';
+        window.setTimeout(() => delete root.dataset.celebrate, state.settings.reducedMotion ? 80 : 900);
+        announce(`${restoredDistrict.name} restored. A new route is open.`);
+        worldCaption.textContent = `${restoredDistrict.name} restored`;
+        playRestoreTone();
+      } else if (message) {
+        announce(message);
+      }
+    }
+
+    function setDestination(district: DistrictId) {
+      if (!isDistrictUnlocked(state, district)) {
+        announce(`${districtById[district].name} is still dark. Restore the connected district first.`);
+        return;
+      }
+      if (!renderer) {
+        announce('Enter the island before choosing a destination.');
+        startButton.focus();
+        return;
+      }
+      if (navigation.operatingDistrict === district) {
+        announce(`${districtById[district].name} is already in range.`);
+        mount.focus({ preventScroll: true });
+        return;
+      }
+      renderer.setDistrictDestination(district);
+      mount.focus({ preventScroll: true });
+      announce(`Travelling to ${districtById[district].name}.`);
+    }
+
+    function handleNavigationChange(next: NavigationSnapshot) {
+      const previous = navigation;
+      navigation = next;
+
+      if (next.operatingDistrict === 'workshop') movementGuideExpanded = false;
+
+      if (next.operatingDistrict && next.operatingDistrict !== state.activeDistrict) {
+        state = visitDistrict(state, next.operatingDistrict);
+        saveState();
+      }
+
+      render();
+
+      if (next.operatingDistrict && next.operatingDistrict !== previous.operatingDistrict) {
+        const district = districtById[next.operatingDistrict];
+        announce(`${district.name} is in range. ${district.objective}`);
+      } else if (previous.operatingDistrict && !next.operatingDistrict) {
+        announce(`You left ${districtById[previous.operatingDistrict].name}. Its controls are unavailable.`);
+      }
+    }
+
+    function canOperate(district: DistrictId) {
+      return navigation.operatingDistrict === district && state.activeDistrict === district;
+    }
+
+    function guardDistrictAction(district: DistrictId, action: () => void) {
+      if (!canOperate(district)) {
+        announce(`Move into ${districtById[district].name}'s service ring before operating its controls.`);
+        return;
+      }
+      action();
+    }
+
+    function makeElement<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string) {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      return element;
+    }
+
+    function appendLabelText(container: HTMLElement, label: string, value?: string) {
+      const strong = makeElement('strong');
+      strong.textContent = label;
+      container.append(strong);
+      if (value !== undefined) {
+        const output = makeElement('output');
+        output.textContent = value;
+        container.append(output);
+      }
+    }
+
+    function renderControl(definition: ControlDefinition, district: DistrictId) {
+      const controls = state.controls[district];
+      const row = makeElement('div', `game-control game-control-${definition.kind}`);
+      const labelRow = makeElement('div', 'game-control-label');
+      const hint = makeElement('small');
+      hint.textContent = definition.hint;
+
+      if (definition.kind === 'toggle') {
+        const value = Boolean(controls[definition.id]);
+        appendLabelText(labelRow, definition.label, value ? definition.onLabel : definition.offLabel);
+        const button = makeElement('button', 'toggle-control');
+        button.type = 'button';
+        button.setAttribute('role', 'switch');
+        button.setAttribute('aria-checked', String(value));
+        button.setAttribute('aria-label', definition.label);
+        const knob = makeElement('span');
+        button.append(knob);
+        button.addEventListener('click', () => {
+          guardDistrictAction(district, () => {
+            mutate(setDistrictControl(state, district, definition.id, !value));
+          });
+        });
+        row.append(labelRow, button, hint);
+      }
+
+      if (definition.kind === 'range') {
+        const value = Number(controls[definition.id]);
+        appendLabelText(labelRow, definition.label, `${formatValue(value)}${definition.unit}`);
+        const output = labelRow.querySelector('output');
+        const input = makeElement('input');
+        input.type = 'range';
+        input.min = String(definition.min);
+        input.max = String(definition.max);
+        input.step = String(definition.step);
+        input.value = String(value);
+        input.setAttribute('aria-label', definition.label);
+        input.addEventListener('input', () => {
+          guardDistrictAction(district, () => {
+            const nextValue = Number(input.value);
+            if (output) output.textContent = `${formatValue(nextValue)}${definition.unit}`;
+            mutate(setDistrictControl(state, district, definition.id, nextValue), undefined, {
+              preserveControls: true,
+            });
+          });
+        });
+        row.append(labelRow, input, hint);
+      }
+
+      if (definition.kind === 'choice') {
+        appendLabelText(labelRow, definition.label);
+        const select = makeElement('select');
+        select.setAttribute('aria-label', definition.label);
+        definition.options.forEach((option) => {
+          const optionElement = makeElement('option');
+          optionElement.value = option.value;
+          optionElement.textContent = option.label;
+          select.append(optionElement);
+        });
+        select.value = String(controls[definition.id]);
+        select.addEventListener('change', () => {
+          guardDistrictAction(district, () => {
+            mutate(setDistrictControl(state, district, definition.id, select.value));
+          });
+        });
+        row.append(labelRow, select, hint);
+      }
+
+      if (definition.kind === 'action') {
+        const button = makeElement('button', 'game-button action-control');
+        button.type = 'button';
+        button.textContent = definition.label;
+        button.addEventListener('click', () => {
+          guardDistrictAction(district, () => {
+            if (definition.action === 'charge-static') {
+              const charged = chargeWorkshopVane(state);
+              const charge = Number(charged.controls.workshop.staticCharge);
+              mutate(
+                charged,
+                charge >= 75
+                  ? 'A brief static spark releases the built-up charge.'
+                  : `Storm vane charge ${charge} percent.`,
+              );
+              if (charge >= 75) {
+                window.setTimeout(
+                  () => {
+                    const cleared = clearWorkshopDischarge(state);
+                    if (cleared !== state) mutate(cleared);
+                  },
+                  state.settings.reducedMotion ? 120 : 520,
+                );
+              }
+            }
+            if (definition.action === 'run-diagnostic') {
+              const selected = String(state.controls.converter.adapterMatch);
+              mutate(
+                runConverterDiagnostic(state),
+                selected === 'wrong'
+                  ? 'Diagnostic bench blocked the mismatch before energizing the model radio.'
+                  : 'The selected module is compatible. Complete the conversion stages.',
+              );
+            }
+            if (definition.action === 'advance-evening') {
+              mutate(advanceTime(state, 2), 'Two model hours pass. The energy and cost trails grow.');
+            }
+          });
+        });
+        row.append(button, hint);
+      }
+
+      return row;
+    }
+
+    function renderControls() {
+      controlStack.replaceChildren();
+      districtControls[state.activeDistrict].forEach((definition) => {
+        controlStack.append(renderControl(definition, state.activeDistrict));
+      });
+      controlFieldset.disabled = !canOperate(state.activeDistrict);
+    }
+
+    function renderDistrictNavigation() {
+      root.querySelectorAll<HTMLButtonElement>('[data-district-button]').forEach((button) => {
+        const district = button.dataset.districtButton as DistrictId;
+        const unlocked = isDistrictUnlocked(state, district);
+        const restored = state.restored.includes(district);
+        const active = state.activeDistrict === district;
+        const destination = navigation.destinationDistrict === district;
+        const operating = navigation.operatingDistrict === district;
+        button.setAttribute('aria-disabled', String(!unlocked));
+        button.toggleAttribute('data-restored', restored);
+        button.toggleAttribute('data-active', active);
+        button.toggleAttribute('data-destination', destination);
+        button.toggleAttribute('data-operating', operating);
+        if (operating) button.setAttribute('aria-current', 'location');
+        else button.removeAttribute('aria-current');
+        const status = required<HTMLElement>(`[data-district-state="${district}"]`);
+        status.textContent = operating
+          ? 'In range'
+          : destination
+            ? 'Travelling'
+            : restored
+              ? 'Restored'
+              : active
+                ? 'Visited'
+                : unlocked
+                  ? 'Open'
+                  : 'Locked';
+      });
+    }
+
+    function renderProximity() {
+      const banner = required<HTMLElement>('[data-proximity-banner]');
+      const title = required<HTMLElement>('[data-proximity-title]');
+      const detail = required<HTMLElement>('[data-proximity-detail]');
+      banner.dataset.phase = navigation.phase;
+      root.dataset.proximity = navigation.phase;
+      root.toggleAttribute('data-movement-guide-expanded', movementGuideExpanded);
+
+      if (navigation.destinationDistrict) {
+        const destination = districtById[navigation.destinationDistrict];
+        title.textContent = `Travelling to ${destination.name}`;
+        detail.textContent = navigation.operatingDistrict
+          ? 'Current controls remain available until you leave this ring.'
+          : 'The turtle will stop when it enters the service ring.';
+        return;
+      }
+
+      if (navigation.operatingDistrict) {
+        const operating = districtById[navigation.operatingDistrict];
+        title.textContent = `${operating.name} controls in range`;
+        detail.textContent = 'Operate the system here, or move away to explore.';
+        return;
+      }
+
+      if (navigation.nearbyDistrict) {
+        const nearby = districtById[navigation.nearbyDistrict];
+        title.textContent = `Move into ${nearby.name}'s ring`;
+        detail.textContent = 'The approach arc fills as the turtle gets closer.';
+        return;
+      }
+
+      title.textContent = 'No station in range';
+      detail.textContent = 'Move freely or choose an open district as a destination.';
+    }
+
+    function renderReadout() {
+      const district = districtById[state.activeDistrict];
+      const readout = getDistrictReadout(state, state.activeDistrict);
+      required<HTMLElement>('[data-district-place]').textContent = district.place;
+      required<HTMLElement>('[data-district-title]').textContent = district.name;
+      required<HTMLElement>('[data-district-badge]').textContent = String(district.order).padStart(2, '0');
+      required<HTMLElement>('[data-district-summary]').textContent = district.summary;
+      required<HTMLElement>('[data-objective-text]').textContent = district.objective;
+      const percent = Math.round(readout.objectiveProgress * 100);
+      required<HTMLElement>('[data-objective-percent]').textContent = `${percent}%`;
+      const meter = required<HTMLElement>('[data-objective-meter]');
+      meter.setAttribute('aria-valuenow', String(percent));
+      const meterFill = meter.querySelector<HTMLElement>('span');
+      if (meterFill) meterFill.style.width = `${percent}%`;
+      const steps = required<HTMLOListElement>('[data-objective-steps]');
+      steps.replaceChildren();
+      district.steps.forEach((step, index) => {
+        const item = makeElement('li');
+        item.textContent = step;
+        if (readout.stepCompletion[index]) item.dataset.done = 'true';
+        steps.append(item);
+      });
+      const efficiency = getEfficiencyChallenge(state.activeDistrict, readout);
+      required<HTMLElement>('[data-efficiency-text]').textContent = `Optional: ${efficiency.label}`;
+      const efficiencyStatus = required<HTMLElement>('[data-efficiency-status]');
+      efficiencyStatus.textContent = efficiency.achieved ? 'Star earned' : 'Explore';
+      efficiencyStatus.toggleAttribute('data-earned', efficiency.achieved);
+      required<HTMLElement>('[data-system-caption]').textContent = readout.caption;
+      const status = required<HTMLElement>('[data-system-status]');
+      status.textContent = readout.status[0].toUpperCase() + readout.status.slice(1);
+      status.dataset.status = readout.status;
+      for (const metric of ['voltage', 'current', 'power', 'heat']) {
+        const element = required<HTMLElement>(`[data-metric="${metric}"]`);
+        element.textContent = formatValue(readout.metrics[metric] ?? 0);
+      }
+      required<HTMLElement>('[data-lens-mode]').textContent =
+        readout.lens.direction === 'alternating'
+          ? 'Direction reversing'
+          : readout.lens.direction === 'one-way'
+            ? 'One-way flow'
+            : 'Path waiting';
+      setLensMetric('voltage', readout.lens.voltage);
+      setLensMetric('current', readout.lens.pulseDensity);
+      setLensMetric('energy', readout.lens.energyTransfer);
+      setLensMetric('heat', readout.lens.heat);
+      setLensMetric('leakage', readout.lens.leakage);
+      renderer?.update(state, readout, lensActive);
+    }
+
+    function setLensMetric(name: string, value: number) {
+      const bar = required<HTMLElement>(`[data-lens-metric="${name}"]`);
+      bar.style.setProperty('--meter-value', `${Math.max(0.04, Math.min(1, value)) * 100}%`);
+      bar.setAttribute('aria-label', `${name} ${Math.round(value * 100)} percent of the model range`);
+    }
+
+    function renderActions() {
+      required<HTMLElement>('[data-restoration-count]').textContent = state.sandboxUnlocked
+        ? 'Island restored · Sandbox open'
+        : `${state.restored.length} of ${districts.length} districts`;
+      rewindButton.disabled = state.history.length === 0;
+      const activeIndex = districts.findIndex((district) => district.id === state.activeDistrict);
+      const canContinue = state.restored.includes(state.activeDistrict) && activeIndex < districts.length - 1;
+      nextButton.hidden = !canContinue;
+      nextButton.textContent = canContinue ? `Travel to ${districts[activeIndex + 1].shortName}` : 'Travel onward';
+      root.dataset.effects = state.settings.reducedEffects ? 'reduced' : 'full';
+      root.dataset.motion = state.settings.reducedMotion ? 'reduced' : 'full';
+      root.toggleAttribute('data-sandbox', state.sandboxUnlocked);
+      const startKicker = required<HTMLElement>('[data-start-kicker]');
+      const startHeading = required<HTMLElement>('[data-start-heading]');
+      if (state.sandboxUnlocked) {
+        startKicker.textContent = 'Island restored';
+        startHeading.textContent = 'Return to your living island.';
+        startButton.textContent = 'Open sandbox';
+      } else if (state.restored.length > 0) {
+        startKicker.textContent = 'Restoration in progress';
+        startHeading.textContent = `Continue from ${districtById[state.activeDistrict].name}.`;
+        startButton.textContent = 'Resume the island';
+      } else {
+        startKicker.textContent = 'Your island is dark';
+        startHeading.textContent = 'Bring the grid back district by district.';
+        startButton.textContent = 'Enter the island';
+      }
+      root.querySelectorAll<HTMLInputElement>('[data-setting]').forEach((input) => {
+        const setting = input.dataset.setting as keyof GameState['settings'];
+        input.checked = state.settings[setting];
+      });
+    }
+
+    function render(options: { preserveControls?: boolean } = {}) {
+      renderDistrictNavigation();
+      if (options.preserveControls) controlFieldset.disabled = !canOperate(state.activeDistrict);
+      else renderControls();
+      renderReadout();
+      renderActions();
+      renderProximity();
+    }
+
+    function formatValue(value: number) {
+      if (Math.abs(value) >= 10) return value.toFixed(0);
+      if (Math.abs(value) >= 1) return value.toFixed(1);
+      return value.toFixed(2);
+    }
+
+    function getEfficiencyChallenge(district: DistrictId, readout: ReturnType<typeof getDistrictReadout>) {
+      const challenges: Record<DistrictId, { label: string; achieved: boolean }> = {
+        workshop: { label: 'restore with path heat below 0.55', achieved: readout.objectiveMet && readout.metrics.heat < 0.55 },
+        converter: { label: 'deliver stable DC with little converter heat', achieved: readout.objectiveMet && readout.metrics.heat < 0.1 },
+        wind: { label: 'keep generator strain below 0.35', achieved: readout.objectiveMet && readout.metrics.strain < 0.35 },
+        longline: { label: 'hold long-line heat below 0.04', achieved: readout.objectiveMet && readout.metrics.heat < 0.04 },
+        lantern: { label: 'finish with heat below 0.10', achieved: readout.objectiveMet && readout.metrics.heat < 0.1 },
+        harbor: { label: 'leave at least 0.25 feeder margin', achieved: readout.objectiveMet && readout.metrics.feederMargin >= 0.25 },
+      };
+      return challenges[district];
+    }
+
+    startButton.addEventListener('click', async () => {
+      startButton.disabled = true;
+      startButton.textContent = 'Opening island…';
+      try {
+        const { startGridkeeper } = await import('@game/bootstrap');
+        renderer = startGridkeeper(mount, {
+          initialState: state,
+          initialReadout: getDistrictReadout(state, state.activeDistrict),
+          startMode: hadSavedGame ? 'resume' : 'fresh',
+          onNavigationChange: handleNavigationChange,
+        });
+        if (paused) renderer.setPaused(true);
+        startCard.hidden = true;
+        mount.focus({ preventScroll: true });
+        render();
+        announce(
+          hadSavedGame
+            ? `Island open. ${districtById[state.activeDistrict].name} is in range.`
+            : 'Island open. Move freely and enter the Workshop Cove service ring.',
+        );
+      } catch (error) {
+        startButton.disabled = false;
+        startButton.textContent = 'Try opening the island again';
+        announce('The island renderer did not start. Refresh the page and try again.');
+        console.error('Gridkeeper failed to start', error);
+      }
+    });
+
+    root.querySelectorAll<HTMLButtonElement>('[data-district-button]').forEach((button) => {
+      button.addEventListener('click', () => setDestination(button.dataset.districtButton as DistrictId));
+    });
+
+    lensButton.addEventListener('click', () => {
+      lensActive = !lensActive;
+      lensButton.setAttribute('aria-pressed', String(lensActive));
+      lensPanel.hidden = !lensActive;
+      renderReadout();
+      announce(lensActive ? 'Flow Lens open. Current rate is shown by dot density, not dot speed.' : 'Flow Lens closed.');
+    });
+
+    function setPaused(next: boolean) {
+      paused = next;
+      pauseCard.hidden = !paused;
+      pauseButton.setAttribute('aria-label', paused ? 'Resume game' : 'Pause game');
+      renderer?.setPaused(paused);
+      if (paused) resumeButton.focus();
+      else mount.focus({ preventScroll: true });
+      announce(paused ? 'Game paused. The island will wait.' : 'Game resumed.');
+    }
+
+    pauseButton.addEventListener('click', () => setPaused(!paused));
+    resumeButton.addEventListener('click', () => setPaused(false));
+    settingsButton.addEventListener('click', () => settingsDialog.showModal());
+
+    root.querySelectorAll<HTMLInputElement>('[data-setting]').forEach((input) => {
+      input.addEventListener('change', () => {
+        const setting = input.dataset.setting as keyof GameState['settings'];
+        mutate(setGameSettings(state, { [setting]: input.checked }));
+      });
+    });
+
+    rewindButton.addEventListener('click', () => {
+      mutate(rewindGameState(state), 'The latest move was rewound.');
+    });
+
+    nextButton.addEventListener('click', () => {
+      const activeIndex = districts.findIndex((district) => district.id === state.activeDistrict);
+      if (activeIndex < districts.length - 1) setDestination(districts[activeIndex + 1].id);
+    });
+
+    required<HTMLButtonElement>('[data-fresh-button]').addEventListener('click', () => {
+      if (!window.confirm('Start Gridkeeper again from Workshop Cove? This replaces the local game save.')) return;
+      state = createInitialGameState({ reducedMotion: state.settings.reducedMotion });
+      hadSavedGame = false;
+      movementGuideExpanded = true;
+      navigation = initialNavigationSnapshot();
+      lensActive = false;
+      lensPanel.hidden = true;
+      lensButton.setAttribute('aria-pressed', 'false');
+      saveState();
+      render();
+      settingsDialog.close();
+      renderer?.resetRover('fresh');
+      mount.focus({ preventScroll: true });
+      announce('Fresh island started at the landing. Move into Workshop Cove\'s service ring.');
+    });
+
+    mount.addEventListener('pointerdown', () => mount.focus({ preventScroll: true }));
+
+    window.addEventListener('keydown', (event) => {
+      const target = event.target as HTMLElement | null;
+      const typing = target?.matches(
+        'input:not([type="range"]):not([type="checkbox"]), select, textarea, [contenteditable="true"]',
+      );
+      if (typing) return;
+      if (event.key.toLowerCase() === 'f') {
+        event.preventDefault();
+        lensButton.click();
+      }
+      if (event.key.toLowerCase() === 'p') {
+        event.preventDefault();
+        setPaused(!paused);
+      }
+    });
+
+    window.addEventListener('beforeunload', () => renderer?.destroy(), { once: true });
+    render();
+  }
+</script>
