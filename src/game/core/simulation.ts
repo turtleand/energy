@@ -1,12 +1,15 @@
 import { districts, type DistrictId } from '../content/districts';
+import { challengeDefinitions, isChallengeComplete } from '../challenges/engine';
 
-export const GRIDKEEPER_SAVE_KEY = 'turtleand-energy:gridkeeper:v1';
-export const GRIDKEEPER_SAVE_VERSION = 1 as const;
+export const GRIDKEEPER_SAVE_KEY = 'turtleand-energy:gridkeeper:v2';
+export const GRIDKEEPER_LEGACY_SAVE_KEY = 'turtleand-energy:gridkeeper:v1';
+export const GRIDKEEPER_SAVE_VERSION = 2 as const;
 
 export type ControlValue = boolean | number | string;
 export type DistrictControlSet = Record<string, ControlValue>;
 export type DistrictControls = Record<DistrictId, DistrictControlSet>;
 export type Milestones = Record<DistrictId, string[]>;
+export type ChallengeProgress = Record<DistrictId, { completedPhaseIds: string[] }>;
 
 export interface GameSettings {
   assisted: boolean;
@@ -21,6 +24,7 @@ interface GameSnapshot {
   controls: DistrictControls;
   elapsedSeconds: number;
   milestones: Milestones;
+  challengeProgress: ChallengeProgress;
   restored: DistrictId[];
   sandboxUnlocked: boolean;
   settings: GameSettings;
@@ -99,6 +103,15 @@ const initialMilestones = (): Milestones => ({
   harbor: [],
 });
 
+const initialChallengeProgress = (): ChallengeProgress => ({
+  workshop: { completedPhaseIds: [] },
+  converter: { completedPhaseIds: [] },
+  wind: { completedPhaseIds: [] },
+  longline: { completedPhaseIds: [] },
+  lantern: { completedPhaseIds: [] },
+  harbor: { completedPhaseIds: [] },
+});
+
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 const clamp = (value: number, min = 0, max = 1) => Math.min(max, Math.max(min, value));
 const numberControl = (controls: DistrictControlSet, key: string) => Number(controls[key] ?? 0);
@@ -112,6 +125,7 @@ export function createInitialGameState(settings: Partial<GameSettings> = {}): Ga
     controls: clone(initialControls),
     elapsedSeconds: 0,
     milestones: initialMilestones(),
+    challengeProgress: initialChallengeProgress(),
     restored: [],
     sandboxUnlocked: false,
     settings: {
@@ -132,6 +146,7 @@ function snapshot(state: GameState): GameSnapshot {
     controls: state.controls,
     elapsedSeconds: state.elapsedSeconds,
     milestones: state.milestones,
+    challengeProgress: state.challengeProgress,
     restored: state.restored,
     sandboxUnlocked: state.sandboxUnlocked,
     settings: state.settings,
@@ -276,6 +291,11 @@ export function advanceTime(state: GameState, seconds: number): GameState {
   return evaluateRestoration(changed);
 }
 
+function challengeStepCompletion(state: GameState, district: DistrictId): boolean[] {
+  const completed = state.challengeProgress[district].completedPhaseIds;
+  return challengeDefinitions[district].phases.map((phase) => completed.includes(phase.id));
+}
+
 function workshopReadout(state: GameState): DistrictReadout {
   const controls = state.controls.workshop;
   const loopClosed = boolControl(controls, 'loopClosed');
@@ -285,16 +305,8 @@ function workshopReadout(state: GameState): DistrictReadout {
   const power = voltage * current;
   const heat = current * current * resistance * 0.035;
   const staticSpark = numberControl(controls, 'staticCharge') >= 75;
-  const objectiveMet =
-    loopClosed &&
-    voltage >= (state.settings.assisted ? 7 : 8) &&
-    resistance <= (state.settings.assisted ? 6 : 5) &&
-    state.milestones.workshop.includes('static-discharge');
-  const stepCompletion = [
-    loopClosed,
-    voltage >= (state.settings.assisted ? 7 : 8) && resistance <= (state.settings.assisted ? 6 : 5),
-    state.milestones.workshop.includes('static-discharge'),
-  ];
+  const stepCompletion = challengeStepCompletion(state, 'workshop');
+  const objectiveMet = stepCompletion.every(Boolean);
   const objectiveProgress = stepCompletion.filter(Boolean).length / stepCompletion.length;
 
   return {
@@ -338,9 +350,8 @@ function converterReadout(state: GameState): DistrictReadout {
   const diagnosticBlocked = mismatchSelected && state.milestones.converter.includes('mismatch-blocked');
   const dcStability = rectifierOn ? (smoothingOn ? 1 : 0.45) : 0;
   const power = compatible && dcStability > 0.9 ? 0.82 : 0;
-  const objectiveMet =
-    state.milestones.converter.includes('mismatch-blocked') && rectifierOn && smoothingOn && compatible;
-  const stepCompletion = [state.milestones.converter.includes('mismatch-blocked'), rectifierOn, smoothingOn && compatible];
+  const stepCompletion = challengeStepCompletion(state, 'converter');
+  const objectiveMet = stepCompletion.every(Boolean);
   const objectiveProgress = stepCompletion.filter(Boolean).length / stepCompletion.length;
 
   return {
@@ -389,12 +400,8 @@ function windReadout(state: GameState): DistrictReadout {
   const induction = changingFlux ? windStrength * fieldStrength : 0;
   const power = loopClosed ? induction * 1.4 : 0;
   const strain = loopClosed ? clamp(loadDemand - induction * 0.5) : 0;
-  const objectiveMet = loopClosed && power >= (state.settings.assisted ? 0.55 : 0.72) && strain < 0.7;
-  const stepCompletion = [
-    loopClosed,
-    windStrength >= (state.settings.assisted ? 0.65 : 0.75) && fieldStrength >= (state.settings.assisted ? 0.6 : 0.7),
-    loopClosed && strain < 0.7 && power >= (state.settings.assisted ? 0.55 : 0.72),
-  ];
+  const stepCompletion = challengeStepCompletion(state, 'wind');
+  const objectiveMet = stepCompletion.every(Boolean);
   const objectiveProgress = stepCompletion.filter(Boolean).length / stepCompletion.length;
 
   return {
@@ -439,8 +446,8 @@ function longlineReadout(state: GameState): DistrictReadout {
   const current = demand / voltage;
   const heat = current * current * 0.55;
   const delivered = clamp(demand - heat * 0.55);
-  const objectiveMet = highVoltage && transformerOn && heat < 0.08;
-  const stepCompletion = [highVoltage, highVoltage && heat < 0.08, transformerOn];
+  const stepCompletion = challengeStepCompletion(state, 'longline');
+  const objectiveMet = stepCompletion.every(Boolean);
   const objectiveProgress = stepCompletion.filter(Boolean).length / stepCompletion.length;
 
   return {
@@ -482,8 +489,8 @@ function lanternReadout(state: GameState): DistrictReadout {
   const power = lampCount * (efficient ? 0.055 : 0.17);
   const energy = Math.max(0, numberControl(controls, 'energySpent'));
   const cost = energy * 0.18;
-  const objectiveMet = lampCount >= 5 && efficient && state.elapsedSeconds >= 4 && cost <= 0.5;
-  const stepCompletion = [lampCount >= 5, efficient, state.elapsedSeconds >= 4 && cost <= 0.5];
+  const stepCompletion = challengeStepCompletion(state, 'lantern');
+  const objectiveMet = stepCompletion.every(Boolean);
   const objectiveProgress = stepCompletion.filter(Boolean).length / stepCompletion.length;
 
   return {
@@ -532,17 +539,8 @@ function harborReadout(state: GameState): DistrictReadout {
   const overloadTripped = homeLoad > feederCapacity;
   const feederMargin = feederCapacity - homeLoad;
   const power = conductive && !protectionTripped && !overloadTripped ? homeLoad : 0;
-  const objectiveMet =
-    state.milestones.harbor.includes('protection-trip') &&
-    conductive &&
-    insulationSound &&
-    groundProtectionOn &&
-    feederMargin >= (state.settings.assisted ? 0.1 : 0.18);
-  const stepCompletion = [
-    state.milestones.harbor.includes('protection-trip'),
-    conductive && insulationSound && groundProtectionOn,
-    feederMargin >= (state.settings.assisted ? 0.1 : 0.18),
-  ];
+  const stepCompletion = challengeStepCompletion(state, 'harbor');
+  const objectiveMet = stepCompletion.every(Boolean);
   const objectiveProgress = stepCompletion.filter(Boolean).length / stepCompletion.length;
 
   return {
@@ -605,10 +603,79 @@ export function getDistrictReadout(state: GameState, district: DistrictId): Dist
   }
 }
 
+function checkpointControlPatch(district: DistrictId, phaseId: string): DistrictControlSet {
+  const patches: Record<DistrictId, Record<string, DistrictControlSet>> = {
+    workshop: {
+      'build-loop': { loopClosed: true },
+      'tune-flow': { voltage: 9, resistance: 4 },
+      'spark-reset': { staticCharge: 0 },
+    },
+    converter: {
+      'shape-wave': { rectifierOn: true, smoothingOn: true },
+      'match-label': { adapterMatch: 'correct' },
+      'negotiate-output': {},
+    },
+    wind: {
+      'change-flux': { windStrength: 0.85, fieldStrength: 0.8 },
+      'close-loop': { loopClosed: true },
+      'balance-load': { loadDemand: 0.55 },
+    },
+    longline: {
+      'compare-line': { transmissionVoltage: 'high' },
+      'build-transformers': { transformerOn: true },
+      'deliver-safely': { demand: 0.75 },
+    },
+    lantern: {
+      'equal-energy': {},
+      'schedule-market': { lampCount: 6, lampTech: 'warm-led' },
+      'replay-evening': { energySpent: 0.8 },
+    },
+    harbor: {
+      'layer-paths': { material: 'copper', groundProtectionOn: true },
+      'diagnose-faults': { insulationState: 'sound' },
+      'balance-feeder': { homeLoad: 0.65, feederCapacity: 0.9 },
+    },
+  };
+  return patches[district][phaseId] ?? {};
+}
+
+export function completeChallengePhase(
+  state: GameState,
+  district: DistrictId,
+  phaseId: string,
+): GameState {
+  if (!isDistrictUnlocked(state, district) || state.activeDistrict !== district) return state;
+  const completed = state.challengeProgress[district].completedPhaseIds;
+  const expected = challengeDefinitions[district].phases[completed.length];
+  if (!expected || expected.id !== phaseId || completed.includes(phaseId)) return state;
+
+  const patch = checkpointControlPatch(district, phaseId);
+  let milestones = state.milestones;
+  if (phaseId === 'spark-reset') milestones = addMilestone(milestones, 'workshop', 'static-discharge');
+  if (phaseId === 'match-label') milestones = addMilestone(milestones, 'converter', 'mismatch-blocked');
+  if (phaseId === 'diagnose-faults') milestones = addMilestone(milestones, 'harbor', 'protection-trip');
+
+  const changed = remember(state, {
+    ...state,
+    controls: {
+      ...state.controls,
+      [district]: { ...state.controls[district], ...patch },
+    },
+    elapsedSeconds: phaseId === 'replay-evening' ? Math.max(3, state.elapsedSeconds) : state.elapsedSeconds,
+    milestones,
+    challengeProgress: {
+      ...state.challengeProgress,
+      [district]: { completedPhaseIds: [...completed, phaseId] },
+    },
+    history: state.history,
+  });
+  return evaluateRestoration(changed);
+}
+
 function evaluateRestoration(state: GameState): GameState {
   const district = state.activeDistrict;
   if (!isDistrictUnlocked(state, district) || state.restored.includes(district)) return state;
-  if (!getDistrictReadout(state, district).objectiveMet) return state;
+  if (!isChallengeComplete(state.challengeProgress[district].completedPhaseIds, district)) return state;
 
   const restored = [...state.restored, district];
   return {
@@ -646,10 +713,11 @@ function sanitizeControlSet(district: DistrictId, value: unknown): DistrictContr
 export function parseSavedGameState(raw: string | null): GameState {
   if (!raw) return createInitialGameState();
   try {
-    const parsed = JSON.parse(raw) as Partial<GameSnapshot>;
-    if (parsed.version !== GRIDKEEPER_SAVE_VERSION) return createInitialGameState();
+    const parsed = JSON.parse(raw) as Partial<Omit<GameSnapshot, 'version'>> & { version?: number };
+    if (parsed.version !== GRIDKEEPER_SAVE_VERSION && parsed.version !== 1) return createInitialGameState();
+    const legacy = parsed.version === 1;
     const fresh = createInitialGameState();
-    const activeDistrict = DISTRICT_IDS.includes(parsed.activeDistrict as DistrictId)
+    const activeDistrictCandidate = DISTRICT_IDS.includes(parsed.activeDistrict as DistrictId)
       ? (parsed.activeDistrict as DistrictId)
       : fresh.activeDistrict;
     const restoredSet = new Set(
@@ -657,7 +725,11 @@ export function parseSavedGameState(raw: string | null): GameState {
         ? parsed.restored.filter((district): district is DistrictId => DISTRICT_IDS.includes(district as DistrictId))
         : [],
     );
-    const restored = DISTRICT_IDS.filter((district) => restoredSet.has(district));
+    const restored: DistrictId[] = [];
+    for (const district of DISTRICT_IDS) {
+      if (!restoredSet.has(district)) break;
+      restored.push(district);
+    }
     const elapsedSeconds =
       typeof parsed.elapsedSeconds === 'number' && Number.isFinite(parsed.elapsedSeconds)
         ? clamp(parsed.elapsedSeconds, 0, 86_400)
@@ -683,6 +755,35 @@ export function parseSavedGameState(raw: string | null): GameState {
           : [],
       ]),
     ) as Milestones;
+    const challengeProgress = Object.fromEntries(
+      DISTRICT_IDS.map((district) => {
+        if (legacy) {
+          return [
+            district,
+            {
+              completedPhaseIds: restored.includes(district)
+                ? challengeDefinitions[district].phases.map((phase) => phase.id)
+                : [],
+            },
+          ];
+        }
+        const candidate = parsed.challengeProgress?.[district]?.completedPhaseIds;
+        const allowed = challengeDefinitions[district].phases.map((phase) => phase.id);
+        const completedPhaseIds = Array.isArray(candidate)
+          ? allowed.filter((phaseId, index) => candidate[index] === phaseId)
+          : [];
+        return [district, { completedPhaseIds }];
+      }),
+    ) as ChallengeProgress;
+    const restoredFromProgress: DistrictId[] = [];
+    for (const district of DISTRICT_IDS) {
+      if (!isChallengeComplete(challengeProgress[district].completedPhaseIds, district)) break;
+      restoredFromProgress.push(district);
+    }
+    const validatedRestored = legacy ? restored : restoredFromProgress;
+    const activeDistrict = DISTRICT_IDS.indexOf(activeDistrictCandidate) <= validatedRestored.length
+      ? activeDistrictCandidate
+      : DISTRICT_IDS[Math.min(validatedRestored.length, DISTRICT_IDS.length - 1)];
 
     return {
       ...fresh,
@@ -690,8 +791,9 @@ export function parseSavedGameState(raw: string | null): GameState {
       controls,
       elapsedSeconds,
       milestones,
-      restored,
-      sandboxUnlocked: restored.length === DISTRICT_IDS.length,
+      challengeProgress,
+      restored: validatedRestored,
+      sandboxUnlocked: validatedRestored.length === DISTRICT_IDS.length,
       settings: {
         assisted:
           typeof parsed.settings?.assisted === 'boolean' ? parsed.settings.assisted : fresh.settings.assisted,
