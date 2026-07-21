@@ -248,11 +248,14 @@ const { game } = Astro.props;
   import {
     GRIDKEEPER_SAVE_KEY,
     advanceTime,
+    chargeWorkshopVane,
+    clearWorkshopDischarge,
     createInitialGameState,
     getDistrictReadout,
     isDistrictUnlocked,
     parseSavedGameState,
     rewindGameState,
+    runConverterDiagnostic,
     serializeGameState,
     setDistrictControl,
     setGameSettings,
@@ -360,11 +363,11 @@ const { game } = Astro.props;
       }
     }
 
-    function mutate(next: GameState, message?: string) {
+    function mutate(next: GameState, message?: string, options: { preserveControls?: boolean } = {}) {
       const previousRestored = state.restored.length;
       state = next;
       saveState();
-      render();
+      render(options);
       if (state.restored.length > previousRestored) {
         const restoredDistrict = districtById[state.restored.at(-1)!];
         root.dataset.celebrate = 'true';
@@ -475,6 +478,7 @@ const { game } = Astro.props;
       if (definition.kind === 'range') {
         const value = Number(controls[definition.id]);
         appendLabelText(labelRow, definition.label, `${formatValue(value)}${definition.unit}`);
+        const output = labelRow.querySelector('output');
         const input = makeElement('input');
         input.type = 'range';
         input.min = String(definition.min);
@@ -484,7 +488,11 @@ const { game } = Astro.props;
         input.setAttribute('aria-label', definition.label);
         input.addEventListener('input', () => {
           guardDistrictAction(district, () => {
-            mutate(setDistrictControl(state, district, definition.id, Number(input.value)));
+            const nextValue = Number(input.value);
+            if (output) output.textContent = `${formatValue(nextValue)}${definition.unit}`;
+            mutate(setDistrictControl(state, district, definition.id, nextValue), undefined, {
+              preserveControls: true,
+            });
           });
         });
         row.append(labelRow, input, hint);
@@ -516,18 +524,28 @@ const { game } = Astro.props;
         button.addEventListener('click', () => {
           guardDistrictAction(district, () => {
             if (definition.action === 'charge-static') {
-              const charge = Math.min(100, Number(state.controls.workshop.staticCharge) + 25);
+              const charged = chargeWorkshopVane(state);
+              const charge = Number(charged.controls.workshop.staticCharge);
               mutate(
-                setDistrictControl(state, 'workshop', 'staticCharge', charge),
+                charged,
                 charge >= 75
                   ? 'A brief static spark releases the built-up charge.'
                   : `Storm vane charge ${charge} percent.`,
               );
+              if (charge >= 75) {
+                window.setTimeout(
+                  () => {
+                    const cleared = clearWorkshopDischarge(state);
+                    if (cleared !== state) mutate(cleared);
+                  },
+                  state.settings.reducedMotion ? 120 : 520,
+                );
+              }
             }
             if (definition.action === 'run-diagnostic') {
               const selected = String(state.controls.converter.adapterMatch);
               mutate(
-                setDistrictControl(state, 'converter', 'adapterMatch', selected),
+                runConverterDiagnostic(state),
                 selected === 'wrong'
                   ? 'Diagnostic bench blocked the mismatch before energizing the model radio.'
                   : 'The selected module is compatible. Complete the conversion stages.',
@@ -705,9 +723,10 @@ const { game } = Astro.props;
       });
     }
 
-    function render() {
+    function render(options: { preserveControls?: boolean } = {}) {
       renderDistrictNavigation();
-      renderControls();
+      if (options.preserveControls) controlFieldset.disabled = !canOperate(state.activeDistrict);
+      else renderControls();
       renderReadout();
       renderActions();
       renderProximity();

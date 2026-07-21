@@ -79,6 +79,7 @@ export const initialControls: DistrictControls = {
   lantern: {
     lampCount: 5,
     lampTech: 'filament',
+    energySpent: 0,
   },
   harbor: {
     material: 'copper',
@@ -171,13 +172,7 @@ export function setDistrictControl(
 ): GameState {
   if (!(control in initialControls[district])) return state;
 
-  let milestones = clone(state.milestones);
-  if (district === 'workshop' && control === 'staticCharge' && Number(value) >= 75) {
-    milestones = addMilestone(milestones, district, 'static-discharge');
-  }
-  if (district === 'converter' && control === 'adapterMatch' && value === 'wrong') {
-    milestones = addMilestone(milestones, district, 'mismatch-blocked');
-  }
+  let milestones = state.milestones;
 
   const controls: DistrictControls = {
     ...state.controls,
@@ -205,17 +200,76 @@ export function setDistrictControl(
 }
 
 export function setGameSettings(state: GameState, settings: Partial<GameSettings>): GameState {
-  return remember(state, {
+  const changed = remember(state, {
     ...state,
     settings: { ...state.settings, ...settings },
     history: state.history,
   });
+  return evaluateRestoration(changed);
+}
+
+export function chargeWorkshopVane(state: GameState): GameState {
+  const charge = Math.min(100, numberControl(state.controls.workshop, 'staticCharge') + 25);
+  const controls: DistrictControls = {
+    ...state.controls,
+    workshop: {
+      ...state.controls.workshop,
+      staticCharge: charge,
+    },
+  };
+  const milestones = charge >= 75
+    ? addMilestone(state.milestones, 'workshop', 'static-discharge')
+    : state.milestones;
+  const changed = remember(state, {
+    ...state,
+    controls,
+    milestones,
+    history: state.history,
+  });
+  return evaluateRestoration(changed);
+}
+
+export function clearWorkshopDischarge(state: GameState): GameState {
+  if (numberControl(state.controls.workshop, 'staticCharge') < 75) return state;
+  return {
+    ...state,
+    controls: {
+      ...state.controls,
+      workshop: {
+        ...state.controls.workshop,
+        staticCharge: 0,
+      },
+    },
+  };
+}
+
+export function runConverterDiagnostic(state: GameState): GameState {
+  if (stringControl(state.controls.converter, 'adapterMatch') !== 'wrong') return state;
+  const milestones = addMilestone(state.milestones, 'converter', 'mismatch-blocked');
+  if (milestones === state.milestones) return state;
+  const changed = remember(state, {
+    ...state,
+    milestones,
+    history: state.history,
+  });
+  return evaluateRestoration(changed);
 }
 
 export function advanceTime(state: GameState, seconds: number): GameState {
   const safeSeconds = clamp(Number.isFinite(seconds) ? seconds : 0, 0, 60);
+  const lampCount = numberControl(state.controls.lantern, 'lampCount');
+  const efficient = stringControl(state.controls.lantern, 'lampTech') === 'warm-led';
+  const lanternPower = lampCount * (efficient ? 0.055 : 0.17);
+  const accumulatedEnergy = Math.max(0, numberControl(state.controls.lantern, 'energySpent'));
   const changed = remember(state, {
     ...state,
+    controls: {
+      ...state.controls,
+      lantern: {
+        ...state.controls.lantern,
+        energySpent: accumulatedEnergy + lanternPower * (safeSeconds / 4),
+      },
+    },
     elapsedSeconds: state.elapsedSeconds + safeSeconds,
     history: state.history,
   });
@@ -280,7 +334,8 @@ function converterReadout(state: GameState): DistrictReadout {
   const rectifierOn = boolControl(controls, 'rectifierOn');
   const smoothingOn = boolControl(controls, 'smoothingOn');
   const compatible = stringControl(controls, 'adapterMatch') === 'correct';
-  const diagnosticBlocked = !compatible;
+  const mismatchSelected = !compatible;
+  const diagnosticBlocked = mismatchSelected && state.milestones.converter.includes('mismatch-blocked');
   const dcStability = rectifierOn ? (smoothingOn ? 1 : 0.45) : 0;
   const power = compatible && dcStability > 0.9 ? 0.82 : 0;
   const objectiveMet =
@@ -292,11 +347,13 @@ function converterReadout(state: GameState): DistrictReadout {
     district: 'converter',
     caption: diagnosticBlocked
       ? 'The diagnostic bench blocks this mismatch. Nothing is energized.'
-      : smoothingOn && rectifierOn
-        ? 'Reversing AC has passed through rectification and smoothing. The radio now receives steady, compatible DC.'
-        : rectifierOn
-          ? 'The wave now moves one way, but its uneven pulses still need smoothing.'
-          : 'Dock AC reverses direction. The radio needs compatible, steady DC.',
+      : mismatchSelected
+        ? 'A mismatched module is selected. Run the diagnostic before attempting to energize the model radio.'
+        : smoothingOn && rectifierOn
+          ? 'Reversing AC has passed through rectification and smoothing. The radio now receives steady, compatible DC.'
+          : rectifierOn
+            ? 'The wave now moves one way, but its uneven pulses still need smoothing.'
+            : 'Dock AC reverses direction. The radio needs compatible, steady DC.',
     status: objectiveMet ? 'restored' : power > 0 ? 'flowing' : diagnosticBlocked ? 'protected' : 'waiting',
     metrics: {
       voltage: compatible ? 0.65 : 0,
@@ -423,7 +480,7 @@ function lanternReadout(state: GameState): DistrictReadout {
   const lampCount = numberControl(controls, 'lampCount');
   const efficient = stringControl(controls, 'lampTech') === 'warm-led';
   const power = lampCount * (efficient ? 0.055 : 0.17);
-  const energy = power * (state.elapsedSeconds / 4);
+  const energy = Math.max(0, numberControl(controls, 'energySpent'));
   const cost = energy * 0.18;
   const objectiveMet = lampCount >= 5 && efficient && state.elapsedSeconds >= 4 && cost <= 0.5;
   const stepCompletion = [lampCount >= 5, efficient, state.elapsedSeconds >= 4 && cost <= 0.5];
@@ -601,9 +658,23 @@ export function parseSavedGameState(raw: string | null): GameState {
         : [],
     );
     const restored = DISTRICT_IDS.filter((district) => restoredSet.has(district));
+    const elapsedSeconds =
+      typeof parsed.elapsedSeconds === 'number' && Number.isFinite(parsed.elapsedSeconds)
+        ? clamp(parsed.elapsedSeconds, 0, 86_400)
+        : 0;
     const controls = Object.fromEntries(
       DISTRICT_IDS.map((district) => [district, sanitizeControlSet(district, parsed.controls?.[district])]),
     ) as DistrictControls;
+    const parsedLanternControls = parsed.controls?.lantern;
+    if (
+      !parsedLanternControls ||
+      typeof parsedLanternControls !== 'object' ||
+      typeof parsedLanternControls.energySpent !== 'number'
+    ) {
+      const lampCount = numberControl(controls.lantern, 'lampCount');
+      const efficient = stringControl(controls.lantern, 'lampTech') === 'warm-led';
+      controls.lantern.energySpent = lampCount * (efficient ? 0.055 : 0.17) * (elapsedSeconds / 4);
+    }
     const milestones = Object.fromEntries(
       DISTRICT_IDS.map((district) => [
         district,
@@ -617,10 +688,7 @@ export function parseSavedGameState(raw: string | null): GameState {
       ...fresh,
       activeDistrict,
       controls,
-      elapsedSeconds:
-        typeof parsed.elapsedSeconds === 'number' && Number.isFinite(parsed.elapsedSeconds)
-          ? clamp(parsed.elapsedSeconds, 0, 86_400)
-          : 0,
+      elapsedSeconds,
       milestones,
       restored,
       sandboxUnlocked: restored.length === DISTRICT_IDS.length,

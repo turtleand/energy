@@ -2,12 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { districts, lessonMechanicMap } from '../content/districts';
 import {
   advanceTime,
+  chargeWorkshopVane,
+  clearWorkshopDischarge,
   createInitialGameState,
   getDistrictReadout,
   parseSavedGameState,
   rewindGameState,
+  runConverterDiagnostic,
   serializeGameState,
   setDistrictControl,
+  setGameSettings,
   visitDistrict,
 } from './simulation';
 
@@ -46,16 +50,28 @@ describe('causal electricity model', () => {
 
   it('shows static buildup as a brief discharge, not a maintained current', () => {
     let state = createInitialGameState();
-    state = setDistrictControl(state, 'workshop', 'staticCharge', 100);
-    const readout = getDistrictReadout(state, 'workshop');
-    expect(readout.flags.staticSpark).toBe(true);
-    expect(readout.flags.maintainedStaticCurrent).toBe(false);
+    state = chargeWorkshopVane(state);
+    state = chargeWorkshopVane(state);
+    state = chargeWorkshopVane(state);
+    expect(getDistrictReadout(state, 'workshop').flags.staticSpark).toBe(true);
     expect(state.milestones.workshop).toContain('static-discharge');
+    const historyLength = state.history.length;
+
+    state = clearWorkshopDischarge(state);
+    const discharged = getDistrictReadout(state, 'workshop');
+    expect(discharged.flags.staticSpark).toBe(false);
+    expect(discharged.flags.maintainedStaticCurrent).toBe(false);
+    expect(state.milestones.workshop).toContain('static-discharge');
+    expect(state.history).toHaveLength(historyLength);
   });
 
   it('blocks an incompatible adapter and restores stable DC only through the converter chain', () => {
     let state = createInitialGameState();
     state = setDistrictControl(state, 'converter', 'adapterMatch', 'wrong');
+    expect(state.milestones.converter).not.toContain('mismatch-blocked');
+    expect(getDistrictReadout(state, 'converter').flags.diagnosticBlocked).toBe(false);
+    state = runConverterDiagnostic(state);
+    expect(state.milestones.converter).toContain('mismatch-blocked');
     expect(getDistrictReadout(state, 'converter').flags.diagnosticBlocked).toBe(true);
     state = setDistrictControl(state, 'converter', 'rectifierOn', true);
     state = setDistrictControl(state, 'converter', 'smoothingOn', true);
@@ -98,6 +114,19 @@ describe('causal electricity model', () => {
     expect(later.metrics.cost).toBeGreaterThan(early.metrics.cost);
   });
 
+  it('preserves energy already spent when the player changes lamp technology', () => {
+    let state = createInitialGameState();
+    state = setDistrictControl(state, 'lantern', 'lampCount', 10);
+    state = advanceTime(state, 12);
+    const filamentEnergy = getDistrictReadout(state, 'lantern').metrics.energy;
+
+    state = setDistrictControl(state, 'lantern', 'lampTech', 'warm-led');
+    expect(getDistrictReadout(state, 'lantern').metrics.energy).toBeCloseTo(filamentEnergy);
+
+    state = advanceTime(state, 4);
+    expect(getDistrictReadout(state, 'lantern').metrics.energy).toBeCloseTo(filamentEnergy + 0.55);
+  });
+
   it('distinguishes feeder capacity, home load, leakage, and protection', () => {
     let state = createInitialGameState();
     state = setDistrictControl(state, 'harbor', 'groundProtectionOn', true);
@@ -115,16 +144,34 @@ describe('causal electricity model', () => {
 });
 
 describe('progression and persistence', () => {
+  it('re-evaluates the active objective when Assisted play lowers its thresholds', () => {
+    let state = createInitialGameState();
+    state = setDistrictControl(state, 'workshop', 'loopClosed', true);
+    state = setDistrictControl(state, 'workshop', 'voltage', 7);
+    state = setDistrictControl(state, 'workshop', 'resistance', 6);
+    state = chargeWorkshopVane(state);
+    state = chargeWorkshopVane(state);
+    state = chargeWorkshopVane(state);
+    expect(state.restored).not.toContain('workshop');
+
+    state = setGameSettings(state, { assisted: true });
+    expect(state.restored).toContain('workshop');
+    expect(getDistrictReadout(state, 'workshop').objectiveMet).toBe(true);
+  });
+
   it('can restore all six districts through play and unlock the sandbox', () => {
     let state = createInitialGameState();
 
     state = setDistrictControl(state, 'workshop', 'loopClosed', true);
     state = setDistrictControl(state, 'workshop', 'voltage', 9);
     state = setDistrictControl(state, 'workshop', 'resistance', 4);
-    state = setDistrictControl(state, 'workshop', 'staticCharge', 100);
+    state = chargeWorkshopVane(state);
+    state = chargeWorkshopVane(state);
+    state = chargeWorkshopVane(state);
     state = visitDistrict(state, 'converter');
 
     state = setDistrictControl(state, 'converter', 'adapterMatch', 'wrong');
+    state = runConverterDiagnostic(state);
     state = setDistrictControl(state, 'converter', 'rectifierOn', true);
     state = setDistrictControl(state, 'converter', 'smoothingOn', true);
     state = setDistrictControl(state, 'converter', 'adapterMatch', 'correct');
@@ -160,7 +207,9 @@ describe('progression and persistence', () => {
     state = setDistrictControl(state, 'workshop', 'loopClosed', true);
     state = setDistrictControl(state, 'workshop', 'voltage', 9);
     state = setDistrictControl(state, 'workshop', 'resistance', 4);
-    state = setDistrictControl(state, 'workshop', 'staticCharge', 100);
+    state = chargeWorkshopVane(state);
+    state = chargeWorkshopVane(state);
+    state = chargeWorkshopVane(state);
     expect(state.restored).toContain('workshop');
     expect(visitDistrict(state, 'converter').activeDistrict).toBe('converter');
   });
@@ -170,7 +219,9 @@ describe('progression and persistence', () => {
     state = setDistrictControl(state, 'workshop', 'loopClosed', true);
     state = setDistrictControl(state, 'workshop', 'voltage', 9);
     state = setDistrictControl(state, 'workshop', 'resistance', 4);
-    state = setDistrictControl(state, 'workshop', 'staticCharge', 100);
+    state = chargeWorkshopVane(state);
+    state = chargeWorkshopVane(state);
+    state = chargeWorkshopVane(state);
     const historyLength = state.history.length;
 
     state = visitDistrict(state, 'converter');
@@ -190,6 +241,17 @@ describe('progression and persistence', () => {
     );
     expect(sanitized.restored).toEqual(['workshop']);
     expect(sanitized.settings.assisted).toBe(false);
+  });
+
+  it('migrates Lantern energy from older v1 saves without the accumulator field', () => {
+    let state = createInitialGameState();
+    state = setDistrictControl(state, 'lantern', 'lampCount', 10);
+    state = advanceTime(state, 8);
+    const legacySave = JSON.parse(serializeGameState(state));
+    delete legacySave.controls.lantern.energySpent;
+
+    const migrated = parseSavedGameState(JSON.stringify(legacySave));
+    expect(getDistrictReadout(migrated, 'lantern').metrics.energy).toBeCloseTo(3.4);
   });
 
   it('rewinds the latest meaningful action without corrupting the save schema', () => {
