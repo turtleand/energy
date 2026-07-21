@@ -1,0 +1,15 @@
+---
+import { getCollection } from 'astro:content';
+import GameShell from '@components/game/GameShell.astro';
+import GameLayout from '@layouts/GameLayout.astro';
+
+const game = (await getCollection('games')).find((entry) => entry.data.slug === 'gridkeeper');
+
+if (!game) {
+  throw new Error('Gridkeeper content entry is missing.');
+}
+---
+
+<GameLayout title={game.data.title} description={game.data.summary}>
+  <GameShell game={game.data} />
+</GameLayout>

@@ -5,6 +5,10 @@ import { getCollection } from 'astro:content';
 const lessons = (await getCollection('lessons', ({ data }) => data.status === 'ready')).sort(
   (a, b) => a.data.order - b.data.order
 );
+const games = (await getCollection('games', ({ data }) => data.status === 'ready')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+const featuredGame = games[0];
 ---
 
 <BaseLayout>
@@ -17,6 +21,28 @@ const lessons = (await getCollection('lessons', ({ data }) => data.status === 'r
       </p>
     </div>
   </section>
+
+  {featuredGame && (
+    <section class="game-entry-section" aria-labelledby="game-entry-title">
+      <div class="container">
+        <a class="game-entry" href={`/play/${featuredGame.data.slug}/`}>
+          <span class="game-entry-signal" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i><i></i>
+          </span>
+          <span class="game-entry-copy">
+            <span class="eyebrow">Playable island</span>
+            <strong id="game-entry-title">{featuredGame.data.title}</strong>
+            <span>{featuredGame.data.summary}</span>
+          </span>
+          <span class="game-entry-meta">
+            <span>{featuredGame.data.districts.length} districts</span>
+            <span>{featuredGame.data.coveredLessonSlugs.length} lessons</span>
+            <b>Play game</b>
+          </span>
+        </a>
+      </div>
+    </section>
+  )}
 
   <section class="section article-index" aria-labelledby="article-index-title">
     <div class="container">
