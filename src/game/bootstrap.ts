@@ -1,18 +1,20 @@
 import Phaser from 'phaser';
 import { IslandScene } from './scenes/IslandScene';
 import type { DistrictId } from './content/districts';
+import type { NavigationSnapshot, RoverStartMode } from './core/navigation';
 import type { DistrictReadout, GameState } from './core/simulation';
 
 export interface GridkeeperRendererOptions {
   initialState: GameState;
   initialReadout: DistrictReadout;
-  onDistrictRequested: (district: DistrictId) => void;
-  onRoverMoved?: (district: DistrictId) => void;
+  startMode: RoverStartMode;
+  onNavigationChange: (snapshot: NavigationSnapshot) => void;
 }
 
 export interface GridkeeperRenderer {
   destroy: () => void;
-  focusDistrict: (district: DistrictId) => void;
+  resetRover: (mode: RoverStartMode) => void;
+  setDistrictDestination: (district: DistrictId) => void;
   setPaused: (paused: boolean) => void;
   update: (state: GameState, readout: DistrictReadout, flowLensActive: boolean) => void;
 }
@@ -44,7 +46,8 @@ export function startGridkeeper(
 
   return {
     destroy: () => game.destroy(true),
-    focusDistrict: (district) => scene.moveRoverToDistrict(district),
+    resetRover: (mode) => scene.resetRover(mode),
+    setDistrictDestination: (district) => scene.setDistrictDestination(district),
     setPaused: (paused) => {
       if (paused) {
         scene.scene.pause();

@@ -74,16 +74,21 @@ const { game } = Astro.props;
         data-phaser-mount
         tabindex="0"
         role="application"
-        aria-label="Gridkeeper island. Move with arrow keys or W A S D. Select a nearby district with pointer or touch."
+        aria-label="Gridkeeper island. Move freely with arrow keys or W A S D. Click or tap anywhere to walk there. Enter a district ring to operate its controls."
       ></div>
+
+      <div class="movement-guide" data-movement-guide>
+        <span class="movement-keys" aria-hidden="true"><kbd>WASD</kbd><kbd>↑↓←→</kbd></span>
+        <span><strong>Move freely</strong><small>Keys or click / tap</small></span>
+      </div>
 
       <div class="game-start-card" data-start-card>
         <p class="gridkeeper-kicker" data-start-kicker>Your island is dark</p>
         <h2 data-start-heading>Bring the grid back district by district.</h2>
         <p>{game.summary}</p>
         <ul class="start-instructions">
-          <li><span aria-hidden="true">↗</span> Travel with keys, pointer, or touch</li>
-          <li><span aria-hidden="true">◌</span> Build systems and watch the island react</li>
+          <li><span aria-hidden="true">↗</span> Move anywhere with W A S D, arrows, pointer, or touch</li>
+          <li><span aria-hidden="true">◌</span> Enter a station ring before operating its system</li>
           <li><span aria-hidden="true">◎</span> Use the Flow Lens when you want to see why</li>
         </ul>
         <button class="game-button game-button-primary" type="button" data-start-button>
@@ -130,6 +135,14 @@ const { game } = Astro.props;
 
       <p class="district-summary" data-district-summary></p>
 
+      <div class="proximity-banner" data-proximity-banner data-phase="near">
+        <span class="proximity-signal" aria-hidden="true"></span>
+        <span>
+          <strong data-proximity-title>Move to Workshop Cove</strong>
+          <small data-proximity-detail>Enter the glowing service ring to operate.</small>
+        </span>
+      </div>
+
       <div class="objective-card">
         <div class="objective-heading">
           <span>Restoration goal</span>
@@ -152,7 +165,10 @@ const { game } = Astro.props;
         </div>
       </div>
 
-      <div class="control-stack" data-control-stack aria-label="District controls"></div>
+      <fieldset class="district-controls-fieldset" data-control-fieldset disabled>
+        <legend class="visually-hidden">District controls</legend>
+        <div class="control-stack" data-control-stack></div>
+      </fieldset>
 
       <section class="system-readout" aria-labelledby="system-readout-title">
         <div class="system-readout-heading">
@@ -225,6 +241,11 @@ const { game } = Astro.props;
   import { districtControls, type ControlDefinition } from '@game/content/controls';
   import { districtById, districts, type DistrictId } from '@game/content/districts';
   import {
+    buildNavigationSnapshot,
+    getInitialRoverPosition,
+    type NavigationSnapshot,
+  } from '@game/core/navigation';
+  import {
     GRIDKEEPER_SAVE_KEY,
     advanceTime,
     createInitialGameState,
@@ -253,6 +274,7 @@ const { game } = Astro.props;
     const startCard = required<HTMLElement>('[data-start-card]');
     const mount = required<HTMLElement>('[data-phaser-mount]');
     const controlStack = required<HTMLElement>('[data-control-stack]');
+    const controlFieldset = required<HTMLFieldSetElement>('[data-control-fieldset]');
     const lensButton = required<HTMLButtonElement>('[data-lens-button]');
     const lensPanel = required<HTMLElement>('[data-flow-lens-panel]');
     const pauseButton = required<HTMLButtonElement>('[data-pause-button]');
@@ -265,12 +287,17 @@ const { game } = Astro.props;
     const liveRegion = required<HTMLElement>('[data-live-region]');
     const worldCaption = required<HTMLElement>('[data-world-caption]');
 
+    let hadSavedGame = false;
     let state = loadState();
+    let movementGuideExpanded = !hadSavedGame;
+    let navigation = initialNavigationSnapshot();
     let renderer: GridkeeperRenderer | null = null;
     let lensActive = false;
     let paused = false;
     let audioContext: AudioContext | null = null;
-    liveRegion.textContent = `${districtById[state.activeDistrict].name} is ready.`;
+    liveRegion.textContent = hadSavedGame
+      ? `${districtById[state.activeDistrict].name} is in range.`
+      : 'Move freely and enter the Workshop Cove service ring.';
 
     function loadState() {
       let saved: string | null = null;
@@ -279,11 +306,21 @@ const { game } = Astro.props;
       } catch {
         saved = null;
       }
+      hadSavedGame = Boolean(saved);
       const loaded = parseSavedGameState(saved);
       if (!saved && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         return setGameSettings(loaded, { reducedMotion: true });
       }
       return loaded;
+    }
+
+    function initialNavigationSnapshot(): NavigationSnapshot {
+      const mode = hadSavedGame ? 'resume' : 'fresh';
+      const position = getInitialRoverPosition(state.activeDistrict, mode);
+      const unlocked = districts
+        .filter((district) => isDistrictUnlocked(state, district.id))
+        .map((district) => district.id);
+      return buildNavigationSnapshot(position, unlocked, null, null);
     }
 
     function saveState() {
@@ -340,17 +377,57 @@ const { game } = Astro.props;
       }
     }
 
-    function travelTo(district: DistrictId) {
+    function setDestination(district: DistrictId) {
       if (!isDistrictUnlocked(state, district)) {
         announce(`${districtById[district].name} is still dark. Restore the connected district first.`);
         return;
       }
-      const next = visitDistrict(state, district);
-      state = next;
-      renderer?.focusDistrict(district);
-      saveState();
+      if (!renderer) {
+        announce('Enter the island before choosing a destination.');
+        startButton.focus();
+        return;
+      }
+      if (navigation.operatingDistrict === district) {
+        announce(`${districtById[district].name} is already in range.`);
+        mount.focus({ preventScroll: true });
+        return;
+      }
+      renderer.setDistrictDestination(district);
+      mount.focus({ preventScroll: true });
+      announce(`Travelling to ${districtById[district].name}.`);
+    }
+
+    function handleNavigationChange(next: NavigationSnapshot) {
+      const previous = navigation;
+      navigation = next;
+
+      if (next.operatingDistrict === 'workshop') movementGuideExpanded = false;
+
+      if (next.operatingDistrict && next.operatingDistrict !== state.activeDistrict) {
+        state = visitDistrict(state, next.operatingDistrict);
+        saveState();
+      }
+
       render();
-      announce(`${districtById[district].name}. ${districtById[district].objective}`);
+
+      if (next.operatingDistrict && next.operatingDistrict !== previous.operatingDistrict) {
+        const district = districtById[next.operatingDistrict];
+        announce(`${district.name} is in range. ${district.objective}`);
+      } else if (previous.operatingDistrict && !next.operatingDistrict) {
+        announce(`You left ${districtById[previous.operatingDistrict].name}. Its controls are unavailable.`);
+      }
+    }
+
+    function canOperate(district: DistrictId) {
+      return navigation.operatingDistrict === district && state.activeDistrict === district;
+    }
+
+    function guardDistrictAction(district: DistrictId, action: () => void) {
+      if (!canOperate(district)) {
+        announce(`Move into ${districtById[district].name}'s service ring before operating its controls.`);
+        return;
+      }
+      action();
     }
 
     function makeElement<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string) {
@@ -388,7 +465,9 @@ const { game } = Astro.props;
         const knob = makeElement('span');
         button.append(knob);
         button.addEventListener('click', () => {
-          mutate(setDistrictControl(state, district, definition.id, !value));
+          guardDistrictAction(district, () => {
+            mutate(setDistrictControl(state, district, definition.id, !value));
+          });
         });
         row.append(labelRow, button, hint);
       }
@@ -404,7 +483,9 @@ const { game } = Astro.props;
         input.value = String(value);
         input.setAttribute('aria-label', definition.label);
         input.addEventListener('input', () => {
-          mutate(setDistrictControl(state, district, definition.id, Number(input.value)));
+          guardDistrictAction(district, () => {
+            mutate(setDistrictControl(state, district, definition.id, Number(input.value)));
+          });
         });
         row.append(labelRow, input, hint);
       }
@@ -421,7 +502,9 @@ const { game } = Astro.props;
         });
         select.value = String(controls[definition.id]);
         select.addEventListener('change', () => {
-          mutate(setDistrictControl(state, district, definition.id, select.value));
+          guardDistrictAction(district, () => {
+            mutate(setDistrictControl(state, district, definition.id, select.value));
+          });
         });
         row.append(labelRow, select, hint);
       }
@@ -431,25 +514,29 @@ const { game } = Astro.props;
         button.type = 'button';
         button.textContent = definition.label;
         button.addEventListener('click', () => {
-          if (definition.action === 'charge-static') {
-            const charge = Math.min(100, Number(state.controls.workshop.staticCharge) + 25);
-            mutate(
-              setDistrictControl(state, 'workshop', 'staticCharge', charge),
-              charge >= 75 ? 'A brief static spark releases the built-up charge.' : `Storm vane charge ${charge} percent.`,
-            );
-          }
-          if (definition.action === 'run-diagnostic') {
-            const selected = String(state.controls.converter.adapterMatch);
-            mutate(
-              setDistrictControl(state, 'converter', 'adapterMatch', selected),
-              selected === 'wrong'
-                ? 'Diagnostic bench blocked the mismatch before energizing the model radio.'
-                : 'The selected module is compatible. Complete the conversion stages.',
-            );
-          }
-          if (definition.action === 'advance-evening') {
-            mutate(advanceTime(state, 2), 'Two model hours pass. The energy and cost trails grow.');
-          }
+          guardDistrictAction(district, () => {
+            if (definition.action === 'charge-static') {
+              const charge = Math.min(100, Number(state.controls.workshop.staticCharge) + 25);
+              mutate(
+                setDistrictControl(state, 'workshop', 'staticCharge', charge),
+                charge >= 75
+                  ? 'A brief static spark releases the built-up charge.'
+                  : `Storm vane charge ${charge} percent.`,
+              );
+            }
+            if (definition.action === 'run-diagnostic') {
+              const selected = String(state.controls.converter.adapterMatch);
+              mutate(
+                setDistrictControl(state, 'converter', 'adapterMatch', selected),
+                selected === 'wrong'
+                  ? 'Diagnostic bench blocked the mismatch before energizing the model radio.'
+                  : 'The selected module is compatible. Complete the conversion stages.',
+              );
+            }
+            if (definition.action === 'advance-evening') {
+              mutate(advanceTime(state, 2), 'Two model hours pass. The energy and cost trails grow.');
+            }
+          });
         });
         row.append(button, hint);
       }
@@ -462,6 +549,7 @@ const { game } = Astro.props;
       districtControls[state.activeDistrict].forEach((definition) => {
         controlStack.append(renderControl(definition, state.activeDistrict));
       });
+      controlFieldset.disabled = !canOperate(state.activeDistrict);
     }
 
     function renderDistrictNavigation() {
@@ -470,14 +558,63 @@ const { game } = Astro.props;
         const unlocked = isDistrictUnlocked(state, district);
         const restored = state.restored.includes(district);
         const active = state.activeDistrict === district;
+        const destination = navigation.destinationDistrict === district;
+        const operating = navigation.operatingDistrict === district;
         button.setAttribute('aria-disabled', String(!unlocked));
         button.toggleAttribute('data-restored', restored);
         button.toggleAttribute('data-active', active);
-        if (active) button.setAttribute('aria-current', 'step');
+        button.toggleAttribute('data-destination', destination);
+        button.toggleAttribute('data-operating', operating);
+        if (operating) button.setAttribute('aria-current', 'location');
         else button.removeAttribute('aria-current');
         const status = required<HTMLElement>(`[data-district-state="${district}"]`);
-        status.textContent = restored ? 'Restored' : active ? 'Current' : unlocked ? 'Open' : 'Locked';
+        status.textContent = operating
+          ? 'In range'
+          : destination
+            ? 'Travelling'
+            : restored
+              ? 'Restored'
+              : active
+                ? 'Visited'
+                : unlocked
+                  ? 'Open'
+                  : 'Locked';
       });
+    }
+
+    function renderProximity() {
+      const banner = required<HTMLElement>('[data-proximity-banner]');
+      const title = required<HTMLElement>('[data-proximity-title]');
+      const detail = required<HTMLElement>('[data-proximity-detail]');
+      banner.dataset.phase = navigation.phase;
+      root.dataset.proximity = navigation.phase;
+      root.toggleAttribute('data-movement-guide-expanded', movementGuideExpanded);
+
+      if (navigation.destinationDistrict) {
+        const destination = districtById[navigation.destinationDistrict];
+        title.textContent = `Travelling to ${destination.name}`;
+        detail.textContent = navigation.operatingDistrict
+          ? 'Current controls remain available until you leave this ring.'
+          : 'The turtle will stop when it enters the service ring.';
+        return;
+      }
+
+      if (navigation.operatingDistrict) {
+        const operating = districtById[navigation.operatingDistrict];
+        title.textContent = `${operating.name} controls in range`;
+        detail.textContent = 'Operate the system here, or move away to explore.';
+        return;
+      }
+
+      if (navigation.nearbyDistrict) {
+        const nearby = districtById[navigation.nearbyDistrict];
+        title.textContent = `Move into ${nearby.name}'s ring`;
+        detail.textContent = 'The approach arc fills as the turtle gets closer.';
+        return;
+      }
+
+      title.textContent = 'No station in range';
+      detail.textContent = 'Move freely or choose an open district as a destination.';
     }
 
     function renderReadout() {
@@ -573,6 +710,7 @@ const { game } = Astro.props;
       renderControls();
       renderReadout();
       renderActions();
+      renderProximity();
     }
 
     function formatValue(value: number) {
@@ -601,14 +739,18 @@ const { game } = Astro.props;
         renderer = startGridkeeper(mount, {
           initialState: state,
           initialReadout: getDistrictReadout(state, state.activeDistrict),
-          onDistrictRequested: travelTo,
-          onRoverMoved: travelTo,
+          startMode: hadSavedGame ? 'resume' : 'fresh',
+          onNavigationChange: handleNavigationChange,
         });
         if (paused) renderer.setPaused(true);
         startCard.hidden = true;
         mount.focus({ preventScroll: true });
         render();
-        announce('Island open. Workshop Cove is ready. Use the district controls or move across the island.');
+        announce(
+          hadSavedGame
+            ? `Island open. ${districtById[state.activeDistrict].name} is in range.`
+            : 'Island open. Move freely and enter the Workshop Cove service ring.',
+        );
       } catch (error) {
         startButton.disabled = false;
         startButton.textContent = 'Try opening the island again';
@@ -618,7 +760,7 @@ const { game } = Astro.props;
     });
 
     root.querySelectorAll<HTMLButtonElement>('[data-district-button]').forEach((button) => {
-      button.addEventListener('click', () => travelTo(button.dataset.districtButton as DistrictId));
+      button.addEventListener('click', () => setDestination(button.dataset.districtButton as DistrictId));
     });
 
     lensButton.addEventListener('click', () => {
@@ -656,26 +798,34 @@ const { game } = Astro.props;
 
     nextButton.addEventListener('click', () => {
       const activeIndex = districts.findIndex((district) => district.id === state.activeDistrict);
-      if (activeIndex < districts.length - 1) travelTo(districts[activeIndex + 1].id);
+      if (activeIndex < districts.length - 1) setDestination(districts[activeIndex + 1].id);
     });
 
     required<HTMLButtonElement>('[data-fresh-button]').addEventListener('click', () => {
       if (!window.confirm('Start Gridkeeper again from Workshop Cove? This replaces the local game save.')) return;
       state = createInitialGameState({ reducedMotion: state.settings.reducedMotion });
+      hadSavedGame = false;
+      movementGuideExpanded = true;
+      navigation = initialNavigationSnapshot();
       lensActive = false;
       lensPanel.hidden = true;
       lensButton.setAttribute('aria-pressed', 'false');
       saveState();
       render();
       settingsDialog.close();
-      renderer?.focusDistrict('workshop');
-      announce('Fresh island started at Workshop Cove.');
+      renderer?.resetRover('fresh');
+      mount.focus({ preventScroll: true });
+      announce('Fresh island started at the landing. Move into Workshop Cove\'s service ring.');
     });
+
+    mount.addEventListener('pointerdown', () => mount.focus({ preventScroll: true }));
 
     window.addEventListener('keydown', (event) => {
       const target = event.target as HTMLElement | null;
-      const editing = target?.matches('input, select, textarea, button');
-      if (editing) return;
+      const typing = target?.matches(
+        'input:not([type="range"]):not([type="checkbox"]), select, textarea, [contenteditable="true"]',
+      );
+      if (typing) return;
       if (event.key.toLowerCase() === 'f') {
         event.preventDefault();
         lensButton.click();
@@ -683,18 +833,6 @@ const { game } = Astro.props;
       if (event.key.toLowerCase() === 'p') {
         event.preventDefault();
         setPaused(!paused);
-      }
-      if (document.activeElement === mount && ['arrowright', 'd', 'arrowdown', 's'].includes(event.key.toLowerCase())) {
-        event.preventDefault();
-        const activeIndex = districts.findIndex((district) => district.id === state.activeDistrict);
-        const nextDistrict = districts[Math.min(districts.length - 1, activeIndex + 1)];
-        if (isDistrictUnlocked(state, nextDistrict.id)) travelTo(nextDistrict.id);
-      }
-      if (document.activeElement === mount && ['arrowleft', 'a', 'arrowup', 'w'].includes(event.key.toLowerCase())) {
-        event.preventDefault();
-        const activeIndex = districts.findIndex((district) => district.id === state.activeDistrict);
-        const previousDistrict = districts[Math.max(0, activeIndex - 1)];
-        travelTo(previousDistrict.id);
       }
     });
 

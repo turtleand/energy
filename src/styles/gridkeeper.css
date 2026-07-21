@@ -231,6 +231,31 @@
   box-shadow: 0 10px 26px rgba(13, 70, 55, 0.1);
 }
 
+.district-tab[data-destination] {
+  border-color: color-mix(in srgb, var(--game-sky), var(--game-green) 24%);
+  color: var(--game-ink);
+  background: color-mix(in srgb, var(--game-sky), white 86%);
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.2);
+}
+
+.district-tab[data-operating] {
+  border-color: rgba(20, 108, 83, 0.5);
+  color: var(--game-green-dark);
+  background: #e6f3e9;
+  box-shadow: 0 10px 26px rgba(13, 70, 55, 0.14);
+}
+
+.district-tab[data-destination] .district-tab-number {
+  border-style: dashed;
+  color: var(--game-green-dark);
+  background: rgba(255, 250, 240, 0.72);
+}
+
+.district-tab[data-operating] .district-tab-number {
+  color: var(--game-paper);
+  background: var(--game-green);
+}
+
 .district-tab[data-restored] {
   color: var(--game-green-dark);
 }
@@ -289,6 +314,72 @@
   display: block;
   max-width: 100%;
   max-height: 100%;
+}
+
+.movement-guide {
+  position: absolute;
+  z-index: 11;
+  left: 1rem;
+  bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.58rem;
+  max-width: 260px;
+  min-height: 48px;
+  padding: 0.48rem 0.62rem;
+  border: 1px solid rgba(13, 70, 55, 0.24);
+  border-radius: 15px;
+  color: var(--game-green-dark);
+  background: rgba(255, 250, 240, 0.9);
+  box-shadow: 0 10px 28px rgba(13, 70, 55, 0.14);
+  pointer-events: none;
+  transition: max-width 180ms ease, padding 180ms ease;
+}
+
+.movement-guide > span:last-child,
+.movement-guide strong,
+.movement-guide small {
+  display: block;
+}
+
+.movement-guide strong {
+  font-size: 0.7rem;
+  line-height: 1.2;
+}
+
+.movement-guide small {
+  margin-top: 0.1rem;
+  color: var(--game-muted);
+  font-size: 0.58rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.movement-keys {
+  display: flex;
+  gap: 0.24rem;
+}
+
+.movement-keys kbd {
+  display: grid;
+  place-items: center;
+  min-width: 40px;
+  min-height: 29px;
+  padding: 0.22rem 0.36rem;
+  border: 1px solid rgba(13, 70, 55, 0.3);
+  border-bottom-width: 3px;
+  border-radius: 8px;
+  color: var(--game-green-dark);
+  background: var(--game-paper);
+  font: 850 0.58rem/1 Inter, system-ui, sans-serif;
+}
+
+.gridkeeper:not([data-movement-guide-expanded]) .movement-keys kbd:first-child {
+  display: none;
+}
+
+.gridkeeper:not([data-movement-guide-expanded]) .movement-guide {
+  padding-inline: 0.48rem;
 }
 
 .game-start-card,
@@ -521,6 +612,82 @@
   line-height: 1.5;
 }
 
+.proximity-banner {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 58px;
+  margin-bottom: 0.8rem;
+  padding: 0.6rem 0.72rem;
+  border: 1px solid rgba(96, 112, 106, 0.24);
+  border-radius: 15px;
+  background: rgba(247, 243, 232, 0.78);
+}
+
+.proximity-banner strong,
+.proximity-banner small {
+  display: block;
+}
+
+.proximity-banner strong {
+  font-size: 0.75rem;
+  line-height: 1.25;
+}
+
+.proximity-banner small {
+  margin-top: 0.18rem;
+  color: var(--game-muted);
+  font-size: 0.63rem;
+  font-weight: 720;
+  line-height: 1.35;
+}
+
+.proximity-signal {
+  position: relative;
+  display: block;
+  width: 28px;
+  height: 28px;
+  border: 2px dashed var(--game-muted);
+  border-radius: 50%;
+}
+
+.proximity-signal::after {
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: var(--game-muted);
+  content: "";
+}
+
+.proximity-banner[data-phase="near"] {
+  border-color: rgba(245, 158, 11, 0.38);
+  background: #fff6dd;
+}
+
+.proximity-banner[data-phase="near"] .proximity-signal {
+  border-color: var(--game-amber);
+}
+
+.proximity-banner[data-phase="near"] .proximity-signal::after {
+  background: var(--game-amber);
+}
+
+.proximity-banner[data-phase="in-range"] {
+  border-color: rgba(20, 108, 83, 0.38);
+  background: #e6f3e9;
+}
+
+.proximity-banner[data-phase="in-range"] .proximity-signal {
+  border-style: solid;
+  border-color: var(--game-green);
+  box-shadow: 0 0 0 5px rgba(20, 108, 83, 0.1);
+}
+
+.proximity-banner[data-phase="in-range"] .proximity-signal::after {
+  background: var(--game-green);
+}
+
 .objective-card,
 .system-readout {
   padding: 0.9rem;
@@ -648,6 +815,31 @@
   display: grid;
   gap: 0.62rem;
   margin: 0.75rem 0;
+}
+
+.district-controls-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.district-controls-fieldset[disabled] .game-control {
+  border-color: rgba(96, 112, 106, 0.16);
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      rgba(96, 112, 106, 0.025) 0,
+      rgba(96, 112, 106, 0.025) 7px,
+      transparent 7px,
+      transparent 14px
+    ),
+    #f8f6ef;
+  opacity: 0.66;
+}
+
+.district-controls-fieldset[disabled] :where(button, input, select) {
+  cursor: not-allowed;
 }
 
 .game-control {
@@ -1102,6 +1294,19 @@
     display: none;
   }
 
+  .movement-guide {
+    left: 0.55rem;
+    bottom: 0.55rem;
+    max-width: calc(100% - 1.1rem);
+    min-height: 44px;
+    padding-block: 0.38rem;
+  }
+
+  .movement-keys kbd {
+    min-width: 36px;
+    min-height: 27px;
+  }
+
   .control-dock {
     padding: 0.85rem 0.7rem 1.4rem;
   }
@@ -1112,6 +1317,10 @@
 
   .district-summary {
     font-size: 0.8rem;
+  }
+
+  .proximity-banner {
+    margin-bottom: 0.7rem;
   }
 
   .metric-grid {

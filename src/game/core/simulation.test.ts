@@ -165,6 +165,20 @@ describe('progression and persistence', () => {
     expect(visitDistrict(state, 'converter').activeDistrict).toBe('converter');
   });
 
+  it('does not record travel in the electrical-action rewind history', () => {
+    let state = createInitialGameState();
+    state = setDistrictControl(state, 'workshop', 'loopClosed', true);
+    state = setDistrictControl(state, 'workshop', 'voltage', 9);
+    state = setDistrictControl(state, 'workshop', 'resistance', 4);
+    state = setDistrictControl(state, 'workshop', 'staticCharge', 100);
+    const historyLength = state.history.length;
+
+    state = visitDistrict(state, 'converter');
+
+    expect(state.activeDistrict).toBe('converter');
+    expect(state.history).toHaveLength(historyLength);
+  });
+
   it('serializes a versioned save and safely rejects malformed data', () => {
     let state = createInitialGameState();
     state = setDistrictControl(state, 'workshop', 'loopClosed', true);

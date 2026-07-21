@@ -160,7 +160,7 @@ export function isDistrictUnlocked(state: GameState, district: DistrictId): bool
 
 export function visitDistrict(state: GameState, district: DistrictId): GameState {
   if (!isDistrictUnlocked(state, district) || district === state.activeDistrict) return state;
-  return remember(state, { ...state, activeDistrict: district, history: state.history });
+  return { ...state, activeDistrict: district };
 }
 
 export function setDistrictControl(

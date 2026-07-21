@@ -1,10 +1,24 @@
 import Phaser from 'phaser';
 import { districtById, districts, type DistrictId } from '../content/districts';
+import {
+  ENTER_RADIUS,
+  HINT_RADIUS,
+  buildNavigationSnapshot,
+  clampToPlayBounds,
+  distanceBetween,
+  districtWorldPoint,
+  getInitialRoverPosition,
+  nearestUnlockedDistrict,
+  normalizeMovementVector,
+  type NavigationPoint,
+  type NavigationSnapshot,
+  type RoverStartMode,
+  WORLD_HEIGHT,
+  WORLD_WIDTH,
+} from '../core/navigation';
 import { isDistrictUnlocked, type DistrictReadout, type GameState } from '../core/simulation';
 import type { GridkeeperRendererOptions } from '../bootstrap';
 
-const WORLD_WIDTH = 960;
-const WORLD_HEIGHT = 600;
 const COLORS = {
   ocean: 0xbde5e2,
   oceanDeep: 0x8bc9cc,
@@ -21,10 +35,7 @@ const COLORS = {
   danger: 0xc95a45,
 };
 
-interface Point {
-  x: number;
-  y: number;
-}
+type Point = NavigationPoint;
 
 export class IslandScene extends Phaser.Scene {
   private readonly options: GridkeeperRendererOptions;
@@ -35,20 +46,48 @@ export class IslandScene extends Phaser.Scene {
   private effectGraphics!: Phaser.GameObjects.Graphics;
   private lensGraphics!: Phaser.GameObjects.Graphics;
   private rover!: Phaser.GameObjects.Container;
+  private roverPosition: Point;
   private roverTarget: Point;
-  private roverDistrict: DistrictId = 'workshop';
+  private destinationDistrict: DistrictId | null = null;
+  private operatingDistrict: DistrictId | null = null;
+  private navigationSnapshot: NavigationSnapshot;
+  private trail: Point[] = [];
   private districtNodes = new Map<DistrictId, Phaser.GameObjects.Container>();
-  private cursorKeys?: Phaser.Types.Input.Keyboard.CursorKeys;
-  private movementKeys?: Record<string, Phaser.Input.Keyboard.Key>;
+  private movementMount?: HTMLElement;
+  private pressedMovementKeys = new Set<string>();
+  private queuedMovement: Point = { x: 0, y: 0 };
   private lastTime = 0;
+
+  private readonly handleMovementKeyDown = (event: KeyboardEvent) => {
+    const direction = movementDirectionForKey(event.key);
+    if (!direction) return;
+    event.preventDefault();
+    this.pressedMovementKeys.add(event.key.toLowerCase());
+    if (event.repeat) return;
+    this.queuedMovement = {
+      x: Phaser.Math.Clamp(this.queuedMovement.x + direction.x, -1, 1),
+      y: Phaser.Math.Clamp(this.queuedMovement.y + direction.y, -1, 1),
+    };
+  };
+
+  private readonly handleMovementKeyUp = (event: KeyboardEvent) => {
+    this.pressedMovementKeys.delete(event.key.toLowerCase());
+  };
+
+  private readonly clearMovementKeys = () => {
+    this.pressedMovementKeys.clear();
+    this.queuedMovement = { x: 0, y: 0 };
+  };
 
   constructor(options: GridkeeperRendererOptions) {
     super({ key: 'gridkeeper-island' });
     this.options = options;
     this.state = options.initialState;
     this.readout = options.initialReadout;
-    const start = this.toWorldPoint('workshop');
+    const start = getInitialRoverPosition(this.state.activeDistrict, options.startMode);
+    this.roverPosition = { ...start };
     this.roverTarget = { ...start };
+    this.navigationSnapshot = buildNavigationSnapshot(start, this.unlockedDistrictIds(), null, null);
   }
 
   create() {
@@ -60,6 +99,7 @@ export class IslandScene extends Phaser.Scene {
     this.createDistrictNodes();
     this.createRover();
     this.configureInput();
+    this.updateNavigationState(true);
     this.renderModel(0);
   }
 
@@ -77,15 +117,30 @@ export class IslandScene extends Phaser.Scene {
     this.renderModel(this.lastTime);
   }
 
-  moveRoverToDistrict(district: DistrictId) {
+  setDistrictDestination(district: DistrictId) {
     if (!isDistrictUnlocked(this.state, district)) return;
-    this.roverDistrict = district;
+    this.destinationDistrict = district;
     this.roverTarget = this.toWorldPoint(district);
+    this.updateNavigationState(true);
+  }
+
+  resetRover(mode: RoverStartMode) {
+    const start = getInitialRoverPosition(this.state.activeDistrict, mode);
+    this.roverPosition = { ...start };
+    this.roverTarget = { ...start };
+    this.destinationDistrict = null;
+    this.operatingDistrict = null;
+    this.trail = [];
+    this.applyRoverPosition();
+    this.updateNavigationState(true);
   }
 
   private toWorldPoint(district: DistrictId): Point {
-    const { position } = districtById[district];
-    return { x: position.x * WORLD_WIDTH, y: position.y * WORLD_HEIGHT };
+    return districtWorldPoint(district);
+  }
+
+  private unlockedDistrictIds(): DistrictId[] {
+    return districts.filter((district) => isDistrictUnlocked(this.state, district.id)).map((district) => district.id);
   }
 
   private drawBaseWorld() {
@@ -265,121 +320,185 @@ export class IslandScene extends Phaser.Scene {
           padding: { x: 7, y: 4 },
         })
         .setOrigin(0.5, 0);
-      const container = this.add.container(point.x, point.y, [halo, core, symbol, label]);
+      const rangeLabel = this.add
+        .text(0, -103, 'IN RANGE', {
+          align: 'center',
+          backgroundColor: '#0d4637f2',
+          color: '#fffaf0',
+          fontFamily: 'Inter, system-ui, sans-serif',
+          fontSize: '11px',
+          fontStyle: 'bold',
+          padding: { x: 8, y: 5 },
+        })
+        .setOrigin(0.5)
+        .setVisible(false);
+      const container = this.add.container(point.x, point.y, [halo, core, symbol, label, rangeLabel]);
       core.setInteractive({ useHandCursor: true });
-      core.on('pointerdown', () => {
-        if (!isDistrictUnlocked(this.state, district.id)) return;
-        this.moveRoverToDistrict(district.id);
-        this.options.onDistrictRequested(district.id);
-      });
       this.districtNodes.set(district.id, container);
     }
   }
 
   private createRover() {
-    const start = this.toWorldPoint('workshop');
     const shadow = this.add.ellipse(0, 10, 36, 15, COLORS.ink, 0.18);
     const shell = this.add.circle(0, 0, 16, COLORS.green, 1).setStrokeStyle(3, COLORS.paper, 0.9);
     const shellMark = this.add.circle(0, 0, 7, COLORS.amber, 0.72);
     const head = this.add.circle(17, -2, 8, 0x8dd4bd, 1);
     const eye = this.add.circle(20, -4, 1.8, COLORS.ink, 1);
-    this.rover = this.add.container(start.x, start.y - 30, [shadow, shell, shellMark, head, eye]);
+    this.rover = this.add.container(this.roverPosition.x, this.roverPosition.y - 30, [shadow, shell, shellMark, head, eye]);
     this.rover.setDepth(20);
   }
 
   private configureInput() {
-    this.cursorKeys = this.input.keyboard?.createCursorKeys();
-    this.movementKeys = this.input.keyboard?.addKeys('W,A,S,D') as Record<string, Phaser.Input.Keyboard.Key>;
+    const mount = this.game.canvas.parentElement;
+    if (mount instanceof HTMLElement) {
+      this.movementMount = mount;
+      mount.addEventListener('keydown', this.handleMovementKeyDown);
+      mount.addEventListener('keyup', this.handleMovementKeyUp);
+      mount.addEventListener('blur', this.clearMovementKeys);
+      this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.removeMovementListeners, this);
+    }
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-      const nearest = this.nearestUnlockedDistrict(pointer.worldX, pointer.worldY);
-      if (!nearest || Phaser.Math.Distance.Between(pointer.worldX, pointer.worldY, nearest.point.x, nearest.point.y) > 86) {
-        this.roverTarget = {
-          x: clampNumber(pointer.worldX, 90, WORLD_WIDTH - 90),
-          y: clampNumber(pointer.worldY, 94, WORLD_HEIGHT - 62),
-        };
-        return;
+      if (mount instanceof HTMLElement) mount.focus({ preventScroll: true });
+      const point = clampToPlayBounds({ x: pointer.worldX, y: pointer.worldY });
+      const nearest = nearestUnlockedDistrict(point, this.unlockedDistrictIds());
+      if (nearest && nearest.distance <= 52) {
+        this.setDistrictDestination(nearest.id);
+      } else {
+        this.destinationDistrict = null;
+        this.roverTarget = point;
+        this.updateNavigationState(true);
       }
-      this.moveRoverToDistrict(nearest.id);
-      this.options.onDistrictRequested(nearest.id);
     });
   }
 
-  private nearestUnlockedDistrict(x: number, y: number) {
-    return districts
-      .filter((district) => isDistrictUnlocked(this.state, district.id))
-      .map((district) => ({ id: district.id, point: this.toWorldPoint(district.id) }))
-      .sort(
-        (a, b) =>
-          Phaser.Math.Distance.Between(x, y, a.point.x, a.point.y) -
-          Phaser.Math.Distance.Between(x, y, b.point.x, b.point.y),
-      )[0];
+  private removeMovementListeners() {
+    this.movementMount?.removeEventListener('keydown', this.handleMovementKeyDown);
+    this.movementMount?.removeEventListener('keyup', this.handleMovementKeyUp);
+    this.movementMount?.removeEventListener('blur', this.clearMovementKeys);
+    this.clearMovementKeys();
+    this.movementMount = undefined;
   }
 
   private updateRover(delta: number) {
     if (!this.rover) return;
-    if (document.activeElement?.matches('input, select, button, textarea')) return;
     const speed = this.state.settings.assisted ? 270 : 220;
     const step = (speed * delta) / 1000;
     let inputX = 0;
     let inputY = 0;
-    if (this.cursorKeys?.left.isDown || this.movementKeys?.A?.isDown) inputX -= 1;
-    if (this.cursorKeys?.right.isDown || this.movementKeys?.D?.isDown) inputX += 1;
-    if (this.cursorKeys?.up.isDown || this.movementKeys?.W?.isDown) inputY -= 1;
-    if (this.cursorKeys?.down.isDown || this.movementKeys?.S?.isDown) inputY += 1;
+    const mount = this.game.canvas.parentElement;
+    const movementFocused = document.activeElement === mount;
+    if (movementFocused) {
+      if (this.pressedMovementKeys.has('arrowleft') || this.pressedMovementKeys.has('a')) inputX -= 1;
+      if (this.pressedMovementKeys.has('arrowright') || this.pressedMovementKeys.has('d')) inputX += 1;
+      if (this.pressedMovementKeys.has('arrowup') || this.pressedMovementKeys.has('w')) inputY -= 1;
+      if (this.pressedMovementKeys.has('arrowdown') || this.pressedMovementKeys.has('s')) inputY += 1;
+    }
+
+    if (inputX === 0 && inputY === 0 && movementFocused) {
+      inputX = this.queuedMovement.x;
+      inputY = this.queuedMovement.y;
+    }
+    this.queuedMovement = { x: 0, y: 0 };
 
     if (inputX !== 0 || inputY !== 0) {
-      const length = Math.hypot(inputX, inputY) || 1;
-      this.rover.x = clampNumber(this.rover.x + (inputX / length) * step, 78, WORLD_WIDTH - 78);
-      this.rover.y = clampNumber(this.rover.y + (inputY / length) * step, 68, WORLD_HEIGHT - 45);
-      this.roverTarget = { x: this.rover.x, y: this.rover.y };
-      this.tryRoverArrival();
+      const direction = normalizeMovementVector(inputX, inputY);
+      this.destinationDistrict = null;
+      this.roverPosition = clampToPlayBounds({
+        x: this.roverPosition.x + direction.x * step,
+        y: this.roverPosition.y + direction.y * step,
+      });
+      this.roverTarget = { ...this.roverPosition };
+      this.recordTrailPoint();
+      this.applyRoverPosition(inputX);
+      this.updateNavigationState();
       return;
     }
 
-    const targetY = this.roverTarget.y - 30;
-    const distance = Phaser.Math.Distance.Between(this.rover.x, this.rover.y, this.roverTarget.x, targetY);
+    const distance = distanceBetween(this.roverPosition, this.roverTarget);
     if (distance < 2) return;
     const amount = Math.min(step, distance);
-    this.rover.x += ((this.roverTarget.x - this.rover.x) / distance) * amount;
-    this.rover.y += ((targetY - this.rover.y) / distance) * amount;
-    if (distance < 32) this.tryRoverArrival();
+    const movementX = ((this.roverTarget.x - this.roverPosition.x) / distance) * amount;
+    this.roverPosition = clampToPlayBounds({
+      x: this.roverPosition.x + movementX,
+      y: this.roverPosition.y + ((this.roverTarget.y - this.roverPosition.y) / distance) * amount,
+    });
+    this.recordTrailPoint();
+    this.applyRoverPosition(movementX);
+    this.updateNavigationState();
   }
 
-  private tryRoverArrival() {
-    const nearest = this.nearestUnlockedDistrict(this.rover.x, this.rover.y + 30);
-    if (!nearest) return;
-    const distance = Phaser.Math.Distance.Between(
-      this.rover.x,
-      this.rover.y + 30,
-      nearest.point.x,
-      nearest.point.y,
+  private applyRoverPosition(horizontalDirection = 0) {
+    if (!this.rover) return;
+    this.rover.setPosition(this.roverPosition.x, this.roverPosition.y - 30);
+    if (horizontalDirection < -0.02) this.rover.setScale(-1, 1);
+    if (horizontalDirection > 0.02) this.rover.setScale(1, 1);
+  }
+
+  private recordTrailPoint() {
+    if (this.state.settings.reducedMotion) {
+      this.trail = [];
+      return;
+    }
+    const previous = this.trail.at(-1);
+    if (!previous || distanceBetween(previous, this.roverPosition) >= 14) {
+      this.trail = [...this.trail.slice(-7), { ...this.roverPosition }];
+    }
+  }
+
+  private updateNavigationState(force = false) {
+    let next = buildNavigationSnapshot(
+      this.roverPosition,
+      this.unlockedDistrictIds(),
+      this.operatingDistrict,
+      this.destinationDistrict,
     );
-    if (distance > 36 || nearest.id === this.roverDistrict) return;
-    this.roverDistrict = nearest.id;
-    this.options.onRoverMoved?.(nearest.id);
-    this.options.onDistrictRequested(nearest.id);
+    if (next.operatingDistrict && next.operatingDistrict === this.destinationDistrict) {
+      this.destinationDistrict = null;
+      this.roverTarget = { ...this.roverPosition };
+      next = { ...next, destinationDistrict: null };
+    }
+    const changed =
+      force ||
+      next.destinationDistrict !== this.navigationSnapshot.destinationDistrict ||
+      next.nearbyDistrict !== this.navigationSnapshot.nearbyDistrict ||
+      next.operatingDistrict !== this.navigationSnapshot.operatingDistrict ||
+      next.phase !== this.navigationSnapshot.phase;
+    this.operatingDistrict = next.operatingDistrict;
+    this.navigationSnapshot = next;
+    if (changed) {
+      this.options.onNavigationChange(next);
+      if (this.worldGraphics) this.renderModel(this.lastTime);
+    }
   }
 
   private renderModel(time: number) {
     for (const district of districts) {
       const node = this.districtNodes.get(district.id);
       if (!node) continue;
-      const [halo, core, symbol, label] = node.list as [
+      const [halo, core, symbol, label, rangeLabel] = node.list as [
         Phaser.GameObjects.Arc,
         Phaser.GameObjects.Arc,
+        Phaser.GameObjects.Text,
         Phaser.GameObjects.Text,
         Phaser.GameObjects.Text,
       ];
       const unlocked = isDistrictUnlocked(this.state, district.id);
       const restored = this.state.restored.includes(district.id);
       const active = this.state.activeDistrict === district.id;
-      halo.setVisible(unlocked).setAlpha(restored ? 0.72 : active ? 0.46 : 0.2);
+      const destination = this.navigationSnapshot.destinationDistrict === district.id;
+      const operating = this.navigationSnapshot.operatingDistrict === district.id;
+      halo.setVisible(unlocked).setAlpha(restored ? 0.72 : operating ? 0.62 : destination ? 0.48 : 0.2);
       core.setFillStyle(restored ? district.accent : unlocked ? COLORS.paper : 0xaeb8b1, 1);
-      core.setStrokeStyle(active ? 6 : 3, active ? district.accent : COLORS.greenDark, unlocked ? 0.9 : 0.25);
+      core.setStrokeStyle(
+        operating ? 6 : destination || active ? 4 : 3,
+        operating || active ? district.accent : destination ? COLORS.sky : COLORS.greenDark,
+        unlocked ? 0.9 : 0.25,
+      );
       symbol.setText(restored ? '✓' : unlocked ? String(district.order) : '×');
       symbol.setColor(restored ? '#0d4637' : unlocked ? '#17211d' : '#65716c');
       label.setAlpha(unlocked ? 1 : 0.68);
-      node.setScale(active ? 1.08 : 1);
+      rangeLabel.setVisible(operating);
+      node.setScale(operating ? 1.1 : destination ? 1.06 : 1);
     }
     this.drawEffects(time);
     this.drawLens();
@@ -391,6 +510,7 @@ export class IslandScene extends Phaser.Scene {
     g.clear();
     const activeIndex = districts.findIndex((district) => district.id === this.state.activeDistrict);
     const visualTime = this.state.settings.reducedMotion ? 0 : time;
+    this.drawNavigation(g, visualTime);
 
     for (let index = 0; index < districts.length - 1; index += 1) {
       const segmentPowered =
@@ -455,6 +575,91 @@ export class IslandScene extends Phaser.Scene {
     }
   }
 
+  private drawNavigation(g: Phaser.GameObjects.Graphics, visualTime: number) {
+    const targetDistance = distanceBetween(this.roverPosition, this.roverTarget);
+    if (targetDistance > 4) {
+      const targetColor = this.destinationDistrict
+        ? districtById[this.destinationDistrict].accent
+        : COLORS.sky;
+      this.drawDashedLine(g, this.roverPosition, this.roverTarget, targetColor, 0.42);
+      const markerPulse = this.state.settings.reducedMotion ? 0 : Math.sin(visualTime / 190) * 3;
+      g.lineStyle(3, targetColor, 0.78);
+      g.strokeCircle(this.roverTarget.x, this.roverTarget.y, 10 + markerPulse);
+      g.fillStyle(targetColor, 0.82);
+      g.fillCircle(this.roverTarget.x, this.roverTarget.y, 3.5);
+    }
+
+    if (!this.state.settings.reducedMotion) {
+      this.trail.forEach((point, index) => {
+        g.fillStyle(COLORS.greenDark, ((index + 1) / this.trail.length) * 0.22);
+        g.fillCircle(point.x, point.y - 4, 2.5 + index * 0.16);
+      });
+    }
+
+    for (const district of districts) {
+      if (!isDistrictUnlocked(this.state, district.id)) continue;
+      const point = this.toWorldPoint(district.id);
+      const operating = this.navigationSnapshot.operatingDistrict === district.id;
+      const destination = this.navigationSnapshot.destinationDistrict === district.id;
+      const nearby = this.navigationSnapshot.nearbyDistrict === district.id;
+      g.lineStyle(operating ? 5 : destination ? 3 : 2, district.accent, operating ? 0.9 : destination ? 0.68 : 0.28);
+      g.strokeCircle(point.x, point.y, ENTER_RADIUS);
+
+      if (destination && !operating) {
+        const pulse = this.state.settings.reducedMotion ? 0 : Math.sin(visualTime / 230) * 4;
+        for (let index = 0; index < 24; index += 2) {
+          const angle = (index / 24) * Math.PI * 2;
+          g.fillStyle(district.accent, 0.88);
+          g.fillCircle(
+            point.x + Math.cos(angle) * (ENTER_RADIUS + 9 + pulse),
+            point.y + Math.sin(angle) * (ENTER_RADIUS + 9 + pulse),
+            2.8,
+          );
+        }
+      }
+
+      if (nearby && !operating) {
+        const distance = distanceBetween(this.roverPosition, point);
+        const progress = clampNumber(1 - (distance - ENTER_RADIUS) / (HINT_RADIUS - ENTER_RADIUS), 0, 1);
+        if (progress > 0) {
+          g.lineStyle(6, district.accent, 0.84);
+          g.beginPath();
+          g.arc(
+            point.x,
+            point.y,
+            ENTER_RADIUS + 1,
+            -Math.PI / 2,
+            -Math.PI / 2 + Math.PI * 2 * progress,
+          );
+          g.strokePath();
+        }
+      }
+    }
+  }
+
+  private drawDashedLine(
+    g: Phaser.GameObjects.Graphics,
+    from: Point,
+    to: Point,
+    color: number,
+    alpha: number,
+  ) {
+    const distance = distanceBetween(from, to);
+    const segmentLength = 11;
+    const segmentCount = Math.max(1, Math.floor(distance / segmentLength));
+    g.lineStyle(2, color, alpha);
+    for (let index = 0; index < segmentCount; index += 2) {
+      const start = index / segmentCount;
+      const end = Math.min(1, (index + 1) / segmentCount);
+      g.lineBetween(
+        Phaser.Math.Linear(from.x, to.x, start),
+        Phaser.Math.Linear(from.y, to.y, start),
+        Phaser.Math.Linear(from.x, to.x, end),
+        Phaser.Math.Linear(from.y, to.y, end),
+      );
+    }
+  }
+
   private drawLens() {
     if (!this.lensGraphics) return;
     const g = this.lensGraphics;
@@ -481,6 +686,25 @@ export class IslandScene extends Phaser.Scene {
       g.fillStyle(bar.color, 0.88);
       g.fillRoundedRect(126, y, Math.max(4, 128 * clampNumber(bar.value, 0, 1)), 10, 5);
     });
+  }
+}
+
+function movementDirectionForKey(key: string): Point | null {
+  switch (key.toLowerCase()) {
+    case 'arrowleft':
+    case 'a':
+      return { x: -1, y: 0 };
+    case 'arrowright':
+    case 'd':
+      return { x: 1, y: 0 };
+    case 'arrowup':
+    case 'w':
+      return { x: 0, y: -1 };
+    case 'arrowdown':
+    case 's':
+      return { x: 0, y: 1 };
+    default:
+      return null;
   }
 }
 
