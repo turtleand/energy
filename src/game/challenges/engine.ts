@@ -50,15 +50,15 @@ export const challengeDefinitions: Record<DistrictId, ChallengeDefinition> = {
         id: 'tune-flow',
         eyebrow: 'Bench 2 of 3',
         title: 'Change push and opposition with real parts.',
-        instruction: 'Swap cell stacks and coil spools, then pulse the same loop. Record a baseline, more push, and more resistance.',
-        proof: 'The same coil carries more current with more source push. A larger coil limits current with the source unchanged.',
+        instruction: 'Run three comparisons and change only one part at a time. Start with one cell and the medium coil, then follow the highlighted next change.',
+        proof: 'Cells provide voltage push. More push moves charge faster through the same path. Resistance opposes that flow, so more resistance slows current when the source stays unchanged.',
       },
       {
         id: 'spark-reset',
         eyebrow: 'Bench 3 of 3',
         title: 'Build an imbalance, then watch it vanish.',
-        instruction: 'Rub the wool pad across the storm vane until the gap can no longer hold the separated charge. Then reset the vane.',
-        proof: 'Static charge builds, sparks once, and returns toward balance. It is not a maintained loop current.',
+        instruction: 'Rub the wool pad across the insulated vane. In this model, electron markers move from the pad onto the vane. Build enough imbalance to spark across the air gap, then reset the model.',
+        proof: 'Rubbing transfers electrons and creates charge imbalance. The spark is a brief discharge across the air gap. Without a source and closed loop, the current ends.',
       },
     ],
   },
@@ -71,22 +71,22 @@ export const challengeDefinitions: Record<DistrictId, ChallengeDefinition> = {
         id: 'shape-wave',
         eyebrow: 'Dock line 1 of 3',
         title: 'Turn reversing AC into steady DC.',
-        instruction: 'Repair the four-module conveyor. Missing and reversed modules leave a recognizable trace in the output wave.',
-        proof: 'Adjust, rectify, smooth, and regulate are separate causes with separate visible consequences.',
+        instruction: 'Probe the broken signal journey first. Repair the reversed rectifier, probe the pulsing one-way output, install the smoothing capacitor, then run the complete converter.',
+        proof: 'Adjustment changes the voltage range but AC still reverses. Rectification makes pulsing one-way output, smoothing fills the dips, and regulation holds the final target.',
       },
       {
         id: 'match-label',
         eyebrow: 'Dock line 2 of 3',
         title: 'Power the radio without trusting the plug shape.',
-        instruction: 'Test one unsafe module at the protected bench, then couple an output whose label actually fits the radio.',
-        proof: 'Voltage and type match exactly. Capacity may be higher, while connector and polarity still have to match.',
+        instruction: 'Compare the radio input with each adapter output line by line. Let the protected gate reject one mismatch, then choose the adapter where all five checks pass.',
+        proof: 'Voltage and AC/DC type match exactly. Current capacity is at least what the device needs. Connector and polarity also match. Physical fit alone proves nothing.',
       },
       {
         id: 'negotiate-output',
         eyebrow: 'Dock line 3 of 3',
         title: 'Let USB-C agree before power rises.',
-        instruction: 'Try the simple cable, then fit the rated cable and let the charger and radio negotiate a shared mode.',
-        proof: 'The connector alone does not choose a higher voltage. Compatible endpoints negotiate first.',
+        instruction: 'Connect the USB-C link and observe default 5 V. Then send the charger offer, radio request, and charger acceptance in sequence. Watch when 9 V actually appears.',
+        proof: 'USB-C begins at a safe default in this model. Higher voltage appears only after compatible endpoints offer, request, and accept a shared mode.',
       },
     ],
   },
@@ -105,9 +105,9 @@ export const challengeDefinitions: Record<DistrictId, ChallengeDefinition> = {
       {
         id: 'close-loop',
         eyebrow: 'Rig 2 of 3',
-        title: 'Separate voltage from current.',
-        instruction: 'Crank once with open terminals, then connect the lamp and crank again.',
-        proof: 'Open terminals can show induced voltage. A closed path is needed for current and useful lamp power.',
+        title: 'Make voltage first. Give current a loop.',
+        instruction: 'Use the same generator twice. First crank with the copper bridge missing: the wire ends gain electrical push, but nothing can circulate. Then close only that gap and crank again.',
+        proof: 'Changing magnetic flux induces voltage across the coil wire ends. Voltage is push. Current is charge moving around a complete path, so the open gap keeps the lamp current at zero.',
       },
       {
         id: 'balance-load',
@@ -154,23 +154,23 @@ export const challengeDefinitions: Record<DistrictId, ChallengeDefinition> = {
       {
         id: 'equal-energy',
         eyebrow: 'Market 1 of 3',
-        title: 'Balance two very different evenings.',
-        instruction: 'Place one power-and-time card on each side of the scale so both sides transfer the same total energy.',
-        proof: 'Different power rates and durations can accumulate the same watt-hours.',
+        title: 'Make two different evenings use the same energy.',
+        instruction: 'Adjust power and runtime independently. Make both machines accumulate the same Wh while keeping their power rates or runtimes different.',
+        proof: 'Power is a rate in watts. Multiply that rate by runtime in hours to find the energy accumulated in watt-hours.',
       },
       {
         id: 'schedule-market',
         eyebrow: 'Market 2 of 3',
-        title: 'Light dusk, peak, and closing.',
-        instruction: 'Place a lamp plan in each time window. Meet the changing brightness need without exceeding the night budget.',
-        proof: 'Instant power changes with simultaneous lamps. Energy depends on both that power and how long it runs.',
+        title: 'Plan brightness, power, and time together.',
+        instruction: 'Run the underlit starting market, repair the period that misses its brightness need, then rerun the full night within 1200 Wh.',
+        proof: 'Each period adds power × duration. A brighter or longer period adds more Wh to the night total.',
       },
       {
         id: 'replay-evening',
         eyebrow: 'Market 3 of 3',
-        title: 'Run the night and watch energy accumulate.',
-        instruction: 'Advance through all three market periods. The power stack changes immediately while the energy ribbon only grows.',
-        proof: 'Watts are the current rate. Wh, kWh, and model cost accumulate across the timeline.',
+        title: 'Run the night and keep every watt-hour.',
+        instruction: 'Run each market period. Read its power × time receipt, add it to the accumulator, then convert the finished Wh total into kWh and model cost.',
+        proof: 'Watts describe the rate while lamps run. Watt-hours accumulate over time and remain in the total after power falls to zero.',
       },
     ],
   },
@@ -211,13 +211,13 @@ const initialByDistrict: Record<DistrictId, Array<() => Record<string, unknown>>
     () => ({ rubs: 0, sparked: false, resetObserved: false }),
   ],
   converter: [
-    () => ({ modules: ['adjust', 'rectifier-reversed', '', 'regulate'], selectedModule: 'smooth', testedWrong: false, wave: 'reversing' }),
-    () => ({ adapter: '9v-2a', testedBad: false, testedGood: false }),
-    () => ({ cable: 'charge-only', testedBad: false, negotiated: false }),
+    () => ({ rectifier: 'reversed', capacitorInstalled: false, testedWrong: false, rectificationSeen: false, wave: 'reversing' }),
+    () => ({ adapter: '9v-2a', testedBad: false, testedGood: false, lastTested: '' }),
+    () => ({ connected: false, offerSent: false, requestSent: false, negotiated: false, defaultSeen: false, voltage: 0 }),
   ],
   wind: [
     () => ({ stillObserved: false, strokes: 0, lastDirection: '', voltage: 0 }),
-    () => ({ loopClosed: false, openVoltageSeen: false, currentSeen: false, lastDirection: '' }),
+    () => ({ loopClosed: false, openVoltageSeen: false, currentSeen: false, voltageActive: false, lastDirection: '' }),
     () => ({ load: 'heavy', heavyTried: false, steadyStrokes: 0, lastDirection: '' }),
   ],
   longline: [
@@ -226,9 +226,33 @@ const initialByDistrict: Record<DistrictId, Array<() => Record<string, unknown>>
     () => ({ route: 'low', hotSeen: false, safeSeen: false, townLit: false }),
   ],
   lantern: [
-    () => ({ leftCard: '', rightCard: '', selectedCard: '1000w-1h' }),
-    () => ({ schedule: { dusk: 'efficient', peak: 'dim', closing: 'efficient' }, selectedPlan: 'mixed', energy: 5, brightness: [2, 1, 2] }),
-    () => ({ period: 0, energy: 0, power: 0, cost: 0 }),
+    () => ({
+      leftPower: 1000,
+      leftHours: 1,
+      leftEnergy: 1000,
+      rightPower: 100,
+      rightHours: 1,
+      rightEnergy: 100,
+    }),
+    () => ({
+      schedule: { dusk: 'efficient', peak: 'dim', closing: 'efficient' },
+      selectedPlan: 'mixed',
+      energy: 600,
+      brightness: [2, 1, 2],
+      testedStart: false,
+      testedGood: false,
+    }),
+    () => ({
+      period: 0,
+      energy: 0,
+      power: 0,
+      cost: 0,
+      lastPower: 0,
+      lastDuration: 0,
+      lastAdded: 0,
+      lastLabel: '',
+      receipts: [],
+    }),
   ],
   harbor: [
     () => ({ conductor: 'rubber', insulation: 'missing', ground: 'missing', observedNormal: false }),
@@ -299,27 +323,61 @@ function reduceWorkshop(state: StationChallengeState, action: StationChallengeAc
     if (action.type === 'pulse-loop') {
       const cells = Number(values.cells);
       const coil = String(values.coil);
-      const code = cells === 1 && coil === 'medium' ? 'baseline' : cells === 2 && coil === 'medium' ? 'push' : cells === 2 && coil === 'high' ? 'resistance' : '';
-      if (code && !observations.includes(code)) observations.push(code);
+      const expected = observations.length === 0 ? 'baseline' : observations.length === 1 ? 'push' : observations.length === 2 ? 'resistance' : 'free-play';
+      const matchesExpected = expected === 'baseline'
+        ? cells === 1 && coil === 'medium'
+        : expected === 'push'
+          ? cells === 2 && coil === 'medium'
+          : expected === 'resistance'
+            ? cells === 2 && coil === 'high'
+            : true;
+
+      if (!matchesExpected) {
+        const guidance = expected === 'baseline'
+          ? 'Start with one cell and the medium coil. This gives the comparison a clear starting trace.'
+          : expected === 'push'
+            ? 'For a fair push comparison, keep the medium coil and add a second cell. Only the source should change.'
+            : 'For a fair resistance comparison, keep two cells and fit the high-opposition coil. Only the coil should change.';
+        return changed(state, values, guidance, 'idle', false);
+      }
+
+      if (expected !== 'free-play') observations.push(expected);
       values.observations = observations;
       const current = cells / (coil === 'low' ? 1 : coil === 'medium' ? 2 : 4);
       values.current = current;
       values.heat = current * current * (coil === 'low' ? 1 : coil === 'medium' ? 2 : 4);
+
+      const solved = observations.length === 3;
+      const feedback = expected === 'baseline'
+        ? 'Starting trace recorded. With one cell and the medium coil, the charge markers move at a steady pace. Next, keep the coil and add a second cell.'
+        : expected === 'push'
+          ? 'Only the source changed. Two cells provide more voltage push, so charge moves faster through the same medium coil. Next, keep two cells and fit the high-opposition coil.'
+          : expected === 'resistance'
+            ? 'Only the coil changed. The high-opposition coil adds resistance, so charge moves slower even though the two-cell source stays the same.'
+            : `Free-play trace: this setup produces ${current >= 1 ? 'fast' : current >= 0.5 ? 'steady' : 'slow'} charge traffic through the loop.`;
+      return changed(state, values, feedback, solved ? 'success' : 'motion', solved);
     }
-    const solved = ['baseline', 'push', 'resistance'].every((item) => observations.includes(item));
-    const feedback = action.type === 'pulse-loop'
-      ? `The current markers now cross ${Number(values.current ?? 0).toFixed(2)} loop lengths per beat. Compare this trace with the cards already pinned.`
-      : 'Fit a cell stack and coil spool, then pulse the completed loop.';
-    return changed(state, values, solved ? 'You recorded the baseline, raised push with the same coil, then raised resistance with the source unchanged.' : feedback, solved ? 'success' : 'motion', solved);
+    const solved = observations.length === 3;
+    const feedback = observations.length === 0
+      ? 'Set one cell and the medium coil, then run the starting setup.'
+      : observations.length === 1
+        ? 'Keep the medium coil. Add a second cell so only source push changes.'
+        : observations.length === 2
+          ? 'Keep two cells. Fit the high-opposition coil so only resistance changes.'
+          : 'Choose any cell stack and coil to replay the visible cause and effect.';
+    return changed(state, values, feedback, solved ? 'success' : 'motion', solved);
   }
   if (action.type === 'rub-vane') {
+    if (values.sparked) return state;
     const rubs = Math.min(4, Number(values.rubs ?? 0) + 1);
     values.rubs = rubs;
     values.sparked = rubs >= 4;
     return changed(
       state,
       values,
-      rubs >= 4 ? 'The gap flashes once. The separated charge rushes toward balance, then the spark ends.' : `Charge marks separate across the vane. Buildup is ${rubs} of 4.`,
+      rubs >= 4
+        ? 'Spark: the air briefly conducts and excess electrons cross the gap. The imbalance collapses in a one-time discharge, then the flow ends. Reset the model to compare with balance.'
+        : `${rubs === 1 ? 'One electron marker moved' : `${rubs} electron markers moved`} from the wool pad to the insulated vane. The pad is short of electrons (+), while the vane has extras (−).`,
       rubs >= 4 ? 'spark' : 'motion',
       false,
     );
@@ -328,7 +386,7 @@ function reduceWorkshop(state: StationChallengeState, action: StationChallengeAc
     values.rubs = 0;
     values.sparked = false;
     values.resetObserved = true;
-    return changed(state, values, 'The vane is near balance again. Unlike the lamp loop, no maintained current continues after the spark.', 'success', true);
+    return changed(state, values, 'Both objects are near balance again. With no source maintaining the separation and no closed loop, there is no maintained current after the spark.', 'success', true);
   }
   return state;
 }
@@ -336,52 +394,88 @@ function reduceWorkshop(state: StationChallengeState, action: StationChallengeAc
 function reduceConverter(state: StationChallengeState, action: StationChallengeAction) {
   const values = { ...state.values };
   if (state.phaseIndex === 0) {
-    const modules = stringArray(values.modules);
-    if (action.type === 'select-module') values.selectedModule = String(action.value ?? '');
-    if (action.type === 'place-module') modules[Number(action.value)] = String(values.selectedModule ?? '');
-    if (action.type === 'drop-module') modules[Number(action.secondary)] = String(action.value ?? '');
-    if (action.type === 'rotate-module') {
-      const index = Number(action.value);
-      if (modules[index] === 'rectifier-reversed') modules[index] = 'rectify';
-      else if (modules[index] === 'rectify') modules[index] = 'rectifier-reversed';
+    if (action.type === 'rotate-rectifier') {
+      if (!values.testedWrong) {
+        return changed(state, values, 'Probe the broken line first. The trace will show what the reversed rectifier does before you repair it.', 'idle', false);
+      }
+      values.rectifier = 'ready';
+      return changed(state, values, 'The rectifier now faces the right way. Probe again to see whether reversing AC has become one-direction output.', 'motion', false);
     }
-    values.modules = modules;
-    if (action.type === 'run-wave') {
-      const correct = modules.join('|') === 'adjust|rectify|smooth|regulate';
-      if (!correct) values.testedWrong = true;
-      values.wave = correct ? 'steady-dc' : modules.includes('rectifier-reversed') ? 'blocked-reversal' : modules.includes('rectify') ? modules.includes('smooth') ? 'unregulated' : 'pulsing-dc' : 'reversing';
-      const solved = correct && Boolean(values.testedWrong);
-      return changed(state, values, correct ? 'The wave changes range, becomes one-direction pulses, fills its dips, and settles at the target.' : 'The output trace exposes the missing or reversed stage. The radio stays isolated.', correct ? 'success' : 'fault', solved);
+    if (action.type === 'install-capacitor') {
+      if (!values.rectificationSeen) {
+        return changed(state, values, 'Probe the repaired rectifier before adding the capacitor. First make the one-direction pulses visible.', 'idle', false);
+      }
+      values.capacitorInstalled = true;
+      values.wave = 'unregulated';
+      return changed(state, values, 'The capacitor stores charge near each peak and releases it into the dips. The ripple becomes smaller. Probe the full line to let regulation finish the job.', 'motion', false);
     }
-    return changed(state, values, 'The conveyor has changed. Run a test wave to see what each stage actually does.', 'motion', false);
+    if (action.type === 'probe-converter') {
+      if (values.rectifier === 'reversed') {
+        values.testedWrong = true;
+        values.wave = 'blocked-reversal';
+        return changed(state, values, 'Stage 1 adjusts the voltage range, but the signal still reverses. Stage 2 is facing the wrong way, so part of the signal is blocked instead of being flipped upward.', 'fault', false);
+      }
+      if (!values.capacitorInstalled) {
+        values.rectificationSeen = true;
+        values.wave = 'pulsing-dc';
+        return changed(state, values, 'The rectifier flips each negative half upward. Current now keeps one direction, but it arrives in separated pulses with deep dips between them.', 'motion', false);
+      }
+      values.wave = 'steady-dc';
+      return changed(state, values, 'The rectifier makes one-direction pulses, the capacitor fills the dips, and the regulator holds the target. The simplified radio now receives steady DC.', 'success', true);
+    }
+    return state;
   }
   if (state.phaseIndex === 1) {
-    if (action.type === 'choose-adapter') values.adapter = String(action.value);
+    if (action.type === 'choose-adapter') {
+      values.adapter = String(action.value);
+      values.testedGood = false;
+      values.lastTested = '';
+      return changed(state, values, 'Read the selected adapter output against all five radio requirements, then test the protected coupling gate.', 'motion', false);
+    }
     if (action.type === 'test-adapter') {
       const adapter = String(values.adapter);
       const good = adapter === '5v-2a';
       values.testedGood = good;
+      values.lastTested = adapter;
       if (!good) values.testedBad = true;
       const reasons: Record<string, string> = {
-        '9v-2a': 'Voltage is too high, even though the connector fits.',
-        '5v-0.5a': 'Voltage and polarity match, but current capacity is too small.',
-        '5v-2a-negative': 'Voltage and capacity match, but polarity is opposite.',
-        '5v-2a': '5 V DC matches exactly, 2 A is sufficient capacity, and connector polarity matches.',
+        '9v-2a': 'Voltage comparison fails: the radio needs 5 V, while this adapter provides 9 V. The same barrel plug does not make that safe.',
+        '5v-0.5a': 'Current-capacity comparison fails: the radio may need 1 A, while this adapter can provide only 0.5 A.',
+        '5v-2a-negative': 'Polarity comparison fails: the radio needs center positive, while this adapter makes the center pin negative.',
+        '5v-2a': 'Every line passes. The output is 5 V DC, the barrel polarity matches, and 2 A is enough capacity. The radio draws what it needs; the adapter does not force 2 A.',
       };
       const solved = good && Boolean(values.testedBad);
       return changed(state, values, good ? `${reasons[adapter]} The protected gate energizes the radio.` : `${reasons[adapter]} The protected gate refuses to energize the radio.`, good ? 'success' : 'fault', solved);
     }
-    return changed(state, values, 'The selected output label is under the inspection lamp. Test it against the radio input.', 'motion', false);
+    return state;
   }
-  if (action.type === 'choose-cable') values.cable = String(action.value);
-  if (action.type === 'negotiate') {
-    const good = values.cable === 'pd-rated';
-    if (!good) values.testedBad = true;
-    values.negotiated = good;
-    const solved = good && Boolean(values.testedBad);
-    return changed(state, values, good ? 'Both endpoints advertise a shared 9 V mode. Only then does the charger raise its output.' : 'This cable carries basic 5 V only. The charger refuses the higher mode instead of guessing.', good ? 'success' : 'fault', solved);
+  if (action.type === 'connect-usbc') {
+    if (values.connected) return state;
+    values.connected = true;
+    values.defaultSeen = true;
+    values.voltage = 5;
+    return changed(state, values, 'The USB-C plugs match and power starts at default 5 V. The connector shape has not chosen 9 V. Next, let the charger advertise its supported modes.', 'motion', false);
   }
-  return changed(state, values, 'Fit a cable between the endpoints, then ask them to negotiate.', 'motion', false);
+  if (action.type === 'send-pd-offer') {
+    if (!values.connected) return changed(state, values, 'Connect first. Negotiation messages need a live USB-C link, and the link begins at default 5 V.', 'idle', false);
+    if (values.offerSent) return state;
+    values.offerSent = true;
+    return changed(state, values, 'Offer sent: the charger announces that it supports 5 V and 9 V. Output stays at 5 V because the radio has not requested a mode yet.', 'motion', false);
+  }
+  if (action.type === 'send-pd-request') {
+    if (!values.connected) return changed(state, values, 'Connect first. The radio cannot request a mode before the USB-C link exists.', 'idle', false);
+    if (!values.offerSent) return changed(state, values, 'The charger must advertise its supported modes before the radio can choose one.', 'idle', false);
+    if (values.requestSent) return state;
+    values.requestSent = true;
+    return changed(state, values, 'Request sent: the radio asks for the offered 9 V mode. Output remains at default 5 V until the charger accepts.', 'motion', false);
+  }
+  if (action.type === 'accept-pd-request') {
+    if (!values.requestSent) return changed(state, values, 'The charger needs a valid 9 V request before it can accept and raise the output.', 'idle', false);
+    values.negotiated = true;
+    values.voltage = 9;
+    return changed(state, values, 'The charger accepts the shared 9 V mode, then raises its output. Agreement came before higher voltage.', 'success', true);
+  }
+  return state;
 }
 
 function alternatingStroke(values: Record<string, unknown>, direction: string) {
@@ -405,19 +499,29 @@ function reduceWind(state: StationChallengeState, action: StationChallengeAction
     return changed(state, values, solved ? 'Still field, no sustained voltage. Repeated relative motion, repeated induced voltage.' : feedback, solved ? 'success' : 'motion', solved);
   }
   if (state.phaseIndex === 1) {
-    if (action.type === 'connect-loop') values.loopClosed = !Boolean(values.loopClosed);
+    if (action.type === 'connect-loop') {
+      if (!values.openVoltageSeen) {
+        return changed(state, values, 'Run the open-gap test first. Crank while the copper bridge is missing so you can see voltage appear without sustained loop current.', 'idle', false);
+      }
+      if (values.loopClosed) return state;
+      values.loopClosed = true;
+      values.voltageActive = false;
+      return changed(state, values, 'The copper bridge closes the loop. It does not create voltage or light by itself. Crank the same generator again so induced voltage can push current around the complete path.', 'motion', false);
+    }
     if (action.type === 'crank') {
       alternatingStroke(values, String(action.value));
-      if (values.loopClosed) values.currentSeen = true;
-      else values.openVoltageSeen = true;
+      values.voltageActive = true;
+      if (values.loopClosed) {
+        values.currentSeen = true;
+      } else {
+        values.openVoltageSeen = true;
+      }
     }
     const solved = Boolean(values.openVoltageSeen) && Boolean(values.currentSeen);
-    const feedback = action.type === 'crank'
-      ? values.loopClosed
-        ? 'Voltage still appears, and the closed path now carries current through the lamp.'
-        : 'The terminal meter jumps with induced voltage, but the open lamp path carries no sustained current.'
-      : values.loopClosed ? 'The lamp loop is connected. Crank again.' : 'The terminal gap is open. Crank to test voltage without load current.';
-    return changed(state, values, solved ? 'You observed voltage at open terminals, then current and light only after closing the path.' : feedback, solved ? 'success' : 'motion', solved);
+    const feedback = values.loopClosed
+      ? 'Closed-loop run recorded. Changing flux still creates voltage, and the complete path now lets that voltage push current through the lamp. Same generator, one changed part: the bridge.'
+      : 'Open-gap run recorded. Changing flux creates voltage across the two wire ends. The gap stops charge from circulating, so current stays at zero and the lamp stays off.';
+    return changed(state, values, feedback, solved ? 'success' : 'motion', solved);
   }
   if (action.type === 'set-load') {
     values.load = String(action.value);
@@ -499,71 +603,150 @@ function reduceLongline(state: StationChallengeState, action: StationChallengeAc
   return changed(state, values, solved ? 'The complete chain keeps the long line cool and gives the town a usable final voltage.' : feedback, solved ? 'success' : values.route === 'low' ? 'fault' : 'motion', solved);
 }
 
-const energyCards: Record<string, number> = {
-  '1000w-1h': 1000,
-  '100w-10h': 1000,
-  '500w-1h': 500,
-  '50w-4h': 200,
+const energyFactorOptions: Record<string, number[]> = {
+  leftPower: [100, 500, 1000],
+  leftHours: [1, 2, 10],
+  rightPower: [100, 500, 1000],
+  rightHours: [1, 2, 10],
 };
 
-const marketPlans: Record<string, { brightness: number; energy: number; power: number; label: string }> = {
-  efficient: { brightness: 2, energy: 2, power: 2, label: 'Two efficient lantern strings' },
-  mixed: { brightness: 4, energy: 4, power: 4, label: 'Warm sign plus efficient strings' },
-  warm: { brightness: 3, energy: 5, power: 5, label: 'Warm filament feature lamps' },
-  dim: { brightness: 1, energy: 1, power: 1, label: 'One dim guide string' },
+const marketPlans: Record<string, { brightness: number; power: number; label: string }> = {
+  efficient: { brightness: 2, power: 200, label: 'Two efficient lantern strings' },
+  mixed: { brightness: 4, power: 400, label: 'Market sign plus four lantern strings' },
+  warm: { brightness: 3, power: 500, label: 'Three filament feature lamps' },
+  dim: { brightness: 1, power: 100, label: 'One dim guide string' },
 };
 
 function scheduleResult(schedule: Record<string, string>) {
-  const periods = ['dusk', 'peak', 'closing'];
-  const brightness = periods.map((period) => marketPlans[schedule[period]]?.brightness ?? 0);
-  const energy = periods.reduce((sum, period) => sum + (marketPlans[schedule[period]]?.energy ?? 0), 0);
-  const valid = brightness[0] >= 2 && brightness[1] >= 4 && brightness[2] >= 2 && energy <= 10 && Object.values(schedule).some((plan) => plan !== 'efficient');
-  return { brightness, energy, valid };
+  const periods = [
+    { id: 'dusk', label: 'Dusk', hours: 1, need: 2 },
+    { id: 'peak', label: 'Peak market', hours: 2, need: 4 },
+    { id: 'closing', label: 'Closing', hours: 1, need: 2 },
+  ];
+  const results = periods.map((period) => {
+    const plan = marketPlans[schedule[period.id]];
+    const power = plan?.power ?? 0;
+    return {
+      ...period,
+      planId: schedule[period.id],
+      plan,
+      power,
+      brightness: plan?.brightness ?? 0,
+      energy: power * period.hours,
+    };
+  });
+  const brightness = results.map((period) => period.brightness);
+  const energy = results.reduce((sum, period) => sum + period.energy, 0);
+  const valid = results.every((period) => period.brightness >= period.need) && energy <= 1200;
+  return { brightness, energy, valid, results };
 }
 
 function reduceLantern(state: StationChallengeState, action: StationChallengeAction) {
   const values = { ...state.values };
   if (state.phaseIndex === 0) {
-    if (action.type === 'select-energy-card') values.selectedCard = String(action.value);
-    if (action.type === 'place-energy-side') values[String(action.value)] = String(values.selectedCard ?? '');
-    if (action.type === 'place-energy-card') values[String(action.secondary)] = String(action.value);
-    const left = String(values.leftCard ?? '');
-    const right = String(values.rightCard ?? '');
-    const solved = Boolean(left && right && left !== right && energyCards[left] === energyCards[right]);
-    const feedback = left && right
-      ? solved
-        ? `${left.replace('-', ' × ')} and ${right.replace('-', ' × ')} both accumulate ${energyCards[left]} Wh.`
-        : `The scale tilts. The left evening transfers ${energyCards[left] ?? 0} Wh and the right transfers ${energyCards[right] ?? 0} Wh.`
-      : 'Place one complete power-and-time card on each side of the scale.';
+    if (action.type === 'set-energy-factor') {
+      const factor = String(action.secondary);
+      const nextValue = Number(action.value);
+      if (energyFactorOptions[factor]?.includes(nextValue)) values[factor] = nextValue;
+    }
+    const leftPower = Number(values.leftPower ?? 0);
+    const leftHours = Number(values.leftHours ?? 0);
+    const rightPower = Number(values.rightPower ?? 0);
+    const rightHours = Number(values.rightHours ?? 0);
+    const leftEnergy = leftPower * leftHours;
+    const rightEnergy = rightPower * rightHours;
+    values.leftEnergy = leftEnergy;
+    values.rightEnergy = rightEnergy;
+    const differentSetup = leftPower !== rightPower || leftHours !== rightHours;
+    const solved = leftEnergy > 0 && leftEnergy === rightEnergy && differentSetup;
+    const equations = `${leftPower} W × ${leftHours} h = ${leftEnergy} Wh; ${rightPower} W × ${rightHours} h = ${rightEnergy} Wh.`;
+    const feedback = solved
+      ? `${equations} The different evenings both accumulate ${leftEnergy} Wh.`
+      : leftEnergy === rightEnergy
+        ? `${equations} The totals match, but the two setups are identical. Change power or runtime while preserving equal Wh.`
+        : `${equations} The totals differ by ${Math.abs(leftEnergy - rightEnergy)} Wh. Adjust a rate or runtime and watch the multiplication change.`;
     return changed(state, values, feedback, solved ? 'success' : 'motion', solved);
   }
   if (state.phaseIndex === 1) {
     const schedule = asRecord(values.schedule);
-    if (action.type === 'select-market-plan') values.selectedPlan = String(action.value);
-    if (action.type === 'place-market-period') schedule[String(action.value)] = String(values.selectedPlan ?? '');
-    if (action.type === 'set-market-plan') schedule[String(action.secondary)] = String(action.value);
+    const editAction = action.type === 'select-market-plan' || action.type === 'place-market-period' || action.type === 'set-market-plan';
+    if (editAction && !values.testedStart) {
+      return changed(state, values, 'Run the starting market first. Watch which period misses its brightness target, then repair that cause.', 'idle', false);
+    }
+    if (action.type === 'select-market-plan' && marketPlans[String(action.value)]) {
+      values.selectedPlan = String(action.value);
+      values.testedGood = false;
+    }
+    if (action.type === 'place-market-period') {
+      const period = String(action.value);
+      const plan = String(values.selectedPlan ?? '');
+      if (['dusk', 'peak', 'closing'].includes(period) && marketPlans[plan]) schedule[period] = plan;
+      values.testedGood = false;
+    }
+    if (action.type === 'set-market-plan') {
+      const period = String(action.secondary);
+      const plan = String(action.value);
+      if (['dusk', 'peak', 'closing'].includes(period) && marketPlans[plan]) schedule[period] = plan;
+      values.testedGood = false;
+    }
     values.schedule = schedule;
     const result = scheduleResult(schedule);
     values.energy = result.energy;
     values.brightness = result.brightness;
-    const feedback = result.valid
-      ? `Every period is bright enough. The plan uses ${result.energy} of 10 energy tokens and keeps a warm feature where it matters.`
-      : `Brightness is ${result.brightness.join(', ')} across dusk, peak, and closing. Energy use is ${result.energy} of 10 tokens.`;
-    return changed(state, values, feedback, result.valid ? 'success' : result.energy > 10 ? 'fault' : 'motion', result.valid);
+    if (action.type === 'test-market-schedule') {
+      values.testedStart = true;
+      values.testedGood = result.valid;
+    }
+    const failedPeriod = result.results.find((period) => period.brightness < period.need);
+    const equationSummary = result.results
+      .map((period) => `${period.power} W × ${period.hours} h = ${period.energy} Wh`)
+      .join('; ');
+    const solved = Boolean(values.testedGood);
+    const feedback = solved
+      ? `${equationSummary}. Every brightness target is met, and the three receipts add to ${result.energy} Wh.`
+      : action.type === 'test-market-schedule' && failedPeriod
+        ? `${failedPeriod.label} needs brightness ${failedPeriod.need}, but ${failedPeriod.plan?.label ?? 'the empty plan'} provides ${failedPeriod.brightness}. Its receipt is ${failedPeriod.power} W × ${failedPeriod.hours} h = ${failedPeriod.energy} Wh. Choose a plan that meets the light need, then rerun the night.`
+        : action.type === 'test-market-schedule' && result.energy > 1200
+          ? `${equationSummary}. Brightness is sufficient, but ${result.energy} Wh exceeds the 1200 Wh night budget.`
+          : values.testedStart
+            ? `${equationSummary}. Planned total: ${result.energy} Wh. Rerun the market to test brightness and budget together.`
+            : 'Run the underlit starting market before changing any lamp plan.';
+    return changed(state, values, feedback, solved ? 'success' : action.type === 'test-market-schedule' ? 'fault' : 'motion', solved);
   }
   if (action.type === 'advance-period' && Number(values.period) < 3) {
-    const powers = [2, 4, 2];
-    const durations = [1, 1, 1];
+    const periods = [
+      { label: 'Dusk', power: 200, hours: 1 },
+      { label: 'Peak market', power: 400, hours: 2 },
+      { label: 'Closing', power: 200, hours: 1 },
+    ];
     const period = Number(values.period);
-    values.power = powers[period];
-    values.energy = Number(values.energy ?? 0) + powers[period] * durations[period];
-    values.cost = Number(values.energy) * 0.00018;
+    const current = periods[period];
+    const added = current.power * current.hours;
+    const energy = Number(values.energy ?? 0) + added;
+    const receipts = Array.isArray(values.receipts) ? [...values.receipts] : [];
+    receipts.push({
+      label: current.label,
+      power: current.power,
+      hours: current.hours,
+      added,
+      total: energy,
+    });
+    values.power = period === periods.length - 1 ? 0 : current.power;
+    values.energy = energy;
+    values.cost = energy / 1000 * 0.18;
+    values.lastPower = current.power;
+    values.lastDuration = current.hours;
+    values.lastAdded = added;
+    values.lastLabel = current.label;
+    values.receipts = receipts;
     values.period = period + 1;
   }
   const solved = Number(values.period) >= 3;
   const feedback = solved
-    ? `The last lamps switch off. The ribbon holds ${Number(values.energy)} Wh, ${(Number(values.energy) / 1000).toFixed(3)} kWh, and $${Number(values.cost).toFixed(4)} model cost.`
-    : `Period ${Number(values.period)} of 3 is complete. Instant power can change next, but the ${Number(values.energy)} Wh ribbon does not shrink.`;
+    ? `${Number(values.lastPower)} W × ${Number(values.lastDuration)} h = ${Number(values.lastAdded)} Wh for Closing. Market is off now at 0 W. The accumulator keeps ${Number(values.energy)} Wh = ${(Number(values.energy) / 1000).toFixed(3)} kWh; ${(Number(values.energy) / 1000).toFixed(3)} kWh × $0.18 = $${Number(values.cost).toFixed(2)} model cost.`
+    : Number(values.period) > 0
+      ? `${String(values.lastLabel)} ran at ${Number(values.lastPower)} W for ${Number(values.lastDuration)} h: ${Number(values.lastPower)} W × ${Number(values.lastDuration)} h = ${Number(values.lastAdded)} Wh. The accumulator now holds ${Number(values.energy)} Wh.`
+      : 'Run Dusk first. Its watt rate and runtime will create the first Wh receipt.';
   return changed(state, values, feedback, solved ? 'success' : 'motion', solved);
 }
 
@@ -694,10 +877,13 @@ export function getStationChallengeMetrics(state: StationChallengeState): Partia
           : { voltage: values.route === 'transformed' ? 1 : 0.25, current: values.route === 'transformed' ? 0.25 : 1, power: values.townLit ? 0.75 : 0.48, heat: values.route === 'transformed' ? 0.05 : 0.9 };
     case 'lantern':
       return state.phaseIndex === 0
-        ? { power: 0, energy: state.solved ? 1 : 0 }
+        ? {
+            power: Math.max(Number(values.leftPower ?? 0), Number(values.rightPower ?? 0)) / 1000,
+            energy: Math.max(Number(values.leftEnergy ?? 0), Number(values.rightEnergy ?? 0)) / 1000,
+          }
         : state.phaseIndex === 1
-          ? { voltage: 0.7, current: Number(values.energy ?? 0) / 10, power: Math.max(...numberArray(values.brightness), 0) / 4, energy: Number(values.energy ?? 0) / 10, heat: 0.16 }
-          : { voltage: 0.7, current: Number(values.power ?? 0) / 4, power: Number(values.power ?? 0) / 4, energy: Number(values.energy ?? 0) / 8, heat: 0.12 };
+          ? { voltage: 0.7, current: Number(values.energy ?? 0) / 1200, power: Math.max(...numberArray(values.brightness), 0) / 4, energy: Number(values.energy ?? 0) / 1200, heat: 0.16 }
+          : { voltage: 0.7, current: Number(values.power ?? 0) / 400, power: Number(values.power ?? 0) / 400, energy: Number(values.energy ?? 0) / 1200, heat: 0.12 };
     case 'harbor':
       return state.phaseIndex === 0
         ? { voltage: 0.72, current: values.observedNormal ? 0.55 : 0, power: values.observedNormal ? 0.55 : 0, heat: 0.08, leakage: values.insulation === 'jacket' ? 0.01 : 0.5 }
