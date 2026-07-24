@@ -16,6 +16,13 @@ function play(district: (typeof districts)[number]['id'], phase: number, actions
   );
 }
 
+function playFrom(state: StationChallengeState, actions: StationChallengeAction[]) {
+  return actions.reduce(
+    (current, action) => reduceStationChallenge(current, action),
+    state,
+  );
+}
+
 function expectSolved(state: StationChallengeState) {
   expect(state.solved).toBe(true);
   expect(state.effect).toBe('success');
@@ -414,32 +421,196 @@ describe('station challenge contracts', () => {
     expect(closing.feedback).toContain('$0.22');
   });
 
-  it('makes Harbor layer paths, distinguish protection, repair, and balance shared demand', () => {
+  it('makes Harbor section 1 assign distinct jobs to conductor, insulation, and ground', () => {
     expectSolved(play('harbor', 0, [
       { type: 'set-layer', value: 'copper', secondary: 'conductor' },
       { type: 'set-layer', value: 'jacket', secondary: 'insulation' },
       { type: 'set-layer', value: 'ground', secondary: 'ground' },
       { type: 'run-normal' },
     ]));
-    expectSolved(play('harbor', 1, [
-      { type: 'install-protection', value: 'breaker' },
-      { type: 'install-protection', value: 'gfci' },
-      { type: 'inject-fault' },
-      { type: 'select-fault', value: 'short' },
-      { type: 'inject-fault' },
-      { type: 'select-fault', value: 'leakage' },
-      { type: 'inject-fault' },
-      { type: 'repair-cable' },
-    ]));
-    expectSolved(play('harbor', 2, [
+  });
+
+  it('makes Harbor section 2 expose the amount and balance signals for every protection response', () => {
+    const initial = createStationChallengeState('harbor', 1);
+    expect(initial.values).toMatchObject({
+      scenario: 'normal',
+      observed: [],
+      cleared: [],
+      faultActive: false,
+      live: 0,
+      neutral: 0,
+      amount: 0,
+      imbalance: 0,
+      trip: 'idle',
+    });
+    const initialMarkup = renderStationChallenge(initial);
+    expect(initialMarkup).toContain('Live current out');
+    expect(initialMarkup).toContain('Neutral current back');
+    expect(initialMarkup).toContain('Breaker watches amount');
+    expect(initialMarkup).toContain('GFCI/RCD watches the difference');
+    expect(initialMarkup).toContain('Run the normal loop');
+
+    const prematureFault = reduceStationChallenge(initial, {
+      type: 'select-protection-scenario',
+      value: 'leakage',
+    });
+    expect(prematureFault.values.scenario).toBe('normal');
+    expect(prematureFault.feedback).toContain('Run the balanced normal loop first');
+
+    const normal = reduceStationChallenge(initial, { type: 'run-protection-test' });
+    expect(normal.values).toMatchObject({
+      observed: ['normal'],
+      live: 3,
+      neutral: 3,
+      amount: 3,
+      imbalance: 0,
+      trip: 'none',
+      faultActive: false,
+    });
+    expect(normal.feedback).toContain('3 leave on live and all 3 return on neutral');
+    expect(normal.feedback).toContain('neither device trips');
+
+    const overloadSelected = reduceStationChallenge(normal, {
+      type: 'select-protection-scenario',
+      value: 'overload',
+    });
+    const overload = reduceStationChallenge(overloadSelected, { type: 'run-protection-test' });
+    expect(overload.values).toMatchObject({
+      live: 6,
+      neutral: 6,
+      amount: 6,
+      imbalance: 0,
+      trip: 'breaker',
+      faultActive: true,
+    });
+    expect(overload.feedback).toContain('6 is above the breaker limit of 5');
+    expect(overload.feedback).toContain('difference is 0');
+
+    const blockedWhileLatched = reduceStationChallenge(overload, {
+      type: 'select-protection-scenario',
+      value: 'leakage',
+    });
+    expect(blockedWhileLatched.values.scenario).toBe('overload');
+    expect(blockedWhileLatched.feedback).toContain('Remove the active model fault before changing scenarios');
+
+    const overloadCleared = reduceStationChallenge(overload, { type: 'clear-model-fault' });
+    expect(overloadCleared.values).toMatchObject({
+      faultActive: false,
+      trip: 'reset',
+      cleared: ['overload'],
+    });
+    expect(overloadCleared.feedback).toContain('extra modeled loads are removed');
+
+    const short = playFrom(overloadCleared, [
+      { type: 'select-protection-scenario', value: 'short' },
+      { type: 'run-protection-test' },
+    ]);
+    expect(short.values).toMatchObject({ live: 9, neutral: 9, trip: 'breaker', faultActive: true });
+    expect(short.feedback).toContain('very low-opposition bypass');
+    const shortCleared = reduceStationChallenge(short, { type: 'clear-model-fault' });
+
+    const leakage = playFrom(shortCleared, [
+      { type: 'select-protection-scenario', value: 'leakage' },
+      { type: 'run-protection-test' },
+    ]);
+    expect(leakage.values).toMatchObject({
+      live: 3,
+      neutral: 1,
+      amount: 3,
+      imbalance: 2,
+      trip: 'gfci',
+      faultActive: true,
+    });
+    expect(leakage.feedback).toContain('breaker amount stays below 5');
+    expect(leakage.feedback).toContain('3 − 1 = 2');
+    expect(renderStationChallenge(leakage)).toContain('3 out − 1 back = 2 missing');
+
+    const solved = reduceStationChallenge(leakage, { type: 'clear-model-fault' });
+    expectSolved(solved);
+    expect(solved.values.cleared).toEqual(['overload', 'short', 'leakage']);
+    expect(solved.feedback).toContain('Overload and short tripped the breaker');
+    expect(solved.feedback).toContain('Leakage tripped the GFCI/RCD');
+  });
+
+  it('makes Harbor section 3 add named home demands into one fixed feeder capacity', () => {
+    const initial = createStationChallengeState('harbor', 2);
+    expect(initial.values).toMatchObject({
+      chain: ['', '', '', ''],
+      heater: false,
+      ovens: false,
+      charger: false,
+      homeLoads: [1, 1, 1],
+      total: 3,
+      capacity: 9,
+      baselineSeen: false,
+      overloadSeen: false,
+      balanced: false,
+    });
+    const initialMarkup = renderStationChallenge(initial);
+    expect(initialMarkup).toContain('Receives transmission');
+    expect(initialMarkup).toContain('Moves power through the neighborhood');
+    expect(initialMarkup).toContain('Lowers voltage near homes');
+    expect(initialMarkup).toContain('Connects one building');
+    expect(initialMarkup).toContain('Fixed feeder capacity: 9');
+    expect(initialMarkup).not.toContain('set-capacity');
+
+    const prematureLoad = reduceStationChallenge(initial, {
+      type: 'toggle-home-appliance',
+      value: 'heater',
+    });
+    expect(prematureLoad.values.heater).toBe(false);
+    expect(prematureLoad.feedback).toContain('Build and test the distribution chain first');
+
+    const wrongChain = play('harbor', 2, [
+      { type: 'select-grid-piece', value: 'service' },
+      { type: 'place-grid-piece', value: 0 },
+      { type: 'send-feeder' },
+    ]);
+    expect(wrongChain.feedback).toContain('Stage 1 needs the substation');
+    expect(wrongChain.values.baselineSeen).toBe(false);
+
+    const ready = play('harbor', 2, [
       { type: 'place-grid-piece', value: 0 },
       { type: 'select-grid-piece', value: 'feeder' }, { type: 'place-grid-piece', value: 1 },
       { type: 'select-grid-piece', value: 'transformer' }, { type: 'place-grid-piece', value: 2 },
       { type: 'select-grid-piece', value: 'service' }, { type: 'place-grid-piece', value: 3 },
-      { type: 'change-home', value: 1, secondary: 0 },
       { type: 'send-feeder' },
-      { type: 'set-capacity', value: 5 },
+    ]);
+    expect(ready.solved).toBe(false);
+    expect(ready.values).toMatchObject({
+      baselineSeen: true,
+      homeLoads: [1, 1, 1],
+      total: 3,
+      margin: 6,
+    });
+    expect(ready.feedback).toContain('1 + 1 + 1 = 3');
+    expect(ready.feedback).toContain('6 units of margin');
+
+    const overloaded = playFrom(ready, [
+      { type: 'toggle-home-appliance', value: 'heater' },
+      { type: 'toggle-home-appliance', value: 'charger' },
       { type: 'send-feeder' },
-    ]));
+    ]);
+    expect(overloaded.values).toMatchObject({
+      homeLoads: [4, 1, 5],
+      total: 10,
+      margin: -1,
+      overloadSeen: true,
+      feederTripped: true,
+    });
+    expect(overloaded.feedback).toContain('4 + 1 + 5 = 10');
+    expect(overloaded.feedback).toContain('above the fixed feeder capacity of 9');
+    expect(renderStationChallenge(overloaded)).toContain('4 + 1 + 5 = 10 combined demand');
+
+    const adjusted = reduceStationChallenge(overloaded, {
+      type: 'toggle-home-appliance',
+      value: 'heater',
+    });
+    expect(adjusted.values).toMatchObject({ homeLoads: [1, 1, 5], total: 7, margin: 2 });
+    const solved = reduceStationChallenge(adjusted, { type: 'send-feeder' });
+    expectSolved(solved);
+    expect(solved.values).toMatchObject({ feederTripped: false, balanced: true, margin: 2 });
+    expect(solved.feedback).toContain('1 + 1 + 5 = 7');
+    expect(solved.feedback).toContain('2 units of shared feeder margin');
   });
 });

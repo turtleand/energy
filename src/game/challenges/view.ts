@@ -676,26 +676,136 @@ function renderHarbor(state: StationChallengeState) {
   }
   if (state.phaseIndex === 1) {
     const observed = (values.observed as string[]) ?? [];
-    const fault = String(values.fault ?? 'overload');
-    return `<div class="challenge-apparatus protection-board" data-damaged="${Boolean(values.damaged)}">
-      <div class="watcher-bays"><section data-installed="${Boolean(values.breaker)}"><span>Amount watcher</span>${button(values.breaker ? 'Breaker installed' : 'Install breaker', 'install-protection', 'breaker', { pressed: Boolean(values.breaker) })}</section><section data-installed="${Boolean(values.gfci)}"><span>Balance watcher</span>${button(values.gfci ? 'GFCI/RCD installed' : 'Install GFCI/RCD', 'install-protection', 'gfci', { pressed: Boolean(values.gfci) })}</section></div>
-      <div class="fault-cartridges">${button('Overload cartridge', 'select-fault', 'overload', { pressed: fault === 'overload' })}${button('Short-path cartridge', 'select-fault', 'short', { pressed: fault === 'short' })}${button('Leakage cartridge', 'select-fault', 'leakage', { pressed: fault === 'leakage' })}</div>
-      <div class="fault-path" data-fault="${escapeHtml(fault)}" aria-hidden="true"><span>live out</span><i></i><b>neutral return</b><em>leak path</em></div>
-      <div class="station-action-row">${button('Inject selected model fault', 'inject-fault', '', { className: 'station-lever' })}${button('Replace damaged model cable', 'repair-cable', '', { disabled: !values.damaged })}</div>
-      <div class="observed-faults"><span data-done="${observed.includes('overload')}">overload</span><span data-done="${observed.includes('short')}">short</span><span data-done="${observed.includes('leakage')}">leakage</span><span data-done="${Boolean(values.repaired)}">repair</span></div>
+    const cleared = (values.cleared as string[]) ?? [];
+    const scenario = String(values.scenario ?? 'normal');
+    const faultActive = Boolean(values.faultActive);
+    const live = Number(values.live ?? 0);
+    const neutral = Number(values.neutral ?? 0);
+    const amount = Number(values.amount ?? 0);
+    const imbalance = Number(values.imbalance ?? 0);
+    const trip = String(values.trip ?? 'idle');
+    const scenarios: Record<string, { name: string; physical: string; signal: string; run: string }> = {
+      normal: { name: 'Normal load', physical: 'Current uses the intended load and returns on neutral.', signal: '3 out · 3 back', run: 'Run the normal loop' },
+      overload: { name: 'Too many loads', physical: 'The normal path carries a larger current amount.', signal: '6 out · 6 back', run: 'Run the overload path' },
+      short: { name: 'Bypass short', physical: 'A very low-opposition bridge bypasses the load.', signal: '9 out · 9 back', run: 'Run the short path' },
+      leakage: { name: 'Leak path', physical: 'Part of the current leaves the live-neutral loop.', signal: '3 out · 1 back', run: 'Run the leakage path' },
+    };
+    const markers = (count: number, kind: 'live' | 'neutral') => Array.from({ length: 9 }, (_, index) => `<i data-on="${index < count}" data-kind="${kind}"></i>`).join('');
+    const hasRun = trip !== 'idle';
+    const breakerStatus = trip === 'breaker' ? 'OPEN on overcurrent' : hasRun ? 'Stays closed' : 'Waiting for a signal';
+    const gfciStatus = trip === 'gfci' ? 'OPEN on missing return' : hasRun ? 'Stays closed' : 'Waiting for a signal';
+    return `<div class="challenge-apparatus protection-signal-bench" data-scenario="${escapeHtml(scenario)}" data-fault-active="${faultActive}" data-trip="${escapeHtml(trip)}">
+      <div class="harbor-concept-guide"><span>Two devices, two questions</span><p><strong>Breaker:</strong> is the current amount above 5? <strong>GFCI/RCD:</strong> did all current that left on live return on neutral?</p></div>
+      <div class="protection-scenario-rack" aria-label="Modeled circuit paths">
+        ${Object.entries(scenarios).map(([id, item]) => button(`<strong>${item.name}</strong><small>${item.physical}</small><b>${item.signal}</b>`, 'select-protection-scenario', id, { pressed: scenario === id, disabled: faultActive || (!observed.includes('normal') && id !== 'normal'), className: 'protection-scenario-card' })).join('')}
+      </div>
+      <div class="protection-signal-board">
+        <section class="current-comparator" aria-label="Current leaving and returning">
+          <header><span>Read the path</span><strong>${scenarios[scenario]?.name}</strong></header>
+          <div class="current-lane live-lane"><span>Live current out</span><div aria-hidden="true">${markers(live, 'live')}</div><strong>${live}</strong></div>
+          <div class="modeled-load-path" aria-hidden="true"><span>intended load</span><i></i><b data-active="${scenario === 'short' && hasRun}">bypass</b><em data-active="${scenario === 'leakage' && hasRun}">leak</em></div>
+          <div class="current-lane neutral-lane"><span>Neutral current back</span><div aria-hidden="true">${markers(neutral, 'neutral')}</div><strong>${neutral}</strong></div>
+          <p>${hasRun ? `${live} leave on live. ${neutral} return on neutral.` : 'Run the selected path to release the current markers.'}</p>
+        </section>
+        <div class="protection-watchers">
+          <section class="protection-watcher breaker-watcher" data-open="${trip === 'breaker'}">
+            <header><span aria-hidden="true">Ⅰ</span><div><strong>Breaker watches amount</strong><small>Opens above the model limit of 5</small></div></header>
+            <div class="amount-gauge" style="--amount:${Math.min(100, amount / 9 * 100)}%"><i></i><b aria-label="Model breaker limit 5"></b></div>
+            <p><span>Current amount</span><strong>${amount} ${amount > 5 ? '> 5' : '≤ 5'}</strong></p>
+            <em>${breakerStatus}</em>
+          </section>
+          <section class="protection-watcher gfci-watcher" data-open="${trip === 'gfci'}">
+            <header><span aria-hidden="true">Ⅱ</span><div><strong>GFCI/RCD watches the difference</strong><small>Opens when current is missing from neutral</small></div></header>
+            <div class="balance-equation" aria-label="${live} out − ${neutral} back = ${imbalance} missing"><span>${live} out</span><b>−</b><span>${neutral} back</span><b>=</b><strong>${imbalance} missing</strong></div>
+            <p><span>Return difference</span><strong>${imbalance}</strong></p>
+            <em>${gfciStatus}</em>
+          </section>
+        </div>
+      </div>
+      <div class="protection-observation-ledger" aria-label="Protection observations">
+        ${Object.entries(scenarios).map(([id, item]) => {
+          const result = id === 'normal' ? '3 = 3 · no trip' : id === 'overload' ? '6 > 5 · breaker' : id === 'short' ? '9 > 5 · breaker' : '3 − 1 = 2 · GFCI/RCD';
+          return `<section data-observed="${observed.includes(id)}" data-cleared="${cleared.includes(id)}"><span>${observed.includes(id) ? '✓' : '○'}</span><div><strong>${item.name}</strong><small>${observed.includes(id) ? result : 'Not run yet'}</small></div><b>${id === 'normal' ? observed.includes(id) ? 'reference recorded' : 'run first' : cleared.includes(id) ? 'cause removed' : observed.includes(id) ? 'fault still active' : 'waiting'}</b></section>`;
+        }).join('')}
+      </div>
+      <div class="protection-action-row">
+        ${button(scenarios[scenario]?.run ?? 'Run selected path', 'run-protection-test', '', { className: 'station-lever', disabled: faultActive })}
+        ${button('Remove modeled cause and reset protection', 'clear-model-fault', '', { disabled: !faultActive })}
+      </div>
     </div>`;
   }
   const chain = (values.chain as string[]) ?? [];
   const selected = String(values.selectedPiece ?? '');
-  const homes = (values.homes as number[]) ?? [1, 1, 1];
-  const total = Number(values.total ?? homes.reduce((sum, item) => sum + item, 0));
-  const capacity = Number(values.capacity ?? 3);
-  return `<div class="challenge-apparatus feeder-board" data-overload="${total > capacity}">
-    <div class="distribution-chain">${chain.map((piece, index) => dropSlot(index, piece, 'place-grid-piece', 'drop-grid-piece', { className: 'grid-chain-slot' })).join('')}</div>
-    <div class="station-tray">${['substation', 'feeder', 'transformer', 'service'].map((piece) => draggablePiece(labels[piece], 'select-grid-piece', piece, selected === piece, 'grid-piece')).join('')}</div>
-    <div class="home-branches">${homes.map((load, index) => `<section><span>Home ${index + 1}</span><strong>${load} load</strong><div>${button('Remove appliance', 'change-home', -1, { secondary: index, disabled: load <= 0 })}${button('Add appliance', 'change-home', 1, { secondary: index, disabled: load >= 3 })}</div></section>`).join('')}</div>
-    <div class="feeder-capacity"><span>Shared feeder</span>${button('3 load capacity', 'set-capacity', 3, { pressed: capacity === 3 })}${button('5 load capacity', 'set-capacity', 5, { pressed: capacity === 5 })}<strong>${total} combined / ${capacity} capacity</strong></div>
-    ${button('Send combined feeder demand', 'send-feeder', '', { className: 'station-lever' })}
+  const homeLoads = (values.homeLoads as number[]) ?? [1, 1, 1];
+  const total = Number(values.total ?? homeLoads.reduce((sum, item) => sum + item, 0));
+  const capacity = Number(values.capacity ?? 9);
+  const margin = Number(values.margin ?? capacity - total);
+  const baselineSeen = Boolean(values.baselineSeen);
+  const overloadSeen = Boolean(values.overloadSeen);
+  const feederTripped = Boolean(values.feederTripped);
+  const chainReady = chain.join('|') === 'substation|feeder|transformer|service';
+  const pieces: Record<string, { name: string; job: string; icon: string }> = {
+    substation: { name: 'Substation', job: 'Receives transmission and lowers to distribution', icon: '↓' },
+    feeder: { name: 'Distribution feeder', job: 'Moves power through the neighborhood', icon: '→' },
+    transformer: { name: 'Local transformer', job: 'Lowers voltage near homes', icon: '⇣' },
+    service: { name: 'Home service', job: 'Connects one building', icon: '⌂' },
+  };
+  const socketJobs = [
+    ['Stage 1', 'Receives transmission'],
+    ['Stage 2', 'Across the neighborhood'],
+    ['Stage 3', 'Near the homes'],
+    ['Stage 4', 'Into each building'],
+  ];
+  const homes = [
+    { id: 'heater', name: 'Cliff house', base: 'Porch lights', appliance: 'Water heater', extra: 3, active: Boolean(values.heater) },
+    { id: 'ovens', name: 'Market house', base: 'Cooler lights', appliance: 'Market ovens', extra: 3, active: Boolean(values.ovens) },
+    { id: 'charger', name: 'Dock house', base: 'Harbor light', appliance: 'Boat charger', extra: 4, active: Boolean(values.charger) },
+  ];
+  const loadBars = (count: number) => `<span class="home-load-bars" aria-hidden="true">${Array.from({ length: 5 }, (_, index) => `<i data-on="${index < count}"></i>`).join('')}</span>`;
+  const sendLabel = !chainReady ? 'Test distribution chain' : !baselineSeen ? 'Send the starting three-home demand' : feederTripped ? 'Reset and resend adjusted demand' : 'Send combined neighborhood demand';
+  return `<div class="challenge-apparatus neighborhood-feeder-bench" data-overload="${total > capacity}" data-tripped="${feederTripped}" data-chain-ready="${chainReady}">
+    <div class="harbor-concept-guide"><span>Branch demands add on the feeder</span><p>Each home asks for its own current. The shared feeder carries <strong>home 1 + home 2 + home 3</strong> against one fixed capacity.</p></div>
+    <div class="distribution-rebuild">
+      <section class="handoff-workbench">
+        <header><span>1. Build the handoff path</span><strong>Transmission side → homes</strong></header>
+        <div class="distribution-handoff-chain">
+          ${chain.map((piece, index) => `<button class="distribution-handoff ${piece ? 'is-filled' : 'is-empty'}" type="button" data-station-action="place-grid-piece" data-station-value="${index}" data-drop-action="drop-grid-piece" data-drop-secondary="${index}"${baselineSeen ? ' disabled' : ''}><span>${socketJobs[index][0]}</span><small>${socketJobs[index][1]}</small><strong>${piece ? `${pieces[piece]?.icon ?? ''} ${pieces[piece]?.name ?? piece}` : 'Place a handoff'}</strong></button>`).join('')}
+        </div>
+        <div class="distribution-piece-shelf" aria-label="Distribution handoff pieces">
+          ${Object.entries(pieces).map(([id, piece]) => baselineSeen
+            ? button(`<span>${piece.icon}</span><strong>${piece.name}</strong><small>${piece.job}</small>`, 'select-grid-piece', id, { pressed: selected === id, disabled: true, className: 'distribution-piece' })
+            : draggablePiece(`<span>${piece.icon}</span><strong>${piece.name}</strong><small>${piece.job}</small>`, 'select-grid-piece', id, selected === id, 'distribution-piece')).join('')}
+        </div>
+      </section>
+      <section class="home-demand-workbench">
+        <header><span>2. Change home demand</span><strong>${baselineSeen ? 'Appliance controls unlocked' : 'Test the path to unlock appliances'}</strong></header>
+        <div class="home-demand-grid">
+          ${homes.map((home, index) => {
+            const load = homeLoads[index] ?? 1;
+            return `<article class="home-demand-card" data-active="${home.active}">
+              <header><span>${index + 1}</span><div><strong>${home.name}</strong><small>Base: ${home.base} = 1</small></div></header>
+              ${loadBars(load)}
+              <p><span>Branch demand</span><strong>1 ${home.active ? `+ ${home.extra}` : '+ 0'} = ${load}</strong></p>
+              ${button(`${home.active ? 'Switch off' : 'Turn on'} ${home.appliance}${home.active ? '' : ` (+${home.extra})`}`, 'toggle-home-appliance', home.id, { pressed: home.active, disabled: !baselineSeen })}
+            </article>`;
+          }).join('')}
+        </div>
+      </section>
+    </div>
+    <div class="shared-feeder-panel">
+      <div class="branch-sum">
+        <span>Three service branches merge</span>
+        <strong>${homeLoads.join(' + ')} = ${total} combined demand</strong>
+        <div aria-hidden="true">${homeLoads.map((load, index) => `<i style="--branch:${load / capacity * 100}%" data-branch="${index + 1}"></i>`).join('')}</div>
+      </div>
+      <div class="fixed-feeder-capacity">
+        <span>Fixed feeder capacity: ${capacity}</span>
+        <div class="feeder-capacity-track" style="--demand:${Math.min(100, total / capacity * 100)}%"><i></i><b></b></div>
+        <strong>${total > capacity ? `${total - capacity} over capacity` : `${margin} margin remaining`}</strong>
+        <small>${feederTripped ? 'TRIPPED · reduce demand before reset' : state.solved ? 'FLOWING · shared margin restored' : overloadSeen ? 'Overload recorded · restore at least 2 margin' : baselineSeen ? 'FLOWING · create one combined overload next' : 'Waiting for the tested handoff path'}</small>
+      </div>
+      ${button(sendLabel, 'send-feeder', '', { className: 'station-lever' })}
+    </div>
   </div>`;
 }
 

@@ -189,16 +189,16 @@ export const challengeDefinitions: Record<DistrictId, ChallengeDefinition> = {
       {
         id: 'diagnose-faults',
         eyebrow: 'Harbor board 2 of 3',
-        title: 'Make protection respond to the right signal.',
-        instruction: 'Install both watchers, inject overload, short, and leakage faults, then repair the damaged model cable.',
-        proof: 'A breaker reacts to too much current. GFCI or RCD protection reacts to missing return current. A trip is not a repair.',
+        title: 'See which signal trips which protection.',
+        instruction: 'Run the balanced normal loop first. Then test overload, short, and leakage paths while comparing current out, current back, and the response of both protection devices.',
+        proof: 'A breaker watches the current amount. A GFCI or RCD watches the difference between current leaving and returning. Remove a fault before resetting.',
       },
       {
         id: 'balance-feeder',
         eyebrow: 'Harbor board 3 of 3',
-        title: 'Rebuild the chain and share its capacity.',
-        instruction: 'Assemble substation, feeder, local transformer, and service. Create an overload, then rebalance the homes with margin.',
-        proof: 'Home current follows local load. The shared feeder sees the combined neighborhood demand.',
+        title: 'Build the path, then add the home demands.',
+        instruction: 'Put the four distribution handoffs in order and test the starting neighborhood. Turn on appliances until their combined demand overloads the fixed feeder, then shift demand to restore margin.',
+        proof: 'Each home branch carries its own active load. The shared feeder carries all three branch demands added together.',
       },
     ],
   },
@@ -256,8 +256,34 @@ const initialByDistrict: Record<DistrictId, Array<() => Record<string, unknown>>
   ],
   harbor: [
     () => ({ conductor: 'rubber', insulation: 'missing', ground: 'missing', observedNormal: false }),
-    () => ({ breaker: false, gfci: false, fault: 'overload', observed: [], damaged: false, repaired: false }),
-    () => ({ chain: ['', '', '', ''], selectedPiece: 'substation', homes: [1, 1, 1], capacity: 3, overloadSeen: false, balanced: false }),
+    () => ({
+      scenario: 'normal',
+      observed: [],
+      cleared: [],
+      faultActive: false,
+      live: 0,
+      neutral: 0,
+      amount: 0,
+      imbalance: 0,
+      trip: 'idle',
+    }),
+    () => ({
+      chain: ['', '', '', ''],
+      selectedPiece: 'substation',
+      heater: false,
+      ovens: false,
+      charger: false,
+      homeLoads: [1, 1, 1],
+      total: 3,
+      capacity: 9,
+      margin: 6,
+      chainReady: false,
+      chainEnergized: false,
+      baselineSeen: false,
+      overloadSeen: false,
+      balanced: false,
+      feederTripped: false,
+    }),
   ],
 };
 
@@ -750,6 +776,43 @@ function reduceLantern(state: StationChallengeState, action: StationChallengeAct
   return changed(state, values, feedback, solved ? 'success' : 'motion', solved);
 }
 
+const protectionScenarios: Record<string, {
+  live: number;
+  neutral: number;
+  trip: 'none' | 'breaker' | 'gfci';
+  setup: string;
+  clear: string;
+}> = {
+  normal: {
+    live: 3,
+    neutral: 3,
+    trip: 'none',
+    setup: 'The intended load stays in the live-neutral loop.',
+    clear: '',
+  },
+  overload: {
+    live: 6,
+    neutral: 6,
+    trip: 'breaker',
+    setup: 'Extra modeled loads raise current in the normal loop.',
+    clear: 'The extra modeled loads are removed, then the breaker is reset.',
+  },
+  short: {
+    live: 9,
+    neutral: 9,
+    trip: 'breaker',
+    setup: 'A very low-opposition bypass goes around the intended load.',
+    clear: 'The bypass bridge is removed, then the breaker is reset.',
+  },
+  leakage: {
+    live: 3,
+    neutral: 1,
+    trip: 'gfci',
+    setup: 'A leak branch diverts part of the current away from neutral.',
+    clear: 'The leak branch is closed, then the GFCI/RCD is reset.',
+  },
+};
+
 function reduceHarbor(state: StationChallengeState, action: StationChallengeAction) {
   const values = { ...state.values };
   if (state.phaseIndex === 0) {
@@ -765,58 +828,140 @@ function reduceHarbor(state: StationChallengeState, action: StationChallengeActi
     return changed(state, values, solved ? 'Normal service proves the intended loop and the quiet emergency path have different jobs.' : feedback, solved ? 'success' : ready ? 'motion' : 'fault', solved);
   }
   if (state.phaseIndex === 1) {
-    if (action.type === 'install-protection') values[String(action.value)] = true;
-    if (action.type === 'select-fault') values.fault = String(action.value);
     const observed = stringArray(values.observed);
-    if (action.type === 'inject-fault') {
-      const fault = String(values.fault);
-      const protectedNow = (fault === 'leakage' && values.gfci) || (fault !== 'leakage' && values.breaker);
-      if (protectedNow && !observed.includes(fault)) observed.push(fault);
+    const cleared = stringArray(values.cleared);
+    const selectedScenario = String(values.scenario ?? 'normal');
+    if (action.type === 'select-protection-scenario') {
+      const nextScenario = String(action.value);
+      if (values.faultActive) {
+        return changed(state, values, 'Remove the active model fault before changing scenarios. A protective trip isolates the model, but it does not remove the cause.', 'idle', false);
+      }
+      if (!observed.includes('normal') && nextScenario !== 'normal') {
+        return changed(state, values, 'Run the balanced normal loop first. It gives both protection devices a reference signal to compare against.', 'idle', false);
+      }
+      if (protectionScenarios[nextScenario]) {
+        values.scenario = nextScenario;
+        values.trip = 'idle';
+      }
+    }
+    const scenario = String(values.scenario ?? selectedScenario);
+    const model = protectionScenarios[scenario] ?? protectionScenarios.normal;
+    let feedback = action.type === 'select-protection-scenario'
+      ? `${model.setup} Run the path and compare the two measurements.`
+      : 'Run the balanced normal loop, then change one modeled path at a time.';
+    let effect: ChallengeEffect = 'motion';
+    if (action.type === 'run-protection-test') {
+      if (values.faultActive) {
+        return changed(state, values, 'This model fault is still active. Remove its cause and reset protection before another test.', 'idle', false);
+      }
+      const imbalance = Math.abs(model.live - model.neutral);
+      values.live = model.live;
+      values.neutral = model.neutral;
+      values.amount = model.live;
+      values.imbalance = imbalance;
+      values.trip = model.trip;
+      values.faultActive = scenario !== 'normal';
+      if (!observed.includes(scenario)) observed.push(scenario);
       values.observed = observed;
-      values.damaged = true;
+      feedback = scenario === 'normal'
+        ? '3 leave on live and all 3 return on neutral. Amount 3 stays below the breaker limit of 5, and the difference is 0, so neither device trips.'
+        : scenario === 'overload'
+          ? '6 leave on live and 6 return on neutral. The difference is 0, but amount 6 is above the breaker limit of 5, so the breaker opens.'
+          : scenario === 'short'
+            ? 'The very low-opposition bypass makes 9 leave and 9 return. The difference stays 0, but the large overcurrent makes the breaker open quickly.'
+            : '3 leave on live but only 1 returns on neutral. The breaker amount stays below 5, but 3 − 1 = 2 is missing from the return path, so the GFCI/RCD opens.';
+      effect = scenario === 'normal' ? 'motion' : 'fault';
     }
-    if (action.type === 'repair-cable' && values.damaged) {
-      values.damaged = false;
-      values.repaired = true;
+    if (action.type === 'clear-model-fault') {
+      if (!values.faultActive) {
+        return changed(state, values, 'No model fault is active. Select the next path and run it.', 'idle', false);
+      }
+      if (!cleared.includes(scenario)) cleared.push(scenario);
+      values.cleared = cleared;
+      values.faultActive = false;
+      values.trip = 'reset';
+      feedback = model.clear;
+      effect = 'motion';
     }
-    const solved = ['overload', 'short', 'leakage'].every((fault) => observed.includes(fault)) && Boolean(values.repaired);
-    const feedback = action.type === 'inject-fault'
-      ? values.fault === 'leakage'
-        ? values.gfci ? 'Live and neutral stop balancing. The GFCI/RCD opens on leakage before the breaker sees a large overcurrent.' : 'Leakage leaves the normal loop, but no imbalance watcher is installed.'
-        : values.breaker ? `The ${values.fault} creates too much current. The breaker opens the branch.` : 'Current rises, but no overcurrent watcher is installed.'
-      : action.type === 'repair-cable'
-        ? 'The damaged model cable is replaced after isolation. A trip alone did not remove the fault.'
-        : 'Install the protection layers, select a model fault, and inject it.';
-    return changed(state, values, solved ? 'You separated amount faults from balance faults, then repaired the cause before restoring service.' : feedback, solved ? 'success' : action.type === 'inject-fault' ? 'fault' : 'motion', solved);
+    const solved = ['normal', 'overload', 'short', 'leakage'].every((item) => observed.includes(item))
+      && ['overload', 'short', 'leakage'].every((item) => cleared.includes(item));
+    return changed(
+      state,
+      values,
+      solved ? 'Normal operation stayed closed. Overload and short tripped the breaker because current was too high. Leakage tripped the GFCI/RCD because current went missing from neutral. Every modeled cause was removed before reset.' : feedback,
+      solved ? 'success' : effect,
+      solved,
+    );
   }
   const chain = stringArray(values.chain);
-  const homes = numberArray(values.homes);
-  if (action.type === 'select-grid-piece') values.selectedPiece = String(action.value);
-  if (action.type === 'place-grid-piece') chain[Number(action.value)] = String(values.selectedPiece ?? '');
-  if (action.type === 'drop-grid-piece') chain[Number(action.secondary)] = String(action.value ?? '');
-  if (action.type === 'change-home') {
-    const index = Number(action.secondary);
-    homes[index] = Math.max(0, Math.min(3, homes[index] + Number(action.value)));
+  const chainAction = action.type === 'select-grid-piece' || action.type === 'place-grid-piece' || action.type === 'drop-grid-piece';
+  if (chainAction && values.baselineSeen) {
+    return changed(state, values, 'The tested distribution handoffs are locked. Change home demand on the three service branches instead.', 'idle', false);
   }
-  if (action.type === 'set-capacity') values.capacity = Number(action.value);
+  if (action.type === 'select-grid-piece') values.selectedPiece = String(action.value);
+  if (action.type === 'place-grid-piece') {
+    const index = Number(action.value);
+    if (index >= 0 && index < 4) chain[index] = String(values.selectedPiece ?? '');
+  }
+  if (action.type === 'drop-grid-piece') {
+    const index = Number(action.secondary);
+    if (index >= 0 && index < 4) chain[index] = String(action.value ?? '');
+  }
+  if (action.type === 'toggle-home-appliance') {
+    if (!values.baselineSeen) {
+      return changed(state, values, 'Build and test the distribution chain first. The starting three-home demand provides the baseline for every later change.', 'idle', false);
+    }
+    const appliance = String(action.value);
+    if (['heater', 'ovens', 'charger'].includes(appliance)) values[appliance] = !Boolean(values[appliance]);
+    values.balanced = false;
+  }
   values.chain = chain;
-  values.homes = homes;
   const chainReady = chain.join('|') === 'substation|feeder|transformer|service';
-  const total = homes.reduce((sum, value) => sum + value, 0);
+  const homeLoads = [
+    1 + (values.heater ? 3 : 0),
+    1 + (values.ovens ? 3 : 0),
+    1 + (values.charger ? 4 : 0),
+  ];
+  const total = homeLoads.reduce((sum, value) => sum + value, 0);
+  const capacity = 9;
+  const margin = capacity - total;
+  values.chainReady = chainReady;
+  values.homeLoads = homeLoads;
   values.total = total;
+  values.capacity = capacity;
+  values.margin = margin;
+  let feedback = 'Place each distribution handoff by its job, then test the starting neighborhood demand.';
+  let effect: ChallengeEffect = 'motion';
   if (action.type === 'send-feeder') {
-    if (chainReady && total > Number(values.capacity)) values.overloadSeen = true;
-    if (chainReady && total <= Number(values.capacity) - 1) values.balanced = true;
+    if (!chainReady) {
+      const expected = ['substation', 'feeder', 'transformer', 'service'];
+      const mismatch = expected.findIndex((piece, index) => chain[index] !== piece);
+      const names = ['substation', 'distribution feeder', 'local transformer', 'home service'];
+      feedback = `Stage ${mismatch + 1} needs the ${names[mismatch]} before power can reach the next handoff.`;
+      effect = 'fault';
+    } else if (!values.baselineSeen) {
+      values.baselineSeen = true;
+      values.chainEnergized = true;
+      values.feederTripped = false;
+      feedback = 'The handoffs pass power in order: substation to feeder to local transformer to service. Home demands add as 1 + 1 + 1 = 3, leaving 6 units of margin on the fixed feeder.';
+    } else if (total > capacity) {
+      values.overloadSeen = true;
+      values.feederTripped = true;
+      feedback = `${homeLoads.join(' + ')} = ${total} combined demand, above the fixed feeder capacity of ${capacity}. The shared feeder trips even though no single home reached 9 alone.`;
+      effect = 'fault';
+    } else if (values.overloadSeen && margin >= 2) {
+      values.balanced = true;
+      values.feederTripped = false;
+      feedback = `${homeLoads.join(' + ')} = ${total}. The neighborhood keeps the active loads it needs and restores ${margin} units of shared feeder margin.`;
+    } else {
+      values.feederTripped = false;
+      feedback = `${homeLoads.join(' + ')} = ${total}. The feeder can carry it, but only ${margin} unit${margin === 1 ? '' : 's'} of margin remain. Shift one more optional load before the final dispatch.`;
+    }
+  } else if (action.type === 'toggle-home-appliance') {
+    feedback = `The three service branches now ask for ${homeLoads.join(' + ')} = ${total} together. Send that combined demand through the fixed-capacity feeder.`;
   }
   const solved = chainReady && Boolean(values.overloadSeen) && Boolean(values.balanced);
-  const feedback = action.type === 'send-feeder'
-    ? !chainReady
-      ? 'The distribution chain has a missing or misplaced handoff, so service cannot reach the homes.'
-      : total > Number(values.capacity)
-        ? `The three branches ask for ${total} load tokens together, above feeder capacity ${Number(values.capacity)}. Overcurrent protection opens.`
-        : `Each branch keeps its own current, while the feeder carries their combined ${total} tokens with ${Number(values.capacity) - total} token of margin.`
-    : 'Build the chain, change the appliances inside each home, and send the combined demand through the feeder.';
-  return changed(state, values, solved ? 'The repaired chain now serves changing local loads while the shared feeder keeps visible margin.' : feedback, solved ? 'success' : action.type === 'send-feeder' && total > Number(values.capacity) ? 'fault' : 'motion', solved);
+  return changed(state, values, feedback, solved ? 'success' : effect, solved);
 }
 
 export function reduceStationChallenge(
@@ -888,7 +1033,19 @@ export function getStationChallengeMetrics(state: StationChallengeState): Partia
       return state.phaseIndex === 0
         ? { voltage: 0.72, current: values.observedNormal ? 0.55 : 0, power: values.observedNormal ? 0.55 : 0, heat: 0.08, leakage: values.insulation === 'jacket' ? 0.01 : 0.5 }
         : state.phaseIndex === 1
-          ? { voltage: values.damaged ? 0 : 0.72, current: values.fault === 'short' ? 1 : values.fault === 'overload' ? 0.85 : 0.34, power: values.damaged ? 0 : 0.52, heat: values.fault === 'leakage' ? 0.08 : 0.72, leakage: values.fault === 'leakage' ? 0.68 : 0.02 }
-          : { voltage: 0.72, current: Number(values.total ?? 3) / 5, power: Math.min(1, Number(values.total ?? 3) / 5), heat: Number(values.total ?? 3) > Number(values.capacity ?? 3) ? 0.82 : 0.18, leakage: 0.01 };
+          ? {
+              voltage: values.trip === 'idle' ? 0 : 0.72,
+              current: Number(values.amount ?? 0) / 9,
+              power: Number(values.amount ?? 0) / 9,
+              heat: Number(values.amount ?? 0) > 5 ? 0.72 : 0.08,
+              leakage: Number(values.imbalance ?? 0) / 2,
+            }
+          : {
+              voltage: values.chainEnergized ? 0.72 : 0,
+              current: Number(values.total ?? 3) / Number(values.capacity ?? 9),
+              power: Math.min(1, Number(values.total ?? 3) / Number(values.capacity ?? 9)),
+              heat: Number(values.total ?? 3) > Number(values.capacity ?? 9) ? 0.82 : 0.18,
+              leakage: 0.01,
+            };
   }
 }
