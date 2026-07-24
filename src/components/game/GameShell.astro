@@ -34,11 +34,11 @@ const { game } = Astro.props;
         class="game-button game-button-tool"
         type="button"
         data-lens-button
-        aria-label="Toggle Flow Lens"
+        aria-label="Show energy flow"
         aria-pressed="false"
       >
         <span aria-hidden="true">◎</span>
-        <span>Flow Lens</span>
+        <span data-flow-button-label>Show flow</span>
       </button>
       <button class="game-button game-button-icon" type="button" data-pause-button aria-label="Pause game">
         <span aria-hidden="true">Ⅱ</span>
@@ -82,12 +82,6 @@ const { game } = Astro.props;
         <span><strong>Move freely</strong><small>Keys or click / tap</small></span>
       </div>
 
-      <div class="station-entry-card" data-station-entry hidden>
-        <span aria-hidden="true">↳</span>
-        <div><strong data-station-entry-title>Workshop workbench ready</strong><small>Press E or Enter to step inside</small></div>
-        <button class="game-button game-button-primary" type="button" data-enter-station>Enter station</button>
-      </div>
-
       <div class="game-start-card" data-start-card>
         <p class="gridkeeper-kicker" data-start-kicker>Your island is dark</p>
         <h2 data-start-heading>Bring the grid back district by district.</h2>
@@ -95,30 +89,12 @@ const { game } = Astro.props;
         <ul class="start-instructions">
           <li><span aria-hidden="true">↗</span> Move anywhere with W A S D, arrows, pointer, or touch</li>
           <li><span aria-hidden="true">◌</span> Enter a station ring before operating its system</li>
-          <li><span aria-hidden="true">◎</span> Use the Flow Lens when you want to see why</li>
+          <li><span aria-hidden="true">◎</span> Show the energy path when you want a hint</li>
         </ul>
         <button class="game-button game-button-primary" type="button" data-start-button>
           Enter the island
         </button>
         <p class="start-safety">Educational model only. No real wiring procedures are shown.</p>
-      </div>
-
-      <div class="flow-lens-panel" data-flow-lens-panel hidden aria-label="Flow Lens readout">
-        <div class="flow-lens-heading">
-          <span class="flow-lens-orbit" aria-hidden="true"></span>
-          <div>
-            <p>Flow Lens</p>
-            <strong data-lens-mode>Path waiting</strong>
-          </div>
-        </div>
-        <dl>
-          <div><dt>Push</dt><dd><span data-lens-metric="voltage"></span></dd></div>
-          <div><dt>Current rate</dt><dd><span data-lens-metric="current"></span></dd></div>
-          <div><dt>Energy transfer</dt><dd><span data-lens-metric="energy"></span></dd></div>
-          <div><dt>Heat</dt><dd><span data-lens-metric="heat"></span></dd></div>
-          <div><dt>Leakage</dt><dd><span data-lens-metric="leakage"></span></dd></div>
-        </dl>
-        <p>Dot density shows current rate. Dot speed is kept steady so it does not imply faster electrons.</p>
       </div>
 
       <div class="pause-card" data-pause-card hidden>
@@ -130,18 +106,16 @@ const { game } = Astro.props;
       <div class="world-caption" data-world-caption aria-hidden="true"></div>
     </div>
 
-    <aside class="control-dock" id="gridkeeper-controls" aria-labelledby="district-title">
-      <div class="district-heading">
+    <aside class="control-dock mission-panel" id="gridkeeper-controls" aria-labelledby="district-title">
+      <div class="district-heading mission-heading">
         <div>
-          <p class="gridkeeper-kicker" data-district-place>Southwest shore</p>
+          <p class="gridkeeper-kicker" data-mission-kicker>First station</p>
           <h2 id="district-title" data-district-title>Workshop Cove</h2>
         </div>
         <span class="district-badge" data-district-badge>01</span>
       </div>
 
-      <p class="district-summary" data-district-summary></p>
-
-      <div class="proximity-banner" data-proximity-banner data-phase="near">
+      <div class="mission-status" data-proximity-banner data-phase="near">
         <span class="proximity-signal" aria-hidden="true"></span>
         <span>
           <strong data-proximity-title>Move to Workshop Cove</strong>
@@ -149,12 +123,9 @@ const { game } = Astro.props;
         </span>
       </div>
 
-      <div class="objective-card">
-        <div class="objective-heading">
-          <span>Restoration goal</span>
-          <strong data-objective-percent>0%</strong>
-        </div>
-        <p data-objective-text></p>
+      <div class="mission-progress">
+        <span data-mission-progress-label>0 of 3 challenges</span>
+        <strong data-objective-percent>0%</strong>
         <div
           class="objective-meter"
           role="progressbar"
@@ -164,44 +135,32 @@ const { game } = Astro.props;
           aria-valuenow="0"
           data-objective-meter
         ><span></span></div>
-        <ol class="objective-steps" data-objective-steps></ol>
-        <div class="optional-challenge">
-          <span data-efficiency-text>Optional: keep path heat low</span>
-          <strong data-efficiency-status>Explore</strong>
-        </div>
       </div>
 
-      <section class="station-launch-panel" aria-labelledby="station-launch-title">
-        <span class="station-launch-icon" aria-hidden="true">↳</span>
+      <p class="mission-task" data-objective-text></p>
+
+      <button class="game-button game-button-primary mission-action" type="button" data-mission-action hidden>
+        Travel to Workshop
+      </button>
+
+      <section class="contextual-flow" data-flow-context hidden aria-live="polite">
+        <span aria-hidden="true">◎</span>
         <div>
-          <strong id="station-launch-title" data-station-launch-title>Enter the Workshop workbench</strong>
-          <p data-station-launch-detail>The apparatus opens only while the turtle is inside this station ring.</p>
+          <strong data-flow-title>Follow the complete loop</strong>
+          <p data-flow-explanation></p>
+          <ul data-flow-signals></ul>
         </div>
-        <button class="game-button game-button-primary" type="button" data-enter-station-dock disabled>Enter station</button>
       </section>
 
-      <section class="system-readout" aria-labelledby="system-readout-title">
-        <div class="system-readout-heading">
-          <h3 id="system-readout-title">What is happening</h3>
-          <span data-system-status>Waiting</span>
-        </div>
-        <p data-system-caption></p>
-        <dl class="metric-grid">
-          <div><dt>Push</dt><dd data-metric="voltage">0</dd></div>
-          <div><dt>Current rate</dt><dd data-metric="current">0</dd></div>
-          <div><dt>Power</dt><dd data-metric="power">0</dd></div>
-          <div><dt>Heat</dt><dd data-metric="heat">0</dd></div>
-        </dl>
-      </section>
-
-      <div class="dock-actions">
-        <button class="game-button" type="button" data-rewind-button disabled>Rewind one move</button>
-        <button class="game-button game-button-primary" type="button" data-next-button hidden>Travel onward</button>
-      </div>
-
-      <p class="model-boundary">
-        This game simplifies electrical behavior to make relationships visible. It is not a design tool or a guide for mains work.
-      </p>
+      <details class="mission-details" data-mission-details>
+        <summary>Station details</summary>
+        <p data-district-summary></p>
+        <ol class="objective-steps" data-objective-steps></ol>
+        <p class="mission-replay-goal" data-efficiency-row hidden>
+          <span data-efficiency-text></span>
+          <strong data-efficiency-status></strong>
+        </p>
+      </details>
     </aside>
   </div>
 
@@ -234,7 +193,7 @@ const { game } = Astro.props;
 
       <div class="keyboard-card">
         <strong>Keyboard</strong>
-        <p>Move with arrows or W A S D. Press E or Enter inside a station ring, F for the Flow Lens, P to pause, and Escape to close a panel.</p>
+        <p>Move with arrows or W A S D. Press E or Enter inside a station ring, F to show the energy path, P to pause, and Escape to close a panel.</p>
       </div>
 
       <button class="game-button danger-button" type="button" data-fresh-button>Start a fresh island</button>
@@ -252,12 +211,12 @@ const { game } = Astro.props;
           </div>
         </div>
         <div class="station-room-tools">
-          <button class="game-button" type="button" data-station-lens aria-label="Flow Lens" aria-pressed="false"><span aria-hidden="true">◎</span><span class="station-tool-label">Flow Lens</span></button>
+          <button class="game-button" type="button" data-station-lens aria-label="Show energy flow" aria-pressed="false"><span aria-hidden="true">◎</span><span class="station-tool-label">Show flow</span></button>
           <button class="game-button game-button-icon" type="button" data-exit-station aria-label="Return to island">×</button>
         </div>
       </header>
 
-      <div class="station-hud">
+      <div class="station-hud" data-station-active-surface>
         <div class="station-phase-copy">
           <p class="gridkeeper-kicker" data-station-phase-eyebrow>Bench 1 of 3</p>
           <h3 data-station-phase-title>Build a path that comes home.</h3>
@@ -266,33 +225,60 @@ const { game } = Astro.props;
         <ol class="station-phase-track" data-station-phase-track aria-label="Station challenge phases"></ol>
       </div>
 
-      <section class="station-lens-strip" data-station-lens-strip aria-label="Station Flow Lens">
-        <strong>Flow Lens</strong>
-        <dl>
-          <div><dt>Push</dt><dd data-station-lens-metric="voltage">0</dd></div>
-          <div><dt>Current</dt><dd data-station-lens-metric="current">0</dd></div>
-          <div><dt>Power</dt><dd data-station-lens-metric="power">0</dd></div>
-          <div><dt>Energy</dt><dd data-station-lens-metric="energy">0</dd></div>
-          <div><dt>Heat</dt><dd data-station-lens-metric="heat">0</dd></div>
-          <div><dt>Leakage</dt><dd data-station-lens-metric="leakage">0</dd></div>
-        </dl>
-        <p>Numbers are optional model readouts. The apparatus remains the lesson.</p>
+      <section class="station-flow-context" data-station-flow-context hidden aria-live="polite">
+        <span aria-hidden="true">◎</span>
+        <div>
+          <strong data-station-flow-title>Follow the visible path</strong>
+          <p data-station-flow-explanation></p>
+          <ul data-station-flow-signals></ul>
+        </div>
       </section>
 
-      <main class="station-apparatus-shell" data-station-apparatus></main>
+      <main class="station-apparatus-shell" data-station-apparatus data-station-active-surface></main>
 
-      <aside class="station-feedback" data-station-feedback data-effect="idle" aria-live="polite">
+      <aside class="station-feedback" data-station-feedback data-effect="idle" aria-live="polite" data-station-active-surface>
         <span class="station-feedback-mark" aria-hidden="true"></span>
         <div><strong data-station-feedback-title>Watch the apparatus</strong><p data-station-feedback-copy></p></div>
       </aside>
 
-      <footer class="station-room-footer">
+      <footer class="station-room-footer" data-station-active-surface>
         <p data-station-proof hidden></p>
         <div class="station-footer-actions">
           <button class="game-button" type="button" data-station-undo disabled>Undo station move</button>
-          <button class="game-button game-button-primary" type="button" data-station-continue disabled>Secure phase</button>
+          <button class="game-button game-button-primary" type="button" data-station-continue disabled>Continue</button>
         </div>
       </footer>
+
+      <section class="station-restored-card" data-station-restored hidden tabindex="-1">
+        <span class="restoration-mark" aria-hidden="true">✓</span>
+        <p class="gridkeeper-kicker">Station restored</p>
+        <h3 data-restored-title>Workshop Cove restored.</h3>
+        <p data-restored-insight></p>
+        <div class="restored-route" data-restored-route>
+          <span aria-hidden="true">↗</span>
+          <strong data-restored-route-title>Converter Dock is now open.</strong>
+        </div>
+        <div class="restoration-actions">
+          <button class="game-button game-button-primary" type="button" data-restoration-primary>Return and travel onward</button>
+          <button class="game-button" type="button" data-restoration-secondary>Return to island</button>
+        </div>
+      </section>
+    </div>
+  </dialog>
+
+  <dialog class="game-dialog island-finale" data-finale-dialog aria-labelledby="finale-title">
+    <div class="island-finale-card">
+      <span class="finale-mark" aria-hidden="true">◎</span>
+      <p class="gridkeeper-kicker">All six districts connected</p>
+      <h2 id="finale-title">The island is restored.</h2>
+      <p>Every station now contributes to one working energy system, from source and conversion to delivery, use, and protection.</p>
+      <ol>
+        {districts.map((district) => <li><span aria-hidden="true">✓</span>{district.shortName}</li>)}
+      </ol>
+      <div class="finale-actions">
+        <button class="game-button game-button-primary" type="button" data-explore-sandbox>Explore the restored island</button>
+        <button class="game-button" type="button" data-finale-restart>Start a new restoration</button>
+      </div>
     </div>
   </dialog>
 
@@ -308,7 +294,6 @@ const { game } = Astro.props;
     challengeDefinitions,
     createStationChallengeState,
     currentChallengePhase,
-    getStationChallengeMetrics,
     reduceStationChallenge,
     type StationChallengeState,
   } from '@game/challenges/engine';
@@ -319,6 +304,13 @@ const { game } = Astro.props;
     type NavigationSnapshot,
   } from '@game/core/navigation';
   import {
+    createPresentationState,
+    getContextualFlow,
+    getNextDistrict,
+    transitionPresentation,
+    type PresentationState,
+  } from '@game/core/presentation';
+  import {
     GRIDKEEPER_LEGACY_SAVE_KEY,
     GRIDKEEPER_SAVE_KEY,
     completeChallengePhase,
@@ -326,7 +318,6 @@ const { game } = Astro.props;
     getDistrictReadout,
     isDistrictUnlocked,
     parseSavedGameState,
-    rewindGameState,
     serializeGameState,
     setGameSettings,
     visitDistrict,
@@ -346,37 +337,34 @@ const { game } = Astro.props;
     const startButton = required<HTMLButtonElement>('[data-start-button]');
     const startCard = required<HTMLElement>('[data-start-card]');
     const mount = required<HTMLElement>('[data-phaser-mount]');
-    const stationEntry = required<HTMLElement>('[data-station-entry]');
-    const stationEntryButton = required<HTMLButtonElement>('[data-enter-station]');
-    const stationDockButton = required<HTMLButtonElement>('[data-enter-station-dock]');
     const stationDialog = required<HTMLDialogElement>('[data-station-dialog]');
     const stationRoom = required<HTMLElement>('[data-station-room]');
     const stationApparatus = required<HTMLElement>('[data-station-apparatus]');
     const stationContinue = required<HTMLButtonElement>('[data-station-continue]');
     const stationUndo = required<HTMLButtonElement>('[data-station-undo]');
     const lensButton = required<HTMLButtonElement>('[data-lens-button]');
-    const lensPanel = required<HTMLElement>('[data-flow-lens-panel]');
+    const stationLensButton = required<HTMLButtonElement>('[data-station-lens]');
+    const missionAction = required<HTMLButtonElement>('[data-mission-action]');
+    const finaleDialog = required<HTMLDialogElement>('[data-finale-dialog]');
     const pauseButton = required<HTMLButtonElement>('[data-pause-button]');
     const pauseCard = required<HTMLElement>('[data-pause-card]');
     const resumeButton = required<HTMLButtonElement>('[data-resume-button]');
     const settingsButton = required<HTMLButtonElement>('[data-settings-button]');
     const settingsDialog = required<HTMLDialogElement>('[data-settings-dialog]');
-    const rewindButton = required<HTMLButtonElement>('[data-rewind-button]');
-    const nextButton = required<HTMLButtonElement>('[data-next-button]');
     const liveRegion = required<HTMLElement>('[data-live-region]');
     const worldCaption = required<HTMLElement>('[data-world-caption]');
 
     let hadSavedGame = false;
     let state = loadState();
+    let presentation: PresentationState = createPresentationState(state.sandboxUnlocked);
     let movementGuideExpanded = !hadSavedGame;
     let navigation = initialNavigationSnapshot();
     let renderer: GridkeeperRenderer | null = null;
-    let lensActive = false;
+    let flowVisible = false;
     let paused = false;
     let audioContext: AudioContext | null = null;
     let stationState: StationChallengeState | null = null;
     let stationHistory: StationChallengeState[] = [];
-    let stationLensActive = false;
     let stationWasPaused = false;
     let draggedStationPiece: { value: string; action: string } | null = null;
     liveRegion.textContent = hadSavedGame
@@ -453,7 +441,9 @@ const { game } = Astro.props;
         const restoredDistrict = districtById[state.restored.at(-1)!];
         root.dataset.celebrate = 'true';
         window.setTimeout(() => delete root.dataset.celebrate, state.settings.reducedMotion ? 80 : 900);
-        announce(`${restoredDistrict.name} restored. A new route is open.`);
+        announce(state.sandboxUnlocked
+          ? `${restoredDistrict.name} restored. All six districts are connected.`
+          : `${restoredDistrict.name} restored. ${districtById[getNextDistrict(restoredDistrict.id)!].name} is now open.`);
         worldCaption.textContent = `${restoredDistrict.name} restored`;
         playRestoreTone();
       } else if (message) {
@@ -472,11 +462,15 @@ const { game } = Astro.props;
         return;
       }
       if (navigation.operatingDistrict === district) {
+        presentation = transitionPresentation(presentation, { type: 'ARRIVE', district });
+        render();
         announce(`${districtById[district].name} is already in range.`);
         mount.focus({ preventScroll: true });
         return;
       }
+      presentation = transitionPresentation(presentation, { type: 'SET_DESTINATION', district });
       renderer.setDistrictDestination(district);
+      render();
       mount.focus({ preventScroll: true });
       announce(`Travelling to ${districtById[district].name}.`);
     }
@@ -492,14 +486,27 @@ const { game } = Astro.props;
         saveState();
       }
 
-      render();
-
       if (next.operatingDistrict && next.operatingDistrict !== previous.operatingDistrict) {
         const district = districtById[next.operatingDistrict];
+        presentation = transitionPresentation(presentation, { type: 'ARRIVE', district: next.operatingDistrict });
         announce(`${district.name} is in range. ${district.objective}`);
       } else if (previous.operatingDistrict && !next.operatingDistrict) {
-        announce(`You left ${districtById[previous.operatingDistrict].name}. Its controls are unavailable.`);
+        if (presentation.mode === 'travelling' && presentation.destinationDistrict) {
+          announce(`Travelling to ${districtById[presentation.destinationDistrict].name}.`);
+        } else {
+          presentation = transitionPresentation(presentation, { type: 'LEAVE_RING' });
+          announce(`You left ${districtById[previous.operatingDistrict].name}. Its controls are unavailable.`);
+        }
+      } else if (
+        presentation.mode === 'travelling' &&
+        previous.destinationDistrict &&
+        !next.destinationDistrict &&
+        !next.operatingDistrict
+      ) {
+        presentation = transitionPresentation(presentation, { type: 'INTERRUPT_TRAVEL' });
+        announce('Travel interrupted. Move freely or choose another station.');
       }
+      render();
     }
 
     function canOperate(district: DistrictId) {
@@ -522,14 +529,28 @@ const { game } = Astro.props;
       const phase = currentChallengePhase(stationState);
       const completed = state.challengeProgress[stationState.district].completedPhaseIds;
       const restored = state.restored.includes(stationState.district);
+      const showingRestoration = presentation.mode === 'station-restored';
+      const flow = getContextualFlow(stationState.district);
 
       required<HTMLElement>('[data-station-room-number]').textContent = String(districtById[stationState.district].order).padStart(2, '0');
       required<HTMLElement>('[data-station-room-label]').textContent = definition.roomLabel;
       required<HTMLElement>('[data-station-room-title]').textContent = definition.roomName;
-      required<HTMLElement>('[data-station-phase-eyebrow]').textContent = restored ? 'Restored station · free play' : phase.eyebrow;
+      required<HTMLElement>('[data-station-phase-eyebrow]').textContent = restored ? 'Restored station, free play' : phase.eyebrow;
       required<HTMLElement>('[data-station-phase-title]').textContent = phase.title;
       required<HTMLElement>('[data-station-phase-instruction]').textContent = phase.instruction;
       stationApparatus.innerHTML = renderStationChallenge(stationState);
+      stationApparatus.querySelectorAll<HTMLButtonElement>('[data-station-action]').forEach((button) => {
+        button.addEventListener('click', () => {
+          if (button.disabled) return;
+          dispatchStationAction({
+            type: button.dataset.stationAction ?? '',
+            value: button.dataset.stationValue,
+            secondary: button.dataset.stationSecondary,
+          });
+        });
+      });
+      root.dataset.presentation = presentation.mode;
+      root.toggleAttribute('data-flow-visible', flowVisible);
 
       const phaseTrack = required<HTMLOListElement>('[data-station-phase-track]');
       phaseTrack.replaceChildren();
@@ -545,7 +566,7 @@ const { game } = Astro.props;
       const feedback = required<HTMLElement>('[data-station-feedback]');
       feedback.dataset.effect = stationState.effect;
       required<HTMLElement>('[data-station-feedback-title]').textContent = stationState.solved
-        ? restored ? 'Free-play result' : 'Proof found'
+        ? restored ? 'Free-play result' : `Challenge ${stationState.phaseIndex + 1} complete`
         : stationState.effect === 'fault' ? 'The apparatus protected itself' : 'Visible consequence';
       required<HTMLElement>('[data-station-feedback-copy]').textContent = stationState.feedback;
       const proof = required<HTMLElement>('[data-station-proof]');
@@ -557,24 +578,45 @@ const { game } = Astro.props;
         ? 'Station restored'
         : stationState.phaseIndex === 2
           ? `Restore ${definition.roomName}`
-          : 'Secure phase and continue';
-      root.toggleAttribute('data-station-lens-open', stationLensActive);
-      const readout = getDistrictReadout(state, stationState.district);
-      const challengeMetrics = getStationChallengeMetrics(stationState);
-      const stationMetrics: Record<string, number> = {
-        voltage: Number(challengeMetrics.voltage ?? readout.metrics.voltage ?? 0),
-        current: Number(challengeMetrics.current ?? readout.metrics.current ?? 0),
-        power: Number(challengeMetrics.power ?? readout.metrics.power ?? 0),
-        energy: Number(challengeMetrics.energy ?? readout.metrics.energy ?? 0),
-        heat: Number(challengeMetrics.heat ?? readout.metrics.heat ?? 0),
-        leakage: Number(challengeMetrics.leakage ?? readout.metrics.leakage ?? 0),
-      };
-      Object.entries(stationMetrics).forEach(([metric, value]) => {
-        required<HTMLElement>(`[data-station-lens-metric="${metric}"]`).textContent = formatValue(value);
+          : stationState.phaseIndex === 0
+            ? 'Continue to challenge 2'
+            : 'Continue to final challenge';
+
+      const stationFlowContext = required<HTMLElement>('[data-station-flow-context]');
+      stationFlowContext.hidden = !flowVisible || showingRestoration;
+      required<HTMLElement>('[data-station-flow-title]').textContent = flow.title;
+      required<HTMLElement>('[data-station-flow-explanation]').textContent = flow.explanation;
+      const stationFlowSignals = required<HTMLUListElement>('[data-station-flow-signals]');
+      stationFlowSignals.replaceChildren(...flow.signals.map((signal) => {
+        const item = makeElement('li');
+        item.textContent = signal;
+        return item;
+      }));
+      stationLensButton.setAttribute('aria-pressed', String(flowVisible));
+      required<HTMLElement>('.station-tool-label').textContent = flowVisible ? 'Hide flow' : 'Show flow';
+
+      root.querySelectorAll<HTMLElement>('[data-station-active-surface]').forEach((surface) => {
+        surface.hidden = showingRestoration;
       });
-      if (window.matchMedia('(min-width: 821px)').matches) {
+      const restoredCard = required<HTMLElement>('[data-station-restored]');
+      restoredCard.hidden = !showingRestoration;
+      if (showingRestoration) {
+        const district = districtById[stationState.district];
+        const nextDistrict = presentation.nextDistrict ? districtById[presentation.nextDistrict] : null;
+        required<HTMLElement>('[data-restored-title]').textContent = `${district.name} restored.`;
+        required<HTMLElement>('[data-restored-insight]').textContent = definition.phases[2].proof;
+        required<HTMLElement>('[data-restored-route-title]').textContent = nextDistrict
+          ? `${nextDistrict.name} is now open.`
+          : 'Every district is connected.';
+        required<HTMLButtonElement>('[data-restoration-primary]').textContent = nextDistrict
+          ? `Return and travel to ${nextDistrict.shortName}`
+          : 'See the restored island';
+        required<HTMLButtonElement>('[data-restoration-secondary]').hidden = !nextDistrict;
+      }
+      const desktopStation = window.matchMedia('(min-width: 821px)').matches;
+      if (showingRestoration || desktopStation) {
         window.requestAnimationFrame(() => {
-          window.scrollTo(0, 0);
+          if (desktopStation) window.scrollTo(0, 0);
           stationDialog.scrollTop = 0;
           stationRoom.scrollTop = 0;
         });
@@ -582,15 +624,26 @@ const { game } = Astro.props;
     }
 
     function cleanUpStationRoom() {
+      if (presentation.mode === 'station-restored') {
+        presentation = transitionPresentation(presentation, { type: 'CLOSE_STATION' });
+      } else if (presentation.mode === 'station-active' || presentation.mode === 'phase-complete') {
+        presentation = transitionPresentation(presentation, { type: 'CLOSE_STATION' });
+      }
       root.removeAttribute('data-station-open');
       stationState = null;
       stationHistory = [];
       draggedStationPiece = null;
-      stationLensActive = false;
       renderer?.setPaused(paused);
       if (!stationWasPaused && !paused) renderer?.setPaused(false);
-      renderProximity();
+      render();
       mount.focus({ preventScroll: true });
+      if (presentation.mode === 'island-restored') {
+        window.requestAnimationFrame(() => {
+          finaleDialog.showModal();
+          required<HTMLButtonElement>('[data-explore-sandbox]').focus();
+          announce('The island is restored. All six districts are connected.');
+        });
+      }
     }
 
     function openStationRoom() {
@@ -601,6 +654,11 @@ const { game } = Astro.props;
       }
       const completedCount = state.challengeProgress[district].completedPhaseIds.length;
       stationState = createStationChallengeState(district, Math.min(completedCount, 2));
+      presentation = transitionPresentation(presentation, {
+        type: 'ENTER_STATION',
+        district,
+        phaseIndex: Math.min(completedCount, 2),
+      });
       stationHistory = [];
       stationWasPaused = paused;
       renderer?.setPaused(true);
@@ -608,17 +666,27 @@ const { game } = Astro.props;
       renderStationRoom();
       stationDialog.showModal();
       const firstAction = stationApparatus.querySelector<HTMLButtonElement>('button:not(:disabled)');
-      firstAction?.focus({ preventScroll: true });
+      firstAction?.focus();
       announce(`${districtById[district].name} workroom open. ${currentChallengePhase(stationState).instruction}`);
     }
 
     function dispatchStationAction(action: { type: string; value?: string | number | boolean; secondary?: string | number }) {
-      if (!stationState || !action.type || !canOperate(stationState.district)) return;
+      if (!stationState || !action.type) return;
+      if (!canOperate(stationState.district)) {
+        announce('This station is no longer in range. Return to the island and enter its ring again.');
+        return;
+      }
       const previous = cloneStationState(stationState);
       const next = reduceStationChallenge(stationState, action);
       if (next === stationState) return;
       stationHistory = [...stationHistory.slice(-31), previous];
       stationState = next;
+      if (!previous.solved && next.solved) {
+        presentation = transitionPresentation(presentation, {
+          type: 'SOLVE_PHASE',
+          phaseIndex: next.phaseIndex,
+        });
+      }
       renderStationRoom();
       announce(next.feedback);
     }
@@ -639,7 +707,7 @@ const { game } = Astro.props;
         if (operating) button.setAttribute('aria-current', 'location');
         else button.removeAttribute('aria-current');
         const status = required<HTMLElement>(`[data-district-state="${district}"]`);
-        status.textContent = operating
+        const statusText = operating
           ? 'In range'
           : destination
             ? 'Travelling'
@@ -650,71 +718,45 @@ const { game } = Astro.props;
                 : unlocked
                   ? 'Open'
                   : 'Locked';
+        status.textContent = statusText;
+        button.setAttribute('aria-label', `${districtById[district].shortName}, ${statusText}`);
       });
     }
 
-    function renderProximity() {
+    function renderMission() {
       const banner = required<HTMLElement>('[data-proximity-banner]');
       const title = required<HTMLElement>('[data-proximity-title]');
       const detail = required<HTMLElement>('[data-proximity-detail]');
       banner.dataset.phase = navigation.phase;
       root.dataset.proximity = navigation.phase;
+      root.dataset.presentation = presentation.mode;
       root.toggleAttribute('data-movement-guide-expanded', movementGuideExpanded);
-      const operating = navigation.operatingDistrict;
-      const canEnterStation = Boolean(operating && state.activeDistrict === operating && renderer && !stationDialog.open);
-      stationEntry.hidden = !canEnterStation;
-      stationDockButton.disabled = !canEnterStation;
-      const launchDistrict = operating ?? state.activeDistrict;
-      const launchDefinition = challengeDefinitions[launchDistrict];
-      required<HTMLElement>('[data-station-entry-title]').textContent = `${launchDefinition.roomLabel} ready`;
-      required<HTMLElement>('[data-station-launch-title]').textContent = canEnterStation
-        ? `Enter ${launchDefinition.roomLabel}`
-        : `Travel to ${districtById[state.activeDistrict].name}`;
-      required<HTMLElement>('[data-station-launch-detail]').textContent = canEnterStation
-        ? 'Step into the full-screen apparatus. Press E or Enter, or use the button.'
-        : 'The apparatus opens only while the turtle is inside this station ring.';
+      root.toggleAttribute('data-flow-visible', flowVisible);
 
-      if (navigation.destinationDistrict) {
-        const destination = districtById[navigation.destinationDistrict];
-        title.textContent = `Travelling to ${destination.name}`;
-        detail.textContent = navigation.operatingDistrict
-          ? 'Current controls remain available until you leave this ring.'
-          : 'The turtle will stop when it enters the service ring.';
-        return;
-      }
+      const missionDistrictId =
+        presentation.destinationDistrict ??
+        navigation.destinationDistrict ??
+        navigation.operatingDistrict ??
+        state.activeDistrict;
+      const district = districtById[missionDistrictId];
+      const readout = getDistrictReadout(state, missionDistrictId);
+      const restored = state.restored.includes(missionDistrictId);
+      const completedCount = state.challengeProgress[missionDistrictId].completedPhaseIds.length;
 
-      if (navigation.operatingDistrict) {
-        const operating = districtById[navigation.operatingDistrict];
-        title.textContent = `${operating.name} controls in range`;
-        detail.textContent = 'Operate the system here, or move away to explore.';
-        return;
-      }
-
-      if (navigation.nearbyDistrict) {
-        const nearby = districtById[navigation.nearbyDistrict];
-        title.textContent = `Move into ${nearby.name}'s ring`;
-        detail.textContent = 'The approach arc fills as the turtle gets closer.';
-        return;
-      }
-
-      title.textContent = 'No station in range';
-      detail.textContent = 'Move freely or choose an open district as a destination.';
-    }
-
-    function renderReadout() {
-      const district = districtById[state.activeDistrict];
-      const readout = getDistrictReadout(state, state.activeDistrict);
-      required<HTMLElement>('[data-district-place]').textContent = district.place;
       required<HTMLElement>('[data-district-title]').textContent = district.name;
       required<HTMLElement>('[data-district-badge]').textContent = String(district.order).padStart(2, '0');
       required<HTMLElement>('[data-district-summary]').textContent = district.summary;
-      required<HTMLElement>('[data-objective-text]').textContent = district.objective;
+      required<HTMLElement>('[data-objective-text]').textContent = restored
+        ? `${district.name} is restored. Re-enter for free play or continue along the island route.`
+        : district.objective;
+      required<HTMLElement>('[data-mission-progress-label]').textContent = `${completedCount} of 3 challenges`;
       const percent = Math.round(readout.objectiveProgress * 100);
       required<HTMLElement>('[data-objective-percent]').textContent = `${percent}%`;
       const meter = required<HTMLElement>('[data-objective-meter]');
       meter.setAttribute('aria-valuenow', String(percent));
       const meterFill = meter.querySelector<HTMLElement>('span');
       if (meterFill) meterFill.style.width = `${percent}%`;
+
       const steps = required<HTMLOListElement>('[data-objective-steps]');
       steps.replaceChildren();
       district.steps.forEach((step, index) => {
@@ -723,58 +765,96 @@ const { game } = Astro.props;
         if (readout.stepCompletion[index]) item.dataset.done = 'true';
         steps.append(item);
       });
-      const efficiency = getEfficiencyChallenge(state.activeDistrict, readout);
-      required<HTMLElement>('[data-efficiency-text]').textContent = `Optional: ${efficiency.label}`;
+
+      const efficiency = getEfficiencyChallenge(missionDistrictId, readout);
+      const efficiencyRow = required<HTMLElement>('[data-efficiency-row]');
+      efficiencyRow.hidden = !restored;
+      required<HTMLElement>('[data-efficiency-text]').textContent = `Replay goal: ${efficiency.label}`;
       const efficiencyStatus = required<HTMLElement>('[data-efficiency-status]');
-      efficiencyStatus.textContent = efficiency.achieved ? 'Star earned' : 'Explore';
+      efficiencyStatus.textContent = efficiency.achieved ? 'Star earned' : 'Try again';
       efficiencyStatus.toggleAttribute('data-earned', efficiency.achieved);
-      required<HTMLElement>('[data-system-caption]').textContent = readout.caption;
-      const status = required<HTMLElement>('[data-system-status]');
-      status.textContent = readout.status[0].toUpperCase() + readout.status.slice(1);
-      status.dataset.status = readout.status;
-      for (const metric of ['voltage', 'current', 'power', 'heat']) {
-        const element = required<HTMLElement>(`[data-metric="${metric}"]`);
-        element.textContent = formatValue(readout.metrics[metric] ?? 0);
+
+      const flow = getContextualFlow(missionDistrictId);
+      const flowContext = required<HTMLElement>('[data-flow-context]');
+      flowContext.hidden = !flowVisible || !renderer;
+      required<HTMLElement>('[data-flow-title]').textContent = flow.title;
+      required<HTMLElement>('[data-flow-explanation]').textContent = flow.explanation;
+      const flowSignals = required<HTMLUListElement>('[data-flow-signals]');
+      flowSignals.replaceChildren(...flow.signals.map((signal) => {
+        const item = makeElement('li');
+        item.textContent = signal;
+        return item;
+      }));
+
+      lensButton.setAttribute('aria-pressed', String(flowVisible));
+      lensButton.setAttribute('aria-label', flowVisible ? 'Hide energy flow' : 'Show energy flow');
+      required<HTMLElement>('[data-flow-button-label]').textContent = flowVisible ? 'Hide flow' : 'Show flow';
+
+      missionAction.hidden = !renderer || stationDialog.open;
+      missionAction.disabled = false;
+      if (presentation.mode === 'travelling' && presentation.destinationDistrict) {
+        const destination = districtById[presentation.destinationDistrict];
+        required<HTMLElement>('[data-mission-kicker]').textContent = 'On the way';
+        title.textContent = `Travelling to ${destination.name}`;
+        detail.textContent = 'The turtle will stop inside the station ring.';
+        missionAction.textContent = 'Travelling…';
+        missionAction.disabled = true;
+        return;
       }
-      required<HTMLElement>('[data-lens-mode]').textContent =
-        readout.lens.direction === 'alternating'
-          ? 'Direction reversing'
-          : readout.lens.direction === 'one-way'
-            ? 'One-way flow'
-            : 'Path waiting';
-      setLensMetric('voltage', readout.lens.voltage);
-      setLensMetric('current', readout.lens.pulseDensity);
-      setLensMetric('energy', readout.lens.energyTransfer);
-      setLensMetric('heat', readout.lens.heat);
-      setLensMetric('leakage', readout.lens.leakage);
-      renderer?.update(state, readout, lensActive);
+
+      if (navigation.operatingDistrict) {
+        const operating = districtById[navigation.operatingDistrict];
+        required<HTMLElement>('[data-mission-kicker]').textContent = restored ? 'Restored station' : 'Station ready';
+        title.textContent = `${operating.name} is in range`;
+        detail.textContent = restored ? 'Re-enter for free play.' : 'Step inside to continue the restoration.';
+        missionAction.textContent = restored ? `Explore ${operating.shortName}` : `Enter ${challengeDefinitions[operating.id].roomLabel}`;
+        return;
+      }
+
+      if (navigation.nearbyDistrict) {
+        const nearby = districtById[navigation.nearbyDistrict];
+        required<HTMLElement>('[data-mission-kicker]').textContent = 'Almost there';
+        title.textContent = `Move into ${nearby.name}'s ring`;
+        detail.textContent = 'Continue moving, or let the turtle finish the route.';
+        missionAction.textContent = `Travel to ${nearby.shortName}`;
+        return;
+      }
+
+      const nextDistrict = restored ? getNextDistrict(missionDistrictId) : null;
+      required<HTMLElement>('[data-mission-kicker]').textContent = state.sandboxUnlocked ? 'Restored island' : 'Current mission';
+      title.textContent = nextDistrict
+        ? `${district.name} restored`
+        : `Reach ${district.name}`;
+      detail.textContent = nextDistrict
+        ? `${districtById[nextDistrict].name} is ready for you.`
+        : 'Move freely or let the turtle travel there.';
+      missionAction.textContent = nextDistrict
+        ? `Travel to ${districtById[nextDistrict].shortName}`
+        : `Travel to ${district.shortName}`;
     }
 
-    function setLensMetric(name: string, value: number) {
-      const bar = required<HTMLElement>(`[data-lens-metric="${name}"]`);
-      bar.style.setProperty('--meter-value', `${Math.max(0.04, Math.min(1, value)) * 100}%`);
-      bar.setAttribute('aria-label', `${name} ${Math.round(value * 100)} percent of the model range`);
+    function renderReadout() {
+      const readout = getDistrictReadout(state, state.activeDistrict);
+      renderer?.update(state, readout, flowVisible);
     }
 
     function renderActions() {
       required<HTMLElement>('[data-restoration-count]').textContent = state.sandboxUnlocked
-        ? 'Island restored · Sandbox open'
+        ? 'Island restored'
         : `${state.restored.length} of ${districts.length} districts`;
-      rewindButton.disabled = state.history.length === 0;
-      const activeIndex = districts.findIndex((district) => district.id === state.activeDistrict);
-      const canContinue = state.restored.includes(state.activeDistrict) && activeIndex < districts.length - 1;
-      nextButton.hidden = !canContinue;
-      nextButton.textContent = canContinue ? `Travel to ${districts[activeIndex + 1].shortName}` : 'Travel onward';
       root.dataset.effects = state.settings.reducedEffects ? 'reduced' : 'full';
       root.dataset.motion = state.settings.reducedMotion ? 'reduced' : 'full';
       root.toggleAttribute('data-sandbox', state.sandboxUnlocked);
       const startKicker = required<HTMLElement>('[data-start-kicker]');
       const startHeading = required<HTMLElement>('[data-start-heading]');
+      const hasChallengeProgress = districts.some(
+        (district) => state.challengeProgress[district.id].completedPhaseIds.length > 0,
+      );
       if (state.sandboxUnlocked) {
         startKicker.textContent = 'Island restored';
-        startHeading.textContent = 'Return to your living island.';
-        startButton.textContent = 'Open sandbox';
-      } else if (state.restored.length > 0) {
+        startHeading.textContent = 'All six districts are connected.';
+        startButton.textContent = 'Explore the restored island';
+      } else if (state.restored.length > 0 || hasChallengeProgress) {
         startKicker.textContent = 'Restoration in progress';
         startHeading.textContent = `Continue from ${districtById[state.activeDistrict].name}.`;
         startButton.textContent = 'Resume the island';
@@ -793,14 +873,8 @@ const { game } = Astro.props;
       renderDistrictNavigation();
       renderReadout();
       renderActions();
-      renderProximity();
+      renderMission();
       if (stationState) renderStationRoom();
-    }
-
-    function formatValue(value: number) {
-      if (Math.abs(value) >= 10) return value.toFixed(0);
-      if (Math.abs(value) >= 1) return value.toFixed(1);
-      return value.toFixed(2);
     }
 
     function getEfficiencyChallenge(district: DistrictId, readout: ReturnType<typeof getDistrictReadout>) {
@@ -827,6 +901,13 @@ const { game } = Astro.props;
           onNavigationChange: handleNavigationChange,
         });
         if (paused) renderer.setPaused(true);
+        presentation = transitionPresentation(presentation, { type: 'START' });
+        if (navigation.operatingDistrict) {
+          presentation = transitionPresentation(presentation, {
+            type: 'ARRIVE',
+            district: navigation.operatingDistrict,
+          });
+        }
         startCard.hidden = true;
         mount.focus({ preventScroll: true });
         render();
@@ -847,8 +928,16 @@ const { game } = Astro.props;
       button.addEventListener('click', () => setDestination(button.dataset.districtButton as DistrictId));
     });
 
-    stationEntryButton.addEventListener('click', openStationRoom);
-    stationDockButton.addEventListener('click', openStationRoom);
+    missionAction.addEventListener('click', () => {
+      if (navigation.operatingDistrict && canOperate(navigation.operatingDistrict)) {
+        openStationRoom();
+        return;
+      }
+      const current = presentation.destinationDistrict ?? navigation.nearbyDistrict ?? state.activeDistrict;
+      const target = state.restored.includes(current) ? getNextDistrict(current) ?? current : current;
+      setDestination(target);
+    });
+
     required<HTMLButtonElement>('[data-exit-station]').addEventListener('click', () => stationDialog.close());
     stationDialog.addEventListener('close', cleanUpStationRoom);
     stationDialog.addEventListener('scroll', () => {
@@ -859,16 +948,6 @@ const { game } = Astro.props;
         window.scrollTo(0, 0);
       }
     }, { passive: true });
-
-    stationApparatus.addEventListener('click', (event) => {
-      const target = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-station-action]');
-      if (!target || target.disabled) return;
-      dispatchStationAction({
-        type: target.dataset.stationAction ?? '',
-        value: target.dataset.stationValue,
-        secondary: target.dataset.stationSecondary,
-      });
-    });
 
     stationApparatus.addEventListener('dragstart', (event) => {
       const source = (event.target as HTMLElement).closest<HTMLElement>('[data-drag-value]');
@@ -924,31 +1003,69 @@ const { game } = Astro.props;
       ) return;
       const district = stationState.district;
       const phase = currentChallengePhase(stationState);
-      mutate(completeChallengePhase(state, district, phase.id), `${phase.title} secured.`);
+      mutate(completeChallengePhase(state, district, phase.id), `${phase.title} complete.`);
       const completedCount = state.challengeProgress[district].completedPhaseIds.length;
       stationHistory = [];
       if (completedCount < 3) {
         stationState = createStationChallengeState(district, completedCount);
+        presentation = transitionPresentation(presentation, {
+          type: 'CONTINUE_PHASE',
+          phaseIndex: completedCount,
+        });
         renderStationRoom();
-        required<HTMLElement>('[data-station-phase-title]').focus?.();
+        stationApparatus.querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus();
+        announce(`Challenge ${completedCount + 1} of 3. ${currentChallengePhase(stationState).instruction}`);
       } else {
+        presentation = transitionPresentation(presentation, {
+          type: 'RESTORE_STATION',
+          district,
+          islandComplete: state.sandboxUnlocked,
+        });
         renderStationRoom();
+        required<HTMLElement>('[data-station-restored]').focus({ preventScroll: true });
       }
     });
 
-    required<HTMLButtonElement>('[data-station-lens]').addEventListener('click', (event) => {
-      stationLensActive = !stationLensActive;
-      (event.currentTarget as HTMLButtonElement).setAttribute('aria-pressed', String(stationLensActive));
-      renderStationRoom();
-      announce(stationLensActive ? 'Station Flow Lens open.' : 'Station Flow Lens closed.');
+    function toggleFlow() {
+      flowVisible = !flowVisible;
+      render();
+      const flowDistrict = stationState?.district ?? presentation.destinationDistrict ?? state.activeDistrict;
+      const flow = getContextualFlow(flowDistrict);
+      announce(
+        flowVisible
+          ? stationDialog.open
+            ? `${flow.title}. Watch ${flow.signals.join(' and ').toLowerCase()}.`
+            : `${flow.title}. The route and moving energy are highlighted on the island.`
+          : 'Energy-path hints hidden.',
+      );
+    }
+
+    stationLensButton.addEventListener('click', toggleFlow);
+    lensButton.addEventListener('click', toggleFlow);
+
+    required<HTMLButtonElement>('[data-restoration-primary]').addEventListener('click', () => {
+      if (presentation.mode !== 'station-restored') return;
+      const nextDistrict = presentation.nextDistrict;
+      const restoredDistrict = presentation.restoredDistrict;
+      if (nextDistrict && restoredDistrict) {
+        presentation = transitionPresentation(presentation, { type: 'RETURN_AND_TRAVEL' });
+        stationDialog.close();
+        renderer?.setDistrictDestination(nextDistrict);
+        announce(`${districtById[restoredDistrict].name} restored. Travelling to ${districtById[nextDistrict].name}.`);
+      } else {
+        presentation = transitionPresentation(presentation, { type: 'RETURN_TO_ISLAND' });
+        stationDialog.close();
+      }
     });
 
-    lensButton.addEventListener('click', () => {
-      lensActive = !lensActive;
-      lensButton.setAttribute('aria-pressed', String(lensActive));
-      lensPanel.hidden = !lensActive;
-      renderReadout();
-      announce(lensActive ? 'Flow Lens open. Current rate is shown by dot density, not dot speed.' : 'Flow Lens closed.');
+    required<HTMLButtonElement>('[data-restoration-secondary]').addEventListener('click', () => {
+      if (presentation.mode !== 'station-restored') return;
+      const restoredDistrict = presentation.restoredDistrict;
+      presentation = transitionPresentation(presentation, { type: 'RETURN_TO_ISLAND' });
+      stationDialog.close();
+      if (restoredDistrict) {
+        announce(`${districtById[restoredDistrict].name} restored. Return to the island route when you are ready.`);
+      }
     });
 
     function setPaused(next: boolean) {
@@ -972,30 +1089,40 @@ const { game } = Astro.props;
       });
     });
 
-    rewindButton.addEventListener('click', () => {
-      mutate(rewindGameState(state), 'The latest move was rewound.');
-    });
-
-    nextButton.addEventListener('click', () => {
-      const activeIndex = districts.findIndex((district) => district.id === state.activeDistrict);
-      if (activeIndex < districts.length - 1) setDestination(districts[activeIndex + 1].id);
-    });
-
-    required<HTMLButtonElement>('[data-fresh-button]').addEventListener('click', () => {
+    function restartGame() {
       if (!window.confirm('Start Gridkeeper again from Workshop Cove? This replaces the local game save.')) return;
       state = createInitialGameState({ reducedMotion: state.settings.reducedMotion });
       hadSavedGame = false;
       movementGuideExpanded = true;
       navigation = initialNavigationSnapshot();
-      lensActive = false;
-      lensPanel.hidden = true;
+      presentation = transitionPresentation(presentation, { type: 'RESTART' });
+      if (renderer) presentation = transitionPresentation(presentation, { type: 'START' });
+      flowVisible = false;
       lensButton.setAttribute('aria-pressed', 'false');
       saveState();
       render();
       settingsDialog.close();
+      if (finaleDialog.open) finaleDialog.close();
       renderer?.resetRover('fresh');
       mount.focus({ preventScroll: true });
       announce('Fresh island started at the landing. Move into Workshop Cove\'s service ring.');
+    }
+
+    required<HTMLButtonElement>('[data-fresh-button]').addEventListener('click', restartGame);
+    required<HTMLButtonElement>('[data-finale-restart]').addEventListener('click', restartGame);
+    required<HTMLButtonElement>('[data-explore-sandbox]').addEventListener('click', () => {
+      presentation = transitionPresentation(presentation, { type: 'EXPLORE_SANDBOX' });
+      finaleDialog.close();
+      render();
+      mount.focus({ preventScroll: true });
+      announce('Restored island open. Every station is available for free play.');
+    });
+    finaleDialog.addEventListener('close', () => {
+      if (presentation.mode !== 'island-restored') return;
+      presentation = transitionPresentation(presentation, { type: 'EXPLORE_SANDBOX' });
+      render();
+      mount.focus({ preventScroll: true });
+      announce('Restored island open. Every station is available for free play.');
     });
 
     mount.addEventListener('pointerdown', () => mount.focus({ preventScroll: true }));

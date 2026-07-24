@@ -41,10 +41,9 @@ export class IslandScene extends Phaser.Scene {
   private readonly options: GridkeeperRendererOptions;
   private state: GameState;
   private readout: DistrictReadout;
-  private flowLensActive = false;
+  private flowVisible = false;
   private worldGraphics!: Phaser.GameObjects.Graphics;
   private effectGraphics!: Phaser.GameObjects.Graphics;
-  private lensGraphics!: Phaser.GameObjects.Graphics;
   private rover!: Phaser.GameObjects.Container;
   private roverPosition: Point;
   private roverTarget: Point;
@@ -93,7 +92,6 @@ export class IslandScene extends Phaser.Scene {
   create() {
     this.worldGraphics = this.add.graphics();
     this.effectGraphics = this.add.graphics();
-    this.lensGraphics = this.add.graphics();
 
     this.drawBaseWorld();
     this.createDistrictNodes();
@@ -109,10 +107,10 @@ export class IslandScene extends Phaser.Scene {
     this.drawEffects(time);
   }
 
-  setModel(state: GameState, readout: DistrictReadout, flowLensActive: boolean) {
+  setModel(state: GameState, readout: DistrictReadout, flowVisible: boolean) {
     this.state = state;
     this.readout = readout;
-    this.flowLensActive = flowLensActive;
+    this.flowVisible = flowVisible;
     if (!this.worldGraphics) return;
     this.renderModel(this.lastTime);
   }
@@ -501,7 +499,6 @@ export class IslandScene extends Phaser.Scene {
       node.setScale(operating ? 1.1 : destination ? 1.06 : 1);
     }
     this.drawEffects(time);
-    this.drawLens();
   }
 
   private drawEffects(time: number) {
@@ -523,9 +520,9 @@ export class IslandScene extends Phaser.Scene {
         ? 2
         : Math.max(2, Math.round(2 + this.readout.lens.pulseDensity * 5));
       g.lineStyle(
-        this.flowLensActive ? 5 : 3,
+        this.flowVisible ? 5 : 3,
         COLORS.amber,
-        this.state.settings.reducedEffects ? 0.48 : this.flowLensActive ? 0.72 : 0.38,
+        this.state.settings.reducedEffects ? 0.48 : this.flowVisible ? 0.72 : 0.38,
       );
       g.lineBetween(from.x, from.y, to.x, to.y);
       for (let pulse = 0; pulse < density; pulse += 1) {
@@ -534,8 +531,8 @@ export class IslandScene extends Phaser.Scene {
         const t = alternating ? (Math.sin(phase * Math.PI * 2) + 1) / 2 : phase;
         const x = Phaser.Math.Linear(from.x, to.x, t);
         const y = Phaser.Math.Linear(from.y, to.y, t);
-        g.fillStyle(this.flowLensActive ? COLORS.sky : COLORS.amber, 0.9);
-        g.fillCircle(x, y, this.flowLensActive ? 5 : 3.5);
+        g.fillStyle(this.flowVisible ? COLORS.sky : COLORS.amber, 0.9);
+        g.fillCircle(x, y, this.flowVisible ? 5 : 3.5);
       }
     }
 
@@ -660,33 +657,6 @@ export class IslandScene extends Phaser.Scene {
     }
   }
 
-  private drawLens() {
-    if (!this.lensGraphics) return;
-    const g = this.lensGraphics;
-    g.clear();
-    if (!this.flowLensActive) return;
-
-    g.fillStyle(COLORS.ink, 0.1);
-    g.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-    g.fillStyle(COLORS.paper, 0.94);
-    g.fillRoundedRect(34, 28, 246, 98, 16);
-    g.lineStyle(2, COLORS.greenDark, 0.35);
-    g.strokeRoundedRect(34, 28, 246, 98, 16);
-
-    const bars = [
-      { value: this.readout.lens.voltage, color: COLORS.sky },
-      { value: this.readout.lens.pulseDensity, color: COLORS.green },
-      { value: this.readout.lens.energyTransfer, color: COLORS.amber },
-      { value: this.readout.lens.heat, color: COLORS.danger },
-    ];
-    bars.forEach((bar, index) => {
-      const y = 43 + index * 19;
-      g.fillStyle(COLORS.line, 0.22);
-      g.fillRoundedRect(126, y, 128, 10, 5);
-      g.fillStyle(bar.color, 0.88);
-      g.fillRoundedRect(126, y, Math.max(4, 128 * clampNumber(bar.value, 0, 1)), 10, 5);
-    });
-  }
 }
 
 function movementDirectionForKey(key: string): Point | null {

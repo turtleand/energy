@@ -186,9 +186,12 @@ describe('progression and persistence', () => {
     state = visitDistrict(state, 'harbor');
 
     state = completeStation(state, 'harbor');
+    const completedState = state;
+    state = completeStation(state, 'harbor');
 
     expect(state.restored).toEqual(['workshop', 'converter', 'wind', 'longline', 'lantern', 'harbor']);
     expect(state.sandboxUnlocked).toBe(true);
+    expect(state).toBe(completedState);
     expect(districts.every((district) => getDistrictReadout(state, district.id).objectiveMet)).toBe(true);
   });
 
