@@ -11,6 +11,7 @@ const isDcVsAcLab = labSlug === 'lesson-5-dc-vs-ac';
 const isAdapterLabelLab = labSlug === 'lesson-6-power-adapter-labels';
 const isPowerEnergyLab = labSlug === 'lesson-7-power-energy-bills';
 const isGroundingSafetyLab = labSlug === 'lesson-8-conductors-insulators-grounding-safety';
+const isBatteryChemistryLab = labSlug === 'lesson-10-batteries-chemical-electricity';
 const isGeneratorLab = labSlug === 'lesson-9-generators-electromagnetic-induction';
 const isTransformerGridLab = labSlug === 'lesson-10-why-ac-won-the-grid-transformers-voltage-heat-loss';
 const isHouseWiringLab = labSlug === 'lesson-11-house-wiring-faults-and-protection';
@@ -699,6 +700,121 @@ const isNeighborhoodDistributionLab = labSlug === 'lesson-12-neighborhood-distri
           </p>
         </aside>
       </section>
+    ) : isBatteryChemistryLab ? (
+      <section
+        class="container lab-shell battery-chemistry-shell"
+        aria-labelledby="lab-title"
+        data-battery-chemistry-lab
+        data-battery-mode="discharge"
+      >
+        <div class="lab-board battery-chemistry-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">Battery chemistry model</p>
+              <h2 id="lab-title">Two paths, one reaction.</h2>
+            </div>
+            <p class="lab-status" data-battery-status>Discharge. The battery powers the device while useful chemical difference remains.</p>
+          </div>
+
+          <div class="battery-stage" aria-label="Battery discharge and charging path model">
+            <section class="battery-terminal-card battery-negative-card" aria-labelledby="battery-negative-title">
+              <p class="panel-label">Electrode</p>
+              <h3 id="battery-negative-title">Reaction side</h3>
+              <p>One electrode gives up electrons during the simplified discharge picture.</p>
+            </section>
+
+            <section class="battery-path-card outside-path-card" aria-labelledby="battery-outside-title">
+              <p class="panel-label">Outside circuit</p>
+              <h3 id="battery-outside-title">Electron path</h3>
+              <div class="battery-flow-line outside-flow" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <p data-battery-outside>Electrons move through the wire and device.</p>
+            </section>
+
+            <section class="battery-device-card" aria-labelledby="battery-device-title">
+              <p class="panel-label">Device</p>
+              <h3 id="battery-device-title" data-battery-device>Device receiving energy</h3>
+              <p>The useful energy transfer happens in the outside circuit.</p>
+            </section>
+
+            <section class="battery-path-card inside-path-card" aria-labelledby="battery-inside-title">
+              <p class="panel-label">Electrolyte</p>
+              <h3 id="battery-inside-title">Ion path</h3>
+              <div class="battery-flow-line inside-flow" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <p data-battery-inside>Ions move through the electrolyte.</p>
+            </section>
+
+            <section class="battery-terminal-card battery-positive-card" aria-labelledby="battery-positive-title">
+              <p class="panel-label">Electrode</p>
+              <h3 id="battery-positive-title">Other reaction side</h3>
+              <p>The separator keeps the electrodes from directly touching.</p>
+            </section>
+          </div>
+
+          <div class="battery-chemical-meter" aria-hidden="true">
+            <span>Run down</span>
+            <div class="battery-chemical-track">
+              <span data-battery-chemical-bar></span>
+            </div>
+            <span>Useful chemical difference</span>
+          </div>
+        </div>
+
+        <div class="lab-controls battery-controls" aria-label="Battery state controls">
+          <button class="button button-secondary battery-step is-current" type="button" data-battery-scenario-button="discharge" aria-pressed="true">
+            Discharge
+          </button>
+          <button class="button button-secondary battery-step" type="button" data-battery-scenario-button="rundown" aria-pressed="false">
+            Run down
+          </button>
+          <button class="button button-secondary battery-step" type="button" data-battery-scenario-button="charging" aria-pressed="false">
+            Charging
+          </button>
+          <label class="control battery-chemical-control">
+            <span>Chemical difference</span>
+            <input data-battery-chemical-input type="range" min="0" max="100" step="1" value="70" />
+            <output data-battery-chemical-output>70% useful</output>
+          </label>
+        </div>
+
+        <div class="meters battery-readings" aria-label="Battery state readings">
+          <div class="meter">
+            <span>Voltage state</span>
+            <strong data-battery-voltage>Useful voltage</strong>
+            <p>Voltage depends on the remaining useful chemical difference.</p>
+          </div>
+          <div class="meter">
+            <span>Reaction state</span>
+            <strong data-battery-reaction>Reaction moving forward</strong>
+            <p>The outside and inside paths support one electrochemical reaction.</p>
+          </div>
+          <div class="meter">
+            <span>Inside movement</span>
+            <strong>Ions</strong>
+            <p>The electrolyte carries ion movement inside the battery, not the device current path.</p>
+          </div>
+        </div>
+
+        <aside class="formula-card battery-model-card" aria-label="Battery model summary">
+          <h2>The durable model</h2>
+          <ul>
+            <li><strong>Discharge:</strong> battery powers a device.</li>
+            <li><strong>Outside circuit:</strong> electrons move through wire and device.</li>
+            <li><strong>Electrolyte:</strong> ions move inside the battery.</li>
+            <li><strong>Charging:</strong> a charger pushes energy back in, imperfectly.</li>
+          </ul>
+          <p class="battery-note" data-battery-note>
+            The outside electron path and inside ion path support the same electrochemical reaction.
+          </p>
+        </aside>
+      </section>
     ) : isGeneratorLab ? (
       <section
         class="container lab-shell generator-induction-shell"
@@ -1298,6 +1414,8 @@ const isNeighborhoodDistributionLab = labSlug === 'lesson-12-neighborhood-distri
     <script type="module" src="/scripts/power-energy-bill-lab.js"></script>
   ) : isGroundingSafetyLab ? (
     <script type="module" src="/scripts/grounding-safety-lab.js"></script>
+  ) : isBatteryChemistryLab ? (
+    <script type="module" src="/scripts/battery-chemistry-lab.js"></script>
   ) : isGeneratorLab ? (
     <script type="module" src="/scripts/generator-induction-lab.js"></script>
   ) : isTransformerGridLab ? (
