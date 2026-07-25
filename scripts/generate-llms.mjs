@@ -5,6 +5,7 @@ const root = process.cwd();
 const publicDir = path.join(root, 'public');
 const lessonsDir = path.join(root, 'src/content/lessons');
 const labsDir = path.join(root, 'src/content/labs');
+const gamesDir = path.join(root, 'src/content/games');
 
 function parseFrontmatter(source) {
   const match = source.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
@@ -26,7 +27,7 @@ async function readCollection(dir, routePrefix) {
     const source = await readFile(path.join(dir, name), 'utf8');
     const { data, body } = parseFrontmatter(source);
     if (data.status !== 'ready') continue;
-    const slug = name.replace(/\.md$/, '');
+    const slug = data.slug || name.replace(/\.md$/, '');
     items.push({
       title: data.title,
       summary: data.summary,
@@ -43,6 +44,10 @@ async function readCollection(dir, routePrefix) {
 
 const lessons = await readCollection(lessonsDir, '/lessons');
 const labs = await readCollection(labsDir, '/labs');
+const games = (await readCollection(gamesDir, '/play')).map((game) => ({
+  ...game,
+  url: `/play/${game.slug}/`,
+}));
 const labsBySlug = new Map(labs.map((item) => [item.slug, item]));
 
 function embeddedSimulationSummary(lesson) {
@@ -58,6 +63,11 @@ const compact = [
   '## Articles',
   ...lessons.flatMap((item) => [
     `- [${item.title}](https://energy.turtleand.com${item.url}): ${item.summary}${embeddedSimulationSummary(item)}`,
+  ]),
+  '',
+  '## Games',
+  ...games.flatMap((item) => [
+    `- [${item.title}](https://energy.turtleand.com${item.url}): ${item.summary}`,
   ]),
   '',
 ].join('\n');
@@ -81,4 +91,6 @@ await mkdir(publicDir, { recursive: true });
 await writeFile(path.join(publicDir, 'llms.txt'), compact, 'utf8');
 await writeFile(path.join(publicDir, 'llms-full.txt'), full, 'utf8');
 
-console.log(`Generated llms.txt with ${lessons.length} article(s) and embedded simulation metadata.`);
+console.log(
+  `Generated llms.txt with ${lessons.length} article(s), ${games.length} game(s), and embedded simulation metadata.`,
+);

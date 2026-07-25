@@ -2725,7 +2725,11 @@ h3 {
   }
 
   h1 {
-    font-size: clamp(3rem, 17vw, 4.8rem);
+    font-size: clamp(2.35rem, 11vw, 3.7rem);
+  }
+
+  .article-container h1 {
+    overflow-wrap: anywhere;
   }
 
   .hero {

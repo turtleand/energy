@@ -9,6 +9,10 @@ const games = (await getCollection('games', ({ data }) => data.status === 'ready
   (a, b) => a.data.order - b.data.order
 );
 const featuredGame = games[0];
+const featuredChapterCount =
+  featuredGame?.data.campaignActs?.length ?? featuredGame?.data.districts?.length ?? 0;
+const featuredMissionCount =
+  featuredGame?.data.missions?.length ?? featuredGame?.data.coveredLessonSlugs.length ?? 0;
 ---
 
 <BaseLayout>
@@ -30,13 +34,13 @@ const featuredGame = games[0];
             <i></i><i></i><i></i><i></i><i></i><i></i>
           </span>
           <span class="game-entry-copy">
-            <span class="eyebrow">Playable island</span>
+            <span class="eyebrow">Playable campaign</span>
             <strong id="game-entry-title">{featuredGame.data.title}</strong>
             <span>{featuredGame.data.summary}</span>
           </span>
           <span class="game-entry-meta">
-            <span>{featuredGame.data.districts.length} districts</span>
-            <span>{featuredGame.data.coveredLessonSlugs.length} lessons</span>
+            <span>{featuredChapterCount} acts</span>
+            <span>{featuredMissionCount} missions</span>
             <b>Play game</b>
           </span>
         </a>
