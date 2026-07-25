@@ -299,6 +299,17 @@ describe('progression and persistence', () => {
     expect(parsed.sandboxUnlocked).toBe(false);
   });
 
+  it('stops v2 challenge recovery at a missing middle checkpoint', () => {
+    const candidate = JSON.parse(serializeGameState(createInitialGameState()));
+    candidate.challengeProgress.workshop.completedPhaseIds = ['build-loop', null, 'spark-reset'];
+
+    const parsed = parseSavedGameState(JSON.stringify(candidate));
+    expect(parsed.challengeProgress.workshop.completedPhaseIds).toEqual(['build-loop']);
+
+    const resumed = completeChallengePhase(parsed, 'workshop', 'tune-flow');
+    expect(resumed.challengeProgress.workshop.completedPhaseIds).toEqual(['build-loop', 'tune-flow']);
+  });
+
   it('rewinds the latest meaningful action without corrupting the save schema', () => {
     const initial = createInitialGameState();
     const changed = setDistrictControl(initial, 'workshop', 'voltage', 9);

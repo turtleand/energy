@@ -308,6 +308,28 @@ describe('station challenge contracts', () => {
     ]));
   });
 
+  it('requires Longline to finish with an actively dispatched transformed route', () => {
+    const hotFinish = play('longline', 2, [
+      { type: 'set-route', value: 'transformed' },
+      { type: 'dispatch' },
+      { type: 'set-route', value: 'low' },
+      { type: 'dispatch' },
+    ]);
+    expect(hotFinish.solved).toBe(false);
+    expect(hotFinish.values).toMatchObject({ hotSeen: true, safeSeen: true, townLit: false, route: 'low' });
+
+    const selectedSafeRoute = reduceStationChallenge(hotFinish, {
+      type: 'set-route',
+      value: 'transformed',
+    });
+    expect(selectedSafeRoute.solved).toBe(false);
+    expect(selectedSafeRoute.values.townLit).toBe(false);
+
+    const recovered = reduceStationChallenge(selectedSafeRoute, { type: 'dispatch' });
+    expectSolved(recovered);
+    expect(recovered.values).toMatchObject({ townLit: true, route: 'transformed' });
+  });
+
   it('makes Lantern section 1 expose power × time on two independently adjustable evenings', () => {
     const initial = createStationChallengeState('lantern', 0);
     expect(initial.values).toMatchObject({
@@ -530,6 +552,21 @@ describe('station challenge contracts', () => {
     expect(solved.values.cleared).toEqual(['overload', 'short', 'leakage']);
     expect(solved.feedback).toContain('Overload and short tripped the breaker');
     expect(solved.feedback).toContain('Leakage tripped the GFCI/RCD');
+
+    const selectedAgain = reduceStationChallenge(solved, {
+      type: 'select-protection-scenario',
+      value: 'overload',
+    });
+    expect(selectedAgain.solved).toBe(false);
+
+    const faultedAgain = reduceStationChallenge(selectedAgain, { type: 'run-protection-test' });
+    expect(faultedAgain.solved).toBe(false);
+    expect(faultedAgain.values).toMatchObject({ faultActive: true, trip: 'breaker' });
+    expect(faultedAgain.feedback).toContain('above the breaker limit');
+
+    const clearedAgain = reduceStationChallenge(faultedAgain, { type: 'clear-model-fault' });
+    expectSolved(clearedAgain);
+    expect(clearedAgain.values).toMatchObject({ faultActive: false, trip: 'reset' });
   });
 
   it('makes Harbor section 3 add named home demands into one fixed feeder capacity', () => {

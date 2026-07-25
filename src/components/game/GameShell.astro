@@ -300,6 +300,7 @@ const { game } = Astro.props;
   import { renderStationChallenge } from '@game/challenges/view';
   import {
     buildNavigationSnapshot,
+    deriveNavigationTransition,
     getInitialRoverPosition,
     type NavigationSnapshot,
   } from '@game/core/navigation';
@@ -486,25 +487,21 @@ const { game } = Astro.props;
         saveState();
       }
 
-      if (next.operatingDistrict && next.operatingDistrict !== previous.operatingDistrict) {
-        const district = districtById[next.operatingDistrict];
-        presentation = transitionPresentation(presentation, { type: 'ARRIVE', district: next.operatingDistrict });
+      const navigationTransition = deriveNavigationTransition(previous, next);
+      if (navigationTransition?.type === 'arrived') {
+        const district = districtById[navigationTransition.district];
+        presentation = transitionPresentation(presentation, { type: 'ARRIVE', district: navigationTransition.district });
         announce(`${district.name} is in range. ${district.objective}`);
-      } else if (previous.operatingDistrict && !next.operatingDistrict) {
+      } else if (navigationTransition?.type === 'travel-interrupted') {
+        presentation = transitionPresentation(presentation, { type: 'INTERRUPT_TRAVEL' });
+        announce('Travel interrupted. Move freely or choose another station.');
+      } else if (navigationTransition?.type === 'left-ring') {
         if (presentation.mode === 'travelling' && presentation.destinationDistrict) {
           announce(`Travelling to ${districtById[presentation.destinationDistrict].name}.`);
         } else {
           presentation = transitionPresentation(presentation, { type: 'LEAVE_RING' });
-          announce(`You left ${districtById[previous.operatingDistrict].name}. Its controls are unavailable.`);
+          announce(`You left ${districtById[navigationTransition.district].name}. Its controls are unavailable.`);
         }
-      } else if (
-        presentation.mode === 'travelling' &&
-        previous.destinationDistrict &&
-        !next.destinationDistrict &&
-        !next.operatingDistrict
-      ) {
-        presentation = transitionPresentation(presentation, { type: 'INTERRUPT_TRAVEL' });
-        announce('Travel interrupted. Move freely or choose another station.');
       }
       render();
     }

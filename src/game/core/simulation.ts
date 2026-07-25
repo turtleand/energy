@@ -769,9 +769,13 @@ export function parseSavedGameState(raw: string | null): GameState {
         }
         const candidate = parsed.challengeProgress?.[district]?.completedPhaseIds;
         const allowed = challengeDefinitions[district].phases.map((phase) => phase.id);
-        const completedPhaseIds = Array.isArray(candidate)
-          ? allowed.filter((phaseId, index) => candidate[index] === phaseId)
-          : [];
+        const completedPhaseIds: string[] = [];
+        if (Array.isArray(candidate)) {
+          for (const [index, phaseId] of allowed.entries()) {
+            if (candidate[index] !== phaseId) break;
+            completedPhaseIds.push(phaseId);
+          }
+        }
         return [district, { completedPhaseIds }];
       }),
     ) as ChallengeProgress;

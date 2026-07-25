@@ -4,6 +4,7 @@ import {
   EXIT_RADIUS,
   FRESH_ROVER_POSITION,
   buildNavigationSnapshot,
+  deriveNavigationTransition,
   districtWorldPoint,
   getInitialRoverPosition,
   nearestUnlockedDistrict,
@@ -86,6 +87,75 @@ describe('gridkeeper navigation', () => {
       nearbyDistrict: 'converter',
       operatingDistrict: 'converter',
       phase: 'in-range',
+    });
+  });
+
+  it('classifies manual route cancellation while the turtle remains in the old ring', () => {
+    const previous = {
+      destinationDistrict: 'converter',
+      nearbyDistrict: 'workshop',
+      operatingDistrict: 'workshop',
+      phase: 'in-range',
+    } as const;
+    const next = { ...previous, destinationDistrict: null };
+
+    expect(deriveNavigationTransition(previous, next)).toEqual({ type: 'travel-interrupted' });
+  });
+
+  it('classifies manual route cancellation before a simultaneous ring departure', () => {
+    const previous = {
+      destinationDistrict: 'converter',
+      nearbyDistrict: 'workshop',
+      operatingDistrict: 'workshop',
+      phase: 'in-range',
+    } as const;
+    const next = {
+      destinationDistrict: null,
+      nearbyDistrict: null,
+      operatingDistrict: null,
+      phase: 'far',
+    } as const;
+
+    expect(deriveNavigationTransition(previous, next)).toEqual({ type: 'travel-interrupted' });
+  });
+
+  it('keeps uninterrupted auto-travel distinct from leaving the old ring', () => {
+    const previous = {
+      destinationDistrict: 'converter',
+      nearbyDistrict: 'workshop',
+      operatingDistrict: 'workshop',
+      phase: 'in-range',
+    } as const;
+    const next = {
+      destinationDistrict: 'converter',
+      nearbyDistrict: null,
+      operatingDistrict: null,
+      phase: 'far',
+    } as const;
+
+    expect(deriveNavigationTransition(previous, next)).toEqual({
+      type: 'left-ring',
+      district: 'workshop',
+    });
+  });
+
+  it('gives arrival precedence when reaching a destination clears the route', () => {
+    const previous = {
+      destinationDistrict: 'converter',
+      nearbyDistrict: null,
+      operatingDistrict: null,
+      phase: 'far',
+    } as const;
+    const next = {
+      destinationDistrict: null,
+      nearbyDistrict: 'converter',
+      operatingDistrict: 'converter',
+      phase: 'in-range',
+    } as const;
+
+    expect(deriveNavigationTransition(previous, next)).toEqual({
+      type: 'arrived',
+      district: 'converter',
     });
   });
 });

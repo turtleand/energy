@@ -620,7 +620,10 @@ function reduceLongline(state: StationChallengeState, action: StationChallengeAc
     else values.hotSeen = true;
     values.townLit = safe;
   }
-  const solved = Boolean(values.hotSeen) && Boolean(values.safeSeen);
+  const solved = Boolean(values.hotSeen)
+    && Boolean(values.safeSeen)
+    && values.route === 'transformed'
+    && values.townLit === true;
   const feedback = action.type === 'dispatch'
     ? values.route === 'transformed'
       ? 'Power crosses the cool high-voltage line with lower current, then the town-side transformer lowers voltage for the model lights.'
@@ -883,7 +886,10 @@ function reduceHarbor(state: StationChallengeState, action: StationChallengeActi
       feedback = model.clear;
       effect = 'motion';
     }
-    const solved = ['normal', 'overload', 'short', 'leakage'].every((item) => observed.includes(item))
+    const solved = action.type === 'clear-model-fault'
+      && !values.faultActive
+      && values.trip === 'reset'
+      && ['normal', 'overload', 'short', 'leakage'].every((item) => observed.includes(item))
       && ['overload', 'short', 'leakage'].every((item) => cleared.includes(item));
     return changed(
       state,
