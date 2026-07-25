@@ -348,6 +348,7 @@ const { game } = Astro.props;
   } from '@game/circuit-riders/content/stations';
   import {
     CIRCUIT_RIDERS_SAVE_KEY,
+    advanceCampaignTime,
     clearMissionEvent,
     createInitialCampaignState,
     getCampaignProgress,
@@ -420,6 +421,8 @@ const { game } = Astro.props;
     let lensActive = false;
     let paused = false;
     let transitioning = false;
+    let completionTimer: number | undefined;
+    let modelTimer: number | undefined;
     let transitionTimer: number | undefined;
     let audioContext: AudioContext | null = null;
 
@@ -518,6 +521,11 @@ const { game } = Astro.props;
       pendingPrimaryControl = null;
     }
 
+    function clearCompletionReveal() {
+      window.clearTimeout(completionTimer);
+      completionTimer = undefined;
+    }
+
     function mutate(
       next: CampaignState,
       message?: string,
@@ -525,6 +533,10 @@ const { game } = Astro.props;
     ) {
       const previousCompleted = state.completed.length;
       const wasComplete = state.campaignComplete;
+      if (!next.campaignComplete) {
+        clearCompletionReveal();
+        completionCard.hidden = true;
+      }
       state = next;
       saveState();
       render(options);
@@ -547,8 +559,11 @@ const { game } = Astro.props;
       }
 
       if (state.campaignComplete && !wasComplete) {
-        window.setTimeout(
+        clearCompletionReveal();
+        completionTimer = window.setTimeout(
           () => {
+            completionTimer = undefined;
+            if (!state.campaignComplete) return;
             completionCard.hidden = false;
             required<HTMLButtonElement>('[data-sandbox-button]').focus();
           },
@@ -1380,6 +1395,7 @@ const { game } = Astro.props;
 
     function replayCampaign() {
       if (transitioning) return;
+      clearCompletionReveal();
       state = createInitialCampaignState({
         muted: state.settings.muted,
         soundVolume: state.settings.soundVolume,
@@ -1405,6 +1421,7 @@ const { game } = Astro.props;
     required<HTMLButtonElement>('[data-fresh-button]').addEventListener('click', () => {
       if (transitioning) return;
       if (!window.confirm('Reset all Circuit Riders progress stored in this browser?')) return;
+      clearCompletionReveal();
       state = createInitialCampaignState({
         reducedMotion: state.settings.reducedMotion,
         reducedEffects: state.settings.reducedEffects,
@@ -1449,7 +1466,7 @@ const { game } = Astro.props;
     window.addEventListener('keydown', (event) => {
       const target = event.target as HTMLElement | null;
       const editing = target?.matches('input, select, textarea, [contenteditable="true"]');
-      if (editing) return;
+      if (editing || event.repeat) return;
       if (event.code === state.settings.bindings.pause) {
         event.preventDefault();
         setPaused(!paused);
@@ -1460,13 +1477,35 @@ const { game } = Astro.props;
       }
     });
 
+    modelTimer = window.setInterval(() => {
+      if (
+        !renderer ||
+        paused ||
+        transitioning ||
+        document.hidden ||
+        state.activeMission === 'converter-07'
+      ) {
+        return;
+      }
+      const readout = getMissionReadout(state, state.activeMission);
+      if (Number(readout.metrics.power) <= 0) return;
+      state = advanceCampaignTime(state, 1);
+      saveState();
+      render({ preserveControls: true });
+    }, 1_000);
+
     const destroyRenderer = () => {
+      clearCompletionReveal();
+      window.clearInterval(modelTimer);
       window.clearTimeout(transitionTimer);
+      modelTimer = undefined;
       renderer?.destroy();
       renderer = null;
     };
-    window.addEventListener('pagehide', destroyRenderer, { once: true });
-    window.addEventListener('beforeunload', destroyRenderer, { once: true });
+    const handlePageHide = (event: PageTransitionEvent) => {
+      if (!event.persisted) destroyRenderer();
+    };
+    window.addEventListener('pagehide', handlePageHide);
 
     render();
   }

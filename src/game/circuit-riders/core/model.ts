@@ -386,14 +386,17 @@ function loopworks04(state: MissionState): MissionReadout {
   const heat = current * current * resistance * 0.03;
   const brightEnough = power >= 7;
   const coolEnough = heat <= 0.9;
-  const objectiveMet = switchClosed && brightEnough && coolEnough;
-  const stepCompletion = [switchClosed, brightEnough, coolEnough && brightEnough];
+  const railEased = resistance <= 8;
+  const objectiveMet = switchClosed && brightEnough && coolEnough && railEased;
+  const stepCompletion = [switchClosed, brightEnough, railEased && coolEnough && brightEnough];
 
   return buildReadout('loopworks-04', {
     caption: !switchClosed
       ? 'The source lift is visible, but the open tunnel loop carries no maintained current.'
       : heat > 0.9
         ? 'The rail is carrying current, but the constricted path is warming beyond the calm band.'
+        : brightEnough && !railEased
+          ? 'The tunnel light is bright, but the narrow rail still needs less opposition.'
         : brightEnough
           ? 'The source lift and rail opposition now produce a bright load without excessive path heat.'
           : 'The loop is closed, but the load still needs a stronger transfer rate.',
@@ -406,7 +409,7 @@ function loopworks04(state: MissionState): MissionReadout {
       resistance,
       heat,
     },
-    flags: { switchClosed, brightEnough, coolEnough },
+    flags: { switchClosed, brightEnough, coolEnough, railEased },
     objectiveMet,
     stepCompletion,
     flow: {
@@ -1071,22 +1074,21 @@ export function advanceCampaignTime(state: CampaignState, seconds: number): Camp
   const safeSeconds = clamp(Number.isFinite(seconds) ? seconds : 0, 0, 120);
   if (safeSeconds === 0) return state;
 
-  const changed = remember(state, {
+  const mission = state.activeMission;
+  const changed = {
     ...state,
-    missions: Object.fromEntries(
-      missionIds.map((mission) => [
-        mission,
-        {
-          ...state.missions[mission],
-          elapsedSeconds: state.missions[mission].elapsedSeconds + safeSeconds,
-          lastEvent: null,
-        },
-      ]),
-    ) as MissionStates,
+    missions: {
+      ...state.missions,
+      [mission]: {
+        ...state.missions[mission],
+        elapsedSeconds: state.missions[mission].elapsedSeconds + safeSeconds,
+        lastEvent: null,
+      },
+    },
     history: state.history,
-  });
+  };
 
-  return evaluateProgression(changed, state.activeMission);
+  return evaluateProgression(changed, mission);
 }
 
 export function travelToMission(state: CampaignState, mission: MissionId): CampaignState {
@@ -1118,20 +1120,34 @@ export function setCampaignSettings(
 
 export function resetMissionState(state: CampaignState, mission: MissionId): CampaignState {
   const preserveCampaign = state.sandboxUnlocked;
+  const restartIndex = missionIds.indexOf(mission);
+  const invalidatedMissions = preserveCampaign
+    ? new Set<MissionId>([mission])
+    : new Set(
+        missionIds
+          .slice(restartIndex)
+          .filter((candidate) => candidate === mission || state.completed.includes(candidate)),
+      );
+  const missions = Object.fromEntries(
+    missionIds.map((candidate) => [
+      candidate,
+      invalidatedMissions.has(candidate)
+        ? {
+            controls: clone(initialMissionControls[candidate]),
+            elapsedSeconds: 0,
+            lastEvent: null,
+            milestones: [],
+          }
+        : state.missions[candidate],
+    ]),
+  ) as MissionStates;
+
   return remember(state, {
     ...state,
     completed: preserveCampaign
       ? state.completed
-      : state.completed.filter((completed) => completed !== mission),
-    missions: {
-      ...state.missions,
-      [mission]: {
-        controls: clone(initialMissionControls[mission]),
-        elapsedSeconds: 0,
-        lastEvent: null,
-        milestones: [],
-      },
-    },
+      : state.completed.filter((completed) => missionIds.indexOf(completed) < restartIndex),
+    missions,
     campaignComplete: preserveCampaign ? state.campaignComplete : false,
     sandboxUnlocked: preserveCampaign,
     history: state.history,

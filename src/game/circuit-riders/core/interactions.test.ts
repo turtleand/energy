@@ -156,6 +156,7 @@ describe('Circuit Riders location-grounded interactions', () => {
 
     setAt('loopworks-04', 'switchClosed', true);
     setAt('loopworks-04', 'voltage', 10);
+    setAt('loopworks-04', 'resistance', 8);
     travel('converter-05');
 
     setAt('converter-05', 'phaseTrim', 0.5);

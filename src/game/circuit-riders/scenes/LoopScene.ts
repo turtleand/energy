@@ -20,6 +20,10 @@ import {
   shouldCaptureMovementInput,
 } from '../core/input';
 import type { CampaignState, MissionReadout } from '../core/model';
+import {
+  getAssistedTravelRate,
+  getFlowProgressOffset,
+} from '../core/motion';
 
 const WORLD_WIDTH = 960;
 const WORLD_HEIGHT = 600;
@@ -372,7 +376,7 @@ export class LoopScene extends Phaser.Scene {
       this.droneProgress = wrapProgress(this.droneProgress + direction * speed);
     } else if (this.droneTarget !== null) {
       const assistedSpeed =
-        (settings.mode === 'planning' ? 0.00034 : settings.slowMotion ? 0.0001 : 0.0002) * delta;
+        getAssistedTravelRate(settings.mode, settings.slowMotion) * delta;
       const movement = moveTowardProgress(
         this.droneProgress,
         this.droneTarget,
@@ -809,11 +813,10 @@ export class LoopScene extends Phaser.Scene {
 
     const count = 4 + Math.round(flow.density * 14);
     const baseSpeed = this.state.settings.slowMotion ? 0.000025 : 0.000055;
-    const direction =
-      flow.direction === 'alternating' ? (Math.sin(time / 760) >= 0 ? 1 : -1) : 1;
+    const progressOffset = getFlowProgressOffset(time, baseSpeed, flow.direction);
 
     for (let index = 0; index < count; index += 1) {
-      const progress = wrapProgress((index / count) + time * baseSpeed * direction);
+      const progress = wrapProgress((index / count) + progressOffset);
       const point = pointOnTrack(progress);
       g.fillStyle(index % 3 === 0 ? COLORS.paper : this.mission.accent, 0.96);
       g.fillCircle(point.x, point.y, this.flowLensActive ? 6 : 4.5);

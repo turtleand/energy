@@ -63,6 +63,20 @@ describe('Circuit Riders deterministic electrical model', () => {
     expect(moreResistance.metrics.current).toBeLessThan(morePush.metrics.current);
   });
 
+  it('requires the narrow rail to be eased before Mission 4 is restored', () => {
+    let state = createInitialCampaignState();
+    state = setMissionControl(state, 'loopworks-04', 'switchClosed', true);
+    state = setMissionControl(state, 'loopworks-04', 'voltage', 9);
+
+    const brightButConstricted = getMissionReadout(state, 'loopworks-04');
+    expect(brightButConstricted.flags.brightEnough).toBe(true);
+    expect(brightButConstricted.objectiveMet).toBe(false);
+    expect(brightButConstricted.stepCompletion).toEqual([true, true, false]);
+
+    state = setMissionControl(state, 'loopworks-04', 'resistance', 8);
+    expect(getMissionReadout(state, 'loopworks-04').objectiveMet).toBe(true);
+  });
+
   it('reports every objective step complete when the mission is restored', () => {
     let state = createInitialCampaignState();
     state = {
@@ -111,6 +125,7 @@ describe('Circuit Riders deterministic electrical model', () => {
 
   it('keeps power as an immediate rate while energy accumulates over time', () => {
     let state = createInitialCampaignState();
+    state = { ...state, activeMission: 'converter-07' };
     state = setMissionControl(state, 'converter-07', 'loadCount', 6);
     state = setMissionControl(state, 'converter-07', 'lampTech', 'efficient');
 
@@ -120,6 +135,15 @@ describe('Circuit Riders deterministic electrical model', () => {
 
     expect(after.metrics.power).toBe(before.metrics.power);
     expect(after.metrics.energy).toBeGreaterThan(before.metrics.energy);
+  });
+
+  it('advances only the active mission without filling undo history', () => {
+    const initial = createInitialCampaignState();
+    const advanced = advanceCampaignTime(initial, 1);
+
+    expect(advanced.missions['loopworks-01'].elapsedSeconds).toBe(1);
+    expect(advanced.missions['loopworks-02'].elapsedSeconds).toBe(0);
+    expect(advanced.history).toEqual(initial.history);
   });
 
   it('builds static charge to a threshold, discharges once, and resets', () => {
@@ -277,6 +301,26 @@ describe('Circuit Riders progression controls', () => {
     state = resetMissionState(state, 'loopworks-01');
     expect(getMissionReadout(state, 'loopworks-01').objectiveProgress).toBe(0);
     expect(state.completed).not.toContain('loopworks-01');
+  });
+
+  it('invalidates downstream completions when an earlier mission restarts', () => {
+    let state = createInitialCampaignState();
+    state = setMissionControl(state, 'loopworks-01', 'sourceOn', true);
+    state = setMissionControl(state, 'loopworks-01', 'switchClosed', true);
+    state = setMissionControl(state, 'loopworks-01', 'returnClosed', true);
+    state = performMissionAction(state, 'loopworks-02', 'charge-static');
+    state = performMissionAction(state, 'loopworks-02', 'charge-static');
+    state = performMissionAction(state, 'loopworks-02', 'charge-static');
+    expect(state.completed).toEqual(['loopworks-01', 'loopworks-02']);
+
+    state = resetMissionState(state, 'loopworks-01');
+
+    expect(state.completed).toEqual([]);
+    expect(state.missions['loopworks-02'].controls).toEqual(
+      initialMissionControls['loopworks-02'],
+    );
+    expect(isMissionUnlocked(state, 'loopworks-02')).toBe(false);
+    expect(isMissionUnlocked(state, 'loopworks-03')).toBe(false);
   });
 
   it('resets sandbox controls without erasing the restored campaign', () => {
