@@ -17,6 +17,7 @@ const isTransformerGridLab = labSlug === 'lesson-10-why-ac-won-the-grid-transfor
 const isHouseWiringLab = labSlug === 'lesson-11-house-wiring-faults-and-protection';
 const isNeighborhoodDistributionLab = labSlug === 'lesson-12-neighborhood-distribution';
 const isGridBalancingLab = labSlug === 'lesson-13-grid-balancing-frequency-blackouts';
+const isElectricityMixLab = labSlug === 'lesson-14-electricity-mixes-capacity-and-generation';
 ---
 
     {isStaticChargeLab ? (
@@ -1429,6 +1430,130 @@ const isGridBalancingLab = labSlug === 'lesson-13-grid-balancing-frequency-black
           </p>
         </aside>
       </section>
+    ) : isElectricityMixLab ? (
+      <section
+        class="container lab-shell electricity-mix-shell"
+        aria-labelledby="lab-title"
+        data-electricity-mix-lab
+        data-storage-action="charging"
+      >
+        <div class="lab-board electricity-mix-board">
+          <div class="lab-board-header">
+            <div>
+              <p class="eyebrow">Electricity mix snapshots</p>
+              <h2 id="lab-title">Capacity is not generation.</h2>
+            </div>
+            <p class="lab-status" role="status" aria-live="polite" aria-atomic="true" data-mix-status>
+              Sunny afternoon: the portfolio supplies 110 MW of demand.
+            </p>
+          </div>
+
+          <div class="mix-context-grid">
+            <section class="mix-profile-card" aria-labelledby="mix-profile-title">
+              <p class="panel-label">Fictional system profile</p>
+              <h3 id="mix-profile-title" data-mix-profile-name>Sun-rich, limited hydro</h3>
+              <p data-mix-profile-note>
+                Strong sunlight and recent solar build-out create a large solar fleet. Limited hydro means flexible generation and storage matter more after sunset.
+              </p>
+              <ul data-mix-profile-factors>
+                <li>strong solar resource</li>
+                <li>recent solar investment</li>
+                <li>limited hydro sites</li>
+              </ul>
+            </section>
+
+            <section class="mix-snapshot-card" aria-labelledby="mix-snapshot-title">
+              <p class="panel-label">Moment in time</p>
+              <h3 id="mix-snapshot-title" data-mix-snapshot-name>Sunny afternoon</h3>
+              <div class="mix-snapshot-demand">
+                <span>Electricity demand</span>
+                <strong data-mix-demand>110 MW</strong>
+              </div>
+              <p>The installed fleet stays the same. Weather, time, demand, and operating decisions change what it produces now.</p>
+            </section>
+          </div>
+
+          <div class="mix-source-list" aria-label="Installed capacity compared with actual generation">
+            <article class="mix-source-row" data-mix-source="solar">
+              <div class="mix-source-heading"><strong>Solar</strong><span data-mix-utilization>75% of rating</span></div>
+              <div class="mix-source-values"><span data-mix-capacity-value>120 MW installed</span><span data-mix-generation-value>90 MW now</span></div>
+              <div class="mix-capacity-track" aria-hidden="true"><span data-mix-capacity-bar></span><i data-mix-generation-bar></i></div>
+            </article>
+            <article class="mix-source-row" data-mix-source="wind">
+              <div class="mix-source-heading"><strong>Wind</strong><span data-mix-utilization>20% of rating</span></div>
+              <div class="mix-source-values"><span data-mix-capacity-value>50 MW installed</span><span data-mix-generation-value>10 MW now</span></div>
+              <div class="mix-capacity-track" aria-hidden="true"><span data-mix-capacity-bar></span><i data-mix-generation-bar></i></div>
+            </article>
+            <article class="mix-source-row" data-mix-source="hydro">
+              <div class="mix-source-heading"><strong>Hydro</strong><span data-mix-utilization>50% of rating</span></div>
+              <div class="mix-source-values"><span data-mix-capacity-value>30 MW installed</span><span data-mix-generation-value>15 MW now</span></div>
+              <div class="mix-capacity-track" aria-hidden="true"><span data-mix-capacity-bar></span><i data-mix-generation-bar></i></div>
+            </article>
+            <article class="mix-source-row" data-mix-source="flexible">
+              <div class="mix-source-heading"><strong>Flexible plant</strong><span data-mix-utilization>0% of rating</span></div>
+              <div class="mix-source-values"><span data-mix-capacity-value>70 MW installed</span><span data-mix-generation-value>0 MW now</span></div>
+              <div class="mix-capacity-track" aria-hidden="true"><span data-mix-capacity-bar></span><i data-mix-generation-bar></i></div>
+            </article>
+          </div>
+
+          <div class="mix-bar-legend" aria-label="Bar legend">
+            <span><i class="mix-legend-capacity"></i> Installed capacity</span>
+            <span><i class="mix-legend-generation"></i> Actual output now</span>
+            <span class="mix-scale-note">One MW scale across this profile</span>
+          </div>
+        </div>
+
+        <div class="lab-controls electricity-mix-controls" aria-label="Electricity mix controls">
+          <label class="control">
+            <span>System profile</span>
+            <select data-mix-profile-input>
+              <option value="solar" selected>Sun-rich, limited hydro</option>
+              <option value="hydro">River-rich, established hydro</option>
+              <option value="wind">Wind-rich, flexible and connected</option>
+            </select>
+          </label>
+          <label class="control">
+            <span>System snapshot</span>
+            <select data-mix-snapshot-input>
+              <option value="afternoon" selected>Sunny afternoon</option>
+              <option value="evening">Calm evening</option>
+              <option value="night">Windy night</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="mix-balance-card" aria-label="Generation, storage, and demand balance">
+          <div>
+            <span>Generation now</span>
+            <strong data-mix-generation>115 MW</strong>
+          </div>
+          <div class="mix-balance-operator" aria-hidden="true">↔</div>
+          <div>
+            <span>Storage action</span>
+            <strong data-mix-storage>Charging 5 MW</strong>
+          </div>
+          <div class="mix-balance-operator" aria-hidden="true">=</div>
+          <div>
+            <span>Demand served</span>
+            <strong data-mix-demand>110 MW</strong>
+          </div>
+          <p data-mix-balance>115 MW generation - 5 MW charging = 110 MW supplied</p>
+        </div>
+
+        <aside class="formula-card electricity-mix-model-card" aria-label="Electricity mix model summary">
+          <h2>The whole model</h2>
+          <ul>
+            <li><strong>Country context:</strong> resources, inherited infrastructure, goals, and constraints shape what gets built.</li>
+            <li><strong>Installed capacity:</strong> the fleet's rated power, not its guaranteed output.</li>
+            <li><strong>Actual generation:</strong> changes with conditions and operating decisions.</li>
+            <li><strong>Complementary resources:</strong> help the portfolio meet demand at different times.</li>
+          </ul>
+          <p class="mix-storage-note" data-mix-storage-note>
+            Generation exceeds current demand, so the battery stores part of the surplus for later use.
+          </p>
+          <p class="mix-model-boundary">These fictional snapshots illustrate relationships. They are not forecasts or operating plans for a real country or grid.</p>
+        </aside>
+      </section>
     ) : (
       <section class="container lab-shell" aria-labelledby="lab-title" data-energy-lab>
         <div class="lab-board">
@@ -1566,6 +1691,8 @@ const isGridBalancingLab = labSlug === 'lesson-13-grid-balancing-frequency-black
     <script type="module" src="/scripts/neighborhood-distribution-lab.js"></script>
   ) : isGridBalancingLab ? (
     <script type="module" src="/scripts/grid-balancing-lab.js"></script>
+  ) : isElectricityMixLab ? (
+    <script type="module" src="/scripts/electricity-mix-lab.js"></script>
   ) : (
     <script type="module" src="/scripts/energy-flow-lab.js"></script>
   )}
