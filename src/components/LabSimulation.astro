@@ -1473,32 +1473,32 @@ const isElectricityMixLab = labSlug === 'lesson-14-electricity-mixes-capacity-an
             </section>
           </div>
 
-          <div class="mix-source-list" aria-label="Installed capacity compared with actual generation">
+          <div class="mix-source-list" aria-label="Installed capacity compared with current generating output">
             <article class="mix-source-row" data-mix-source="solar">
               <div class="mix-source-heading"><strong>Solar</strong><span data-mix-utilization>75% of rating</span></div>
-              <div class="mix-source-values"><span data-mix-capacity-value>120 MW installed</span><span data-mix-generation-value>90 MW now</span></div>
-              <div class="mix-capacity-track" aria-hidden="true"><span data-mix-capacity-bar></span><i data-mix-generation-bar></i></div>
+              <div class="mix-source-values"><span data-mix-capacity-value>120 MW installed</span><span data-mix-output-value>90 MW now</span></div>
+              <div class="mix-capacity-track" aria-hidden="true"><span data-mix-capacity-bar></span><i data-mix-output-bar></i></div>
             </article>
             <article class="mix-source-row" data-mix-source="wind">
               <div class="mix-source-heading"><strong>Wind</strong><span data-mix-utilization>20% of rating</span></div>
-              <div class="mix-source-values"><span data-mix-capacity-value>50 MW installed</span><span data-mix-generation-value>10 MW now</span></div>
-              <div class="mix-capacity-track" aria-hidden="true"><span data-mix-capacity-bar></span><i data-mix-generation-bar></i></div>
+              <div class="mix-source-values"><span data-mix-capacity-value>50 MW installed</span><span data-mix-output-value>10 MW now</span></div>
+              <div class="mix-capacity-track" aria-hidden="true"><span data-mix-capacity-bar></span><i data-mix-output-bar></i></div>
             </article>
             <article class="mix-source-row" data-mix-source="hydro">
               <div class="mix-source-heading"><strong>Hydro</strong><span data-mix-utilization>50% of rating</span></div>
-              <div class="mix-source-values"><span data-mix-capacity-value>30 MW installed</span><span data-mix-generation-value>15 MW now</span></div>
-              <div class="mix-capacity-track" aria-hidden="true"><span data-mix-capacity-bar></span><i data-mix-generation-bar></i></div>
+              <div class="mix-source-values"><span data-mix-capacity-value>30 MW installed</span><span data-mix-output-value>15 MW now</span></div>
+              <div class="mix-capacity-track" aria-hidden="true"><span data-mix-capacity-bar></span><i data-mix-output-bar></i></div>
             </article>
             <article class="mix-source-row" data-mix-source="flexible">
               <div class="mix-source-heading"><strong>Flexible plant</strong><span data-mix-utilization>0% of rating</span></div>
-              <div class="mix-source-values"><span data-mix-capacity-value>70 MW installed</span><span data-mix-generation-value>0 MW now</span></div>
-              <div class="mix-capacity-track" aria-hidden="true"><span data-mix-capacity-bar></span><i data-mix-generation-bar></i></div>
+              <div class="mix-source-values"><span data-mix-capacity-value>70 MW installed</span><span data-mix-output-value>0 MW now</span></div>
+              <div class="mix-capacity-track" aria-hidden="true"><span data-mix-capacity-bar></span><i data-mix-output-bar></i></div>
             </article>
           </div>
 
           <div class="mix-bar-legend" aria-label="Bar legend">
             <span><i class="mix-legend-capacity"></i> Installed capacity</span>
-            <span><i class="mix-legend-generation"></i> Actual output now</span>
+            <span><i class="mix-legend-output"></i> Actual output now</span>
             <span class="mix-scale-note">One MW scale across this profile</span>
           </div>
         </div>
@@ -1522,10 +1522,10 @@ const isElectricityMixLab = labSlug === 'lesson-14-electricity-mixes-capacity-an
           </label>
         </div>
 
-        <div class="mix-balance-card" aria-label="Generation, storage, and demand balance">
+        <div class="mix-balance-card" aria-label="Current output, storage, and demand balance">
           <div>
-            <span>Generation now</span>
-            <strong data-mix-generation>115 MW</strong>
+            <span>Current output</span>
+            <strong data-mix-output>115 MW</strong>
           </div>
           <div class="mix-balance-operator" aria-hidden="true">↔</div>
           <div>
@@ -1537,7 +1537,7 @@ const isElectricityMixLab = labSlug === 'lesson-14-electricity-mixes-capacity-an
             <span>Demand served</span>
             <strong data-mix-demand>110 MW</strong>
           </div>
-          <p data-mix-balance>115 MW generation - 5 MW charging = 110 MW supplied</p>
+          <p data-mix-balance>115 MW output - 5 MW charging = 110 MW supplied</p>
         </div>
 
         <aside class="formula-card electricity-mix-model-card" aria-label="Electricity mix model summary">
@@ -1545,11 +1545,11 @@ const isElectricityMixLab = labSlug === 'lesson-14-electricity-mixes-capacity-an
           <ul>
             <li><strong>Country context:</strong> resources, inherited infrastructure, goals, and constraints shape what gets built.</li>
             <li><strong>Installed capacity:</strong> the fleet's rated power, not its guaranteed output.</li>
-            <li><strong>Actual generation:</strong> changes with conditions and operating decisions.</li>
+            <li><strong>Current output:</strong> measured in MW and changes with conditions and operating decisions.</li>
             <li><strong>Complementary resources:</strong> help the portfolio meet demand at different times.</li>
           </ul>
           <p class="mix-storage-note" data-mix-storage-note>
-            Generation exceeds current demand, so the battery stores part of the surplus for later use.
+            Current output exceeds demand, so the battery stores part of the surplus for later use.
           </p>
           <p class="mix-model-boundary">These fictional snapshots illustrate relationships. They are not forecasts or operating plans for a real country or grid.</p>
         </aside>

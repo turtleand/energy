@@ -12,7 +12,7 @@ if (lab) {
     profileFactors: lab.querySelector('[data-mix-profile-factors]'),
     snapshotName: lab.querySelector('[data-mix-snapshot-name]'),
     demand: Array.from(lab.querySelectorAll('[data-mix-demand]')),
-    generation: lab.querySelector('[data-mix-generation]'),
+    currentOutput: lab.querySelector('[data-mix-output]'),
     storage: lab.querySelector('[data-mix-storage]'),
     balance: lab.querySelector('[data-mix-balance]'),
     storageNote: lab.querySelector('[data-mix-storage-note]'),
@@ -76,9 +76,9 @@ if (lab) {
   function updateLab() {
     const profile = profiles[profileInput.value];
     const snapshot = profile.snapshots[snapshotInput.value];
-    const sourceGeneration = snapshot.solar + snapshot.wind + snapshot.hydro + snapshot.flexible;
+    const sourceOutput = snapshot.solar + snapshot.wind + snapshot.hydro + snapshot.flexible;
     const storageAction = snapshot.storage;
-    const delivered = sourceGeneration + storageAction;
+    const delivered = sourceOutput + storageAction;
     const maxCapacity = Math.max(...Object.values(profile.capacity));
 
     lab.dataset.storageAction = storageAction > 0 ? 'discharging' : storageAction < 0 ? 'charging' : 'idle';
@@ -91,22 +91,22 @@ if (lab) {
     sourceRows.forEach((row) => {
       const source = row.dataset.mixSource;
       const capacity = profile.capacity[source];
-      const generation = snapshot[source];
+      const currentOutput = snapshot[source];
       const capacityPercent = (capacity / maxCapacity) * 100;
-      const generationPercent = (generation / maxCapacity) * 100;
-      const utilization = capacity === 0 ? 0 : (generation / capacity) * 100;
+      const outputPercent = (currentOutput / maxCapacity) * 100;
+      const utilization = capacity === 0 ? 0 : (currentOutput / capacity) * 100;
 
       row.querySelector('[data-mix-capacity-value]').textContent = `${capacity} MW installed`;
-      row.querySelector('[data-mix-generation-value]').textContent = `${generation} MW now`;
+      row.querySelector('[data-mix-output-value]').textContent = `${currentOutput} MW now`;
       row.querySelector('[data-mix-utilization]').textContent = `${Math.round(utilization)}% of rating`;
       row.querySelector('[data-mix-capacity-bar]').style.width = `${capacityPercent}%`;
-      row.querySelector('[data-mix-generation-bar]').style.width = `${generationPercent}%`;
+      row.querySelector('[data-mix-output-bar]').style.width = `${outputPercent}%`;
     });
 
     output.demand.forEach((node) => {
       node.textContent = formatPower(snapshot.demand);
     });
-    output.generation.textContent = formatPower(sourceGeneration);
+    output.currentOutput.textContent = formatPower(sourceOutput);
     output.storage.textContent = storageAction > 0
       ? `Discharging ${formatPower(storageAction)}`
       : storageAction < 0
@@ -114,14 +114,14 @@ if (lab) {
         : 'Idle';
 
     if (storageAction > 0) {
-      output.balance.textContent = `${formatPower(sourceGeneration)} generation + ${formatPower(storageAction)} stored discharge = ${formatPower(delivered)} supplied`;
+      output.balance.textContent = `${formatPower(sourceOutput)} output + ${formatPower(storageAction)} stored discharge = ${formatPower(delivered)} supplied`;
       output.storageNote.textContent = 'The battery fills the remaining gap with energy stored earlier. It does not create new energy.';
     } else if (storageAction < 0) {
-      output.balance.textContent = `${formatPower(sourceGeneration)} generation - ${formatPower(storageAction)} charging = ${formatPower(delivered)} supplied`;
-      output.storageNote.textContent = 'Generation exceeds current demand, so the battery stores part of the surplus for later use.';
+      output.balance.textContent = `${formatPower(sourceOutput)} output - ${formatPower(storageAction)} charging = ${formatPower(delivered)} supplied`;
+      output.storageNote.textContent = 'Current output exceeds demand, so the battery stores part of the surplus for later use.';
     } else {
-      output.balance.textContent = `${formatPower(sourceGeneration)} generation = ${formatPower(delivered)} supplied`;
-      output.storageNote.textContent = 'Generation meets demand in this snapshot without battery charging or discharge.';
+      output.balance.textContent = `${formatPower(sourceOutput)} output = ${formatPower(delivered)} supplied`;
+      output.storageNote.textContent = 'Current output meets demand in this snapshot without battery charging or discharge.';
     }
 
     const balanceMatches = delivered === snapshot.demand;
