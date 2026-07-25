@@ -850,7 +850,7 @@ function gridfall12(state: MissionState): MissionReadout {
   });
 }
 
-export function getMissionReadout(state: CampaignState, mission: MissionId): MissionReadout {
+function buildMissionReadout(state: CampaignState, mission: MissionId): MissionReadout {
   const missionState = state.missions[mission];
   switch (mission) {
     case 'loopworks-01':
@@ -878,6 +878,22 @@ export function getMissionReadout(state: CampaignState, mission: MissionId): Mis
     case 'gridfall-12':
       return gridfall12(missionState);
   }
+}
+
+export function getMissionReadout(state: CampaignState, mission: MissionId): MissionReadout {
+  const readout = buildMissionReadout(state, mission);
+  if (!state.completed.includes(mission)) return readout;
+
+  return {
+    ...readout,
+    objectiveProgress: 1,
+    stepCompletion: readout.stepCompletion.map(() => true),
+  };
+}
+
+export function getNextIncompleteStep(stepCompletion: readonly boolean[]): number {
+  const index = stepCompletion.findIndex((done) => !done);
+  return index === -1 ? stepCompletion.length : index + 1;
 }
 
 export function isMissionUnlocked(state: CampaignState, mission: MissionId): boolean {
@@ -1094,9 +1110,12 @@ export function setCampaignSettings(
 }
 
 export function resetMissionState(state: CampaignState, mission: MissionId): CampaignState {
+  const preserveCampaign = state.sandboxUnlocked;
   return remember(state, {
     ...state,
-    completed: state.completed.filter((completed) => completed !== mission),
+    completed: preserveCampaign
+      ? state.completed
+      : state.completed.filter((completed) => completed !== mission),
     missions: {
       ...state.missions,
       [mission]: {
@@ -1106,8 +1125,8 @@ export function resetMissionState(state: CampaignState, mission: MissionId): Cam
         milestones: [],
       },
     },
-    campaignComplete: false,
-    sandboxUnlocked: false,
+    campaignComplete: preserveCampaign ? state.campaignComplete : false,
+    sandboxUnlocked: preserveCampaign,
     history: state.history,
   });
 }

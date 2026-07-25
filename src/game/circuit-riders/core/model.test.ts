@@ -5,6 +5,8 @@ import {
   advanceCampaignTime,
   createInitialCampaignState,
   getMissionReadout,
+  getNextIncompleteStep,
+  initialMissionControls,
   isMissionUnlocked,
   parseCampaignSave,
   performMissionAction,
@@ -59,6 +61,52 @@ describe('Circuit Riders deterministic electrical model', () => {
 
     expect(morePush.metrics.current).toBeGreaterThan(baseline.metrics.current);
     expect(moreResistance.metrics.current).toBeLessThan(morePush.metrics.current);
+  });
+
+  it('reports every objective step complete when the mission is restored', () => {
+    let state = createInitialCampaignState();
+    state = {
+      ...state,
+      completed: ['loopworks-01', 'loopworks-02', 'loopworks-03'],
+    };
+    state = setMissionControl(state, 'loopworks-04', 'switchClosed', true);
+    state = setMissionControl(state, 'loopworks-04', 'voltage', 8);
+    state = setMissionControl(state, 'loopworks-04', 'resistance', 8);
+    state = setMissionControl(state, 'loopworks-04', 'voltage', 12);
+    state = setMissionControl(state, 'loopworks-04', 'resistance', 4);
+
+    const tunnel = getMissionReadout(state, 'loopworks-04');
+
+    expect(state.completed).toContain('loopworks-04');
+    expect(tunnel.objectiveMet).toBe(false);
+    expect(tunnel.objectiveProgress).toBe(1);
+    expect(tunnel.stepCompletion).toEqual([true, true, true]);
+
+    state = {
+      ...state,
+      completed: [
+        'loopworks-01',
+        'loopworks-02',
+        'loopworks-03',
+        'loopworks-04',
+        'converter-05',
+        'converter-06',
+        'converter-07',
+        'gridfall-08',
+      ],
+    };
+    state = setMissionControl(state, 'gridfall-09', 'loopClosed', true);
+    state = setMissionControl(state, 'gridfall-09', 'motion', 0.8);
+    state = setMissionControl(state, 'gridfall-09', 'field', 0.8);
+    state = setMissionControl(state, 'gridfall-09', 'load', 0.6);
+    state = setMissionControl(state, 'gridfall-09', 'load', 0.3);
+
+    const generator = getMissionReadout(state, 'gridfall-09');
+
+    expect(state.completed).toContain('gridfall-09');
+    expect(generator.objectiveMet).toBe(false);
+    expect(generator.objectiveProgress).toBe(1);
+    expect(generator.stepCompletion).toEqual([true, true, true]);
   });
 
   it('keeps power as an immediate rate while energy accumulates over time', () => {
@@ -205,6 +253,12 @@ describe('Circuit Riders deterministic electrical model', () => {
 });
 
 describe('Circuit Riders progression controls', () => {
+  it('reports the first incomplete objective step even when later steps are already done', () => {
+    expect(getNextIncompleteStep([false, true, false])).toBe(1);
+    expect(getNextIncompleteStep([true, true, false])).toBe(3);
+    expect(getNextIncompleteStep([true, true, true])).toBe(3);
+  });
+
   it('unlocks one mission at a time and can rewind or retry without stale completion', () => {
     let state = createInitialCampaignState();
 
@@ -223,6 +277,38 @@ describe('Circuit Riders progression controls', () => {
     state = resetMissionState(state, 'loopworks-01');
     expect(getMissionReadout(state, 'loopworks-01').objectiveProgress).toBe(0);
     expect(state.completed).not.toContain('loopworks-01');
+  });
+
+  it('resets sandbox controls without erasing the restored campaign', () => {
+    let state = createInitialCampaignState();
+    state = {
+      ...state,
+      campaignComplete: true,
+      completed: [
+        'loopworks-01',
+        'loopworks-02',
+        'loopworks-03',
+        'loopworks-04',
+        'converter-05',
+        'converter-06',
+        'converter-07',
+        'gridfall-08',
+        'gridfall-09',
+        'gridfall-10',
+        'gridfall-11',
+        'gridfall-12',
+      ],
+      sandboxUnlocked: true,
+    };
+    state = setMissionControl(state, 'loopworks-01', 'sourceOn', true);
+    state = resetMissionState(state, 'loopworks-01');
+
+    expect(state.campaignComplete).toBe(true);
+    expect(state.sandboxUnlocked).toBe(true);
+    expect(state.completed).toContain('loopworks-01');
+    expect(state.missions['loopworks-01'].controls).toEqual(
+      initialMissionControls['loopworks-01'],
+    );
   });
 });
 

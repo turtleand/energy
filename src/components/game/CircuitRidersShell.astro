@@ -16,6 +16,7 @@ const { game } = Astro.props;
   class="circuit-riders"
   data-game-root
   data-effects="full"
+  data-engine="idle"
   data-motion="full"
   data-mode="action"
   aria-labelledby="circuit-riders-title"
@@ -113,13 +114,9 @@ const { game } = Astro.props;
 
       <div class="riders-start-card" data-start-card>
         <p class="riders-kicker" data-start-kicker>Loop Patrol dispatch</p>
-        <h2 data-start-heading>One city. Twelve damaged systems. Every loop matters.</h2>
+        <h2 data-start-heading>Ride the rail. Restore every loop.</h2>
         <p>{game.summary}</p>
-        <ul class="start-brief">
-          <li><span aria-hidden="true">◇</span> Ride the blue PATROL drone along service rails</li>
-          <li><span aria-hidden="true">• • •</span> Read electrical flow through separate moving markers</li>
-          <li><span aria-hidden="true">◎</span> Restore one connected campaign from Loopworks to Gridfall</li>
-        </ul>
+        <p class="start-signal"><span aria-hidden="true">◇</span> Blue is your patrol drone. Amber and white markers show electrical flow.</p>
         <button class="riders-button primary-button" type="button" data-start-button>
           Start Loop Patrol
         </button>
@@ -135,14 +132,22 @@ const { game } = Astro.props;
           </div>
         </div>
         <dl>
-          <div><dt>Potential</dt><dd><span data-lens-meter="fieldAmplitude"></span></dd></div>
-          <div><dt>Current density</dt><dd><span data-lens-meter="density"></span></dd></div>
-          <div><dt>Power now</dt><dd><span data-lens-meter="power"></span></dd></div>
-          <div><dt>Energy over time</dt><dd><span data-lens-meter="energy"></span></dd></div>
-          <div><dt>Heat</dt><dd><span data-lens-meter="heat"></span></dd></div>
-          <div><dt>Leakage</dt><dd><span data-lens-meter="leakage"></span></dd></div>
+          <div><dt>Potential</dt><dd class="lens-meter"><span data-lens-meter="fieldAmplitude"></span></dd><dd class="lens-value"><output data-lens-value="fieldAmplitude">0</output></dd></div>
+          <div><dt>Current</dt><dd class="lens-meter"><span data-lens-meter="density"></span></dd><dd class="lens-value"><output data-lens-value="density">0</output></dd></div>
+          <div><dt>Power now</dt><dd class="lens-meter"><span data-lens-meter="power"></span></dd><dd class="lens-value"><output data-lens-value="power">0</output></dd></div>
+          <div><dt>Energy total</dt><dd class="lens-meter"><span data-lens-meter="energy"></span></dd><dd class="lens-value"><output data-lens-value="energy">0</output></dd></div>
+          <div><dt>Heat</dt><dd class="lens-meter"><span data-lens-meter="heat"></span></dd><dd class="lens-value"><output data-lens-value="heat">0</output></dd></div>
+          <div><dt>Leakage</dt><dd class="lens-meter"><span data-lens-meter="leakage"></span></dd><dd class="lens-value"><output data-lens-value="leakage">0</output></dd></div>
         </dl>
         <p>Marker count shows current rate. Marker speed stays fixed so the drone is never mistaken for charge flow.</p>
+      </div>
+
+      <div class="mission-transition" data-mission-transition hidden aria-hidden="true">
+        <span class="transition-rail" aria-hidden="true"><i></i></span>
+        <span>
+          <small data-transition-label>Next patrol stop</small>
+          <strong data-transition-destination></strong>
+        </span>
       </div>
 
       <div class="pause-overlay" data-pause-card hidden>
@@ -163,10 +168,8 @@ const { game } = Astro.props;
 
       <div class="touch-controls" aria-label="Touch movement controls">
         <div class="touch-dpad">
-          <button type="button" data-touch-move="up" aria-label="Move drone counterclockwise">↑</button>
-          <button type="button" data-touch-move="left" aria-label="Move drone counterclockwise">←</button>
-          <button type="button" data-touch-move="down" aria-label="Move drone clockwise">↓</button>
-          <button type="button" data-touch-move="right" aria-label="Move drone clockwise">→</button>
+          <button type="button" data-touch-move="left" aria-label="Ride counterclockwise">↶</button>
+          <button type="button" data-touch-move="right" aria-label="Ride clockwise">↷</button>
         </div>
         <button class="touch-action" type="button" data-touch-action>
           <span aria-hidden="true">◇</span>
@@ -184,12 +187,10 @@ const { game } = Astro.props;
         <span class="mission-number" data-mission-number>01</span>
       </div>
 
-      <p class="mission-summary" data-mission-summary></p>
-
       <div class="objective-panel">
         <div class="objective-title">
           <span>Patrol objective</span>
-          <strong data-objective-percent>0%</strong>
+          <strong data-objective-progress>Step 1 of 3</strong>
         </div>
         <p data-objective-text></p>
         <div
@@ -201,21 +202,21 @@ const { game } = Astro.props;
           aria-valuenow="0"
           data-objective-meter
         ><span></span></div>
+      </div>
+
+      <details class="mission-brief">
+        <summary>Mission briefing</summary>
+        <p class="mission-summary" data-mission-summary></p>
         <ol data-objective-steps></ol>
-      </div>
+      </details>
 
-      <div class="control-lock" data-control-lock>
-        <span aria-hidden="true">◇</span>
-        <span>
-          <strong data-control-lock-title>Service node out of range</strong>
-          <small data-control-lock-detail>Ride the drone to the marked node, or switch to Planning mode.</small>
-        </span>
-      </div>
-
-      <fieldset class="mission-controls-fieldset" data-control-fieldset disabled>
-        <legend class="visually-hidden">Current mission controls</legend>
-        <div class="mission-controls" data-control-stack></div>
-      </fieldset>
+      <details class="control-panel" data-control-panel open>
+        <summary>System controls</summary>
+        <fieldset class="mission-controls-fieldset" data-control-fieldset disabled>
+          <legend class="visually-hidden">Current mission controls</legend>
+          <div class="mission-controls" data-control-stack></div>
+        </fieldset>
+      </details>
 
       <section class="system-readout" aria-labelledby="readout-title">
         <div class="readout-heading">
@@ -223,28 +224,21 @@ const { game } = Astro.props;
           <span data-system-status>Waiting</span>
         </div>
         <p data-system-caption></p>
-        <dl class="readout-metrics">
-          <div><dt>Potential</dt><dd data-metric="voltage">0</dd></div>
-          <div><dt>Current</dt><dd data-metric="current">0</dd></div>
-          <div><dt>Power</dt><dd data-metric="power">0</dd></div>
-          <div><dt>Energy</dt><dd data-metric="energy">0</dd></div>
-          <div><dt>Heat</dt><dd data-metric="heat">0</dd></div>
-          <div><dt>Leakage</dt><dd data-metric="leakage">0</dd></div>
-        </dl>
       </section>
 
       <div class="mission-actions">
-        <button class="riders-button" type="button" data-rewind-button disabled>Rewind move</button>
-        <button class="riders-button" type="button" data-retry-button>Retry mission</button>
+        <button class="riders-button" type="button" data-rewind-button hidden disabled>Undo</button>
+        <button class="riders-button" type="button" data-retry-button hidden>Restart</button>
         <button class="riders-button" type="button" data-replay-inline hidden>Replay campaign</button>
         <button class="riders-button primary-button" type="button" data-next-button hidden>
-          Ride onward
+          Continue
         </button>
       </div>
 
-      <p class="model-boundary">
-        Circuit Riders simplifies electrical behavior so relationships can be seen. It is not a design tool, safety test, or guide for mains work.
-      </p>
+      <details class="model-boundary">
+        <summary>About this model</summary>
+        <p>Circuit Riders simplifies electrical behavior so relationships can be seen. It is not a design tool, safety test, or guide for mains work.</p>
+      </details>
     </aside>
   </div>
 
@@ -353,6 +347,8 @@ const { game } = Astro.props;
     getCampaignProgress,
     getMissionReadout,
     getNextMission,
+    getNextIncompleteStep,
+    initialMissionControls,
     isMissionUnlocked,
     parseCampaignSave,
     performMissionAction,
@@ -366,6 +362,7 @@ const { game } = Astro.props;
     type InputBindings,
     type MissionReadout,
   } from '@game/circuit-riders/core/model';
+  import { describeMissionTransition } from '@game/circuit-riders/core/transitions';
   import type { CircuitRidersRenderer } from '@game/circuit-riders/bootstrap';
 
   const root = document.querySelector<HTMLElement>('[data-game-root]');
@@ -380,11 +377,13 @@ const { game } = Astro.props;
     const startCard = required<HTMLElement>('[data-start-card]');
     const startButton = required<HTMLButtonElement>('[data-start-button]');
     const mount = required<HTMLElement>('[data-phaser-mount]');
+    const missionDock = required<HTMLElement>('.mission-dock');
+    const controlPanel = required<HTMLDetailsElement>('[data-control-panel]');
     const controlStack = required<HTMLElement>('[data-control-stack]');
     const controlFieldset = required<HTMLFieldSetElement>('[data-control-fieldset]');
-    const controlLock = required<HTMLElement>('[data-control-lock]');
     const lensButton = required<HTMLButtonElement>('[data-lens-button]');
     const lensPanel = required<HTMLElement>('[data-flow-lens]');
+    const transitionPanel = required<HTMLElement>('[data-mission-transition]');
     const modeButton = required<HTMLButtonElement>('[data-mode-button]');
     const pauseButton = required<HTMLButtonElement>('[data-pause-button]');
     const pauseCard = required<HTMLElement>('[data-pause-card]');
@@ -394,6 +393,7 @@ const { game } = Astro.props;
     const rewindButton = required<HTMLButtonElement>('[data-rewind-button]');
     const retryButton = required<HTMLButtonElement>('[data-retry-button]');
     const replayInlineButton = required<HTMLButtonElement>('[data-replay-inline]');
+    const replayButton = required<HTMLButtonElement>('[data-replay-button]');
     const nextButton = required<HTMLButtonElement>('[data-next-button]');
     const completionCard = required<HTMLElement>('[data-completion-card]');
     const liveRegion = required<HTMLElement>('[data-live-region]');
@@ -405,6 +405,8 @@ const { game } = Astro.props;
     let serviceAvailable = state.settings.mode === 'planning';
     let lensActive = false;
     let paused = false;
+    let transitioning = false;
+    let transitionTimer: number | undefined;
     let audioContext: AudioContext | null = null;
 
     function loadState() {
@@ -487,7 +489,7 @@ const { game } = Astro.props;
     }
 
     function canOperate() {
-      return state.settings.mode === 'planning' || serviceAvailable;
+      return !paused && !transitioning && (state.settings.mode === 'planning' || serviceAvailable);
     }
 
     function mutate(
@@ -503,6 +505,7 @@ const { game } = Astro.props;
 
       if (state.completed.length > previousCompleted) {
         const restored = missionById[state.completed.at(-1)!];
+        controlPanel.open = false;
         root.dataset.celebrate = 'true';
         window.setTimeout(
           () => delete root.dataset.celebrate,
@@ -547,6 +550,7 @@ const { game } = Astro.props;
         const completed = state.completed.includes(mission);
         const active = state.activeMission === mission;
         button.setAttribute('aria-disabled', String(!unlocked));
+        button.disabled = transitioning;
         button.toggleAttribute('data-unlocked', unlocked);
         button.toggleAttribute('data-completed', completed);
         button.toggleAttribute('data-active', active);
@@ -568,26 +572,43 @@ const { game } = Astro.props;
     function renderServiceState() {
       const planning = state.settings.mode === 'planning';
       const available = canOperate();
+      const mission = missionById[state.activeMission];
+      const readout = getMissionReadout(state, state.activeMission);
+      const completed = state.completed.includes(state.activeMission) && readout.objectiveMet;
       root.dataset.mode = state.settings.mode;
       required<HTMLElement>('[data-mode-label]').textContent = planning ? 'Planning' : 'Action';
       modeButton.setAttribute('aria-pressed', String(planning));
+      modeButton.setAttribute(
+        'aria-label',
+        planning ? 'Switch to Action mode' : 'Switch to Planning mode',
+      );
+      modeButton.disabled = transitioning;
       controlFieldset.disabled = !available;
-      controlLock.hidden = available;
       const stageStatus = required<HTMLElement>('[data-stage-status]');
-      stageStatus.dataset.phase = available ? 'ready' : 'approach';
-      required<HTMLElement>('[data-service-title]').textContent = available
-        ? planning
-          ? 'Planning console linked'
-          : 'Service node in range'
-        : 'Ride to the service node';
-      required<HTMLElement>('[data-service-detail]').textContent = available
-        ? planning
-          ? 'Autodrive keeps every mission control available.'
-          : 'Operate the system, or keep riding to inspect the loop.'
-        : 'Move the blue PATROL drone. Electrical flow remains separate.';
-      required<HTMLElement>('[data-control-lock-title]').textContent = planning
-        ? 'Planning console linked'
-        : 'Service node out of range';
+      stageStatus.dataset.phase = transitioning ? 'travel' : completed || available ? 'ready' : 'approach';
+
+      const title = required<HTMLElement>('[data-service-title]');
+      const detail = required<HTMLElement>('[data-service-detail]');
+      if (transitioning) {
+        title.textContent = `Riding to ${mission.shortTitle}`;
+        detail.textContent = 'Patrol controls return on arrival.';
+      } else if (paused) {
+        title.textContent = 'Patrol paused';
+        detail.textContent = 'Resume when you are ready to continue.';
+      } else if (completed) {
+        title.textContent = `${mission.shortTitle} restored`;
+        detail.textContent = state.sandboxUnlocked
+          ? 'Experiment here, or choose another restored system.'
+          : 'Rail pulse complete. Continue when ready.';
+      } else if (available) {
+        title.textContent = planning ? 'Planning link ready' : 'Service node ready';
+        detail.textContent = planning
+          ? 'Operate the system from this console.'
+          : 'Operate the system, or keep riding to inspect the loop.';
+      } else {
+        title.textContent = 'Ride to the service node';
+        detail.textContent = 'Move the blue PATROL drone. Electrical flow remains separate.';
+      }
     }
 
     function makeElement<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string) {
@@ -609,6 +630,14 @@ const { game } = Astro.props;
         output.textContent = value;
         container.append(output);
       }
+    }
+
+    function describeControl(control: HTMLElement, hint: HTMLElement, id: string) {
+      hint.id = `hint-${state.activeMission}-${id}`;
+      hint.className = 'visually-hidden';
+      control.dataset.gameControl = 'true';
+      control.dataset.controlId = id;
+      control.setAttribute('aria-describedby', hint.id);
     }
 
     function actionMessage(action: string, before: CampaignState, after: CampaignState) {
@@ -645,11 +674,10 @@ const { game } = Astro.props;
         appendControlHeading(heading, definition.label, value ? definition.onLabel : definition.offLabel);
         const button = makeElement('button', 'switch-control');
         button.type = 'button';
-        button.dataset.gameControl = 'true';
-        button.dataset.controlId = definition.id;
         button.setAttribute('role', 'switch');
         button.setAttribute('aria-checked', String(value));
         button.setAttribute('aria-label', definition.label);
+        describeControl(button, hint, definition.id);
         button.append(makeElement('span'));
         button.addEventListener('click', () => {
           if (!canOperate()) {
@@ -672,9 +700,8 @@ const { game } = Astro.props;
         input.max = String(definition.max);
         input.step = String(definition.step);
         input.value = String(value);
-        input.dataset.gameControl = 'true';
-        input.dataset.controlId = definition.id;
         input.setAttribute('aria-label', definition.label);
+        describeControl(input, hint, definition.id);
         input.addEventListener('input', () => {
           if (!canOperate()) return;
           const nextValue = Number(input.value);
@@ -689,9 +716,8 @@ const { game } = Astro.props;
       if (definition.kind === 'choice') {
         appendControlHeading(heading, definition.label);
         const select = makeElement('select');
-        select.dataset.gameControl = 'true';
-        select.dataset.controlId = definition.id;
         select.setAttribute('aria-label', definition.label);
+        describeControl(select, hint, definition.id);
         definition.options.forEach((option) => {
           const optionElement = makeElement('option');
           optionElement.value = option.value;
@@ -710,8 +736,7 @@ const { game } = Astro.props;
         const button = makeElement('button', 'riders-button action-control');
         button.type = 'button';
         button.textContent = definition.label;
-        button.dataset.gameControl = 'true';
-        button.dataset.controlId = definition.id;
+        describeControl(button, hint, definition.id);
         button.addEventListener('click', () => {
           if (!canOperate()) {
             renderer?.dockAtService();
@@ -739,7 +764,7 @@ const { game } = Astro.props;
       controlFieldset.disabled = !canOperate();
     }
 
-    function renderReadout() {
+    function renderReadout(options: { missionChanged?: boolean; updateRenderer?: boolean } = {}) {
       const mission = missionById[state.activeMission];
       const readout = getMissionReadout(state, mission.id);
       required<HTMLElement>('[data-mission-place]').textContent = mission.place;
@@ -749,7 +774,15 @@ const { game } = Astro.props;
       required<HTMLElement>('[data-objective-text]').textContent = mission.objective;
 
       const percent = Math.round(readout.objectiveProgress * 100);
-      required<HTMLElement>('[data-objective-percent]').textContent = `${percent}%`;
+      const nextIncompleteStep = getNextIncompleteStep(readout.stepCompletion);
+      const restoredPreviously =
+        state.completed.includes(mission.id) && !readout.objectiveMet;
+      required<HTMLElement>('[data-objective-progress]').textContent =
+        restoredPreviously
+          ? 'Restored earlier'
+          : percent === 100
+            ? 'Restored'
+            : `Step ${nextIncompleteStep} of ${mission.steps.length}`;
       const meter = required<HTMLElement>('[data-objective-meter]');
       meter.setAttribute('aria-valuenow', String(percent));
       const meterFill = meter.querySelector<HTMLElement>('span');
@@ -768,12 +801,6 @@ const { game } = Astro.props;
       const status = required<HTMLElement>('[data-system-status]');
       status.textContent = readout.status[0].toUpperCase() + readout.status.slice(1);
       status.dataset.status = readout.status;
-      for (const metric of ['voltage', 'current', 'power', 'energy', 'heat', 'leakage']) {
-        required<HTMLElement>(`[data-metric="${metric}"]`).textContent = formatValue(
-          readout.metrics[metric] ?? readout.flow[metric as keyof MissionReadout['flow']] ?? 0,
-        );
-      }
-
       required<HTMLElement>('[data-flow-direction]').textContent =
         readout.flow.direction === 'alternating'
           ? 'Direction reversing'
@@ -785,20 +812,44 @@ const { game } = Astro.props;
         const lensMeter = required<HTMLElement>(`[data-lens-meter="${metric}"]`);
         lensMeter.style.setProperty('--meter-value', `${Math.max(0.02, Math.min(1, value)) * 100}%`);
         lensMeter.setAttribute('aria-label', `${metric} ${Math.round(value * 100)} percent of the model range`);
+        const readoutMetric =
+          metric === 'fieldAmplitude'
+            ? readout.metrics.voltage
+            : metric === 'density'
+              ? readout.metrics.current
+              : readout.metrics[metric];
+        required<HTMLOutputElement>(`[data-lens-value="${metric}"]`).textContent = formatValue(
+          Number(readoutMetric ?? value),
+        );
       }
 
-      renderer?.update(state, readout, lensActive);
+      if (options.updateRenderer !== false) {
+        renderer?.update(state, readout, lensActive, options.missionChanged);
+      }
     }
 
     function renderActions() {
       const progress = getCampaignProgress(state);
       required<HTMLElement>('[data-campaign-count]').textContent = `${state.completed.length} / ${missions.length}`;
       required<HTMLElement>('[data-campaign-meter]').style.width = `${progress * 100}%`;
-      rewindButton.disabled = state.history.length === 0;
+      rewindButton.disabled = transitioning || state.history.length === 0;
+      rewindButton.hidden = state.history.length === 0;
+      const activeState = state.missions[state.activeMission];
+      const missionChanged =
+        state.completed.includes(state.activeMission) ||
+        activeState.elapsedSeconds !== 0 ||
+        activeState.milestones.length > 0 ||
+        JSON.stringify(activeState.controls) !== JSON.stringify(initialMissionControls[state.activeMission]);
+      retryButton.hidden = !missionChanged;
+      retryButton.disabled = transitioning;
+      retryButton.textContent = state.sandboxUnlocked ? 'Reset controls' : 'Restart';
       const next = getNextMission(state);
       nextButton.hidden = !(state.completed.includes(state.activeMission) && next);
-      if (next) nextButton.textContent = `Ride to ${missionById[next].shortTitle}`;
+      nextButton.disabled = transitioning;
+      if (next) nextButton.textContent = `Continue to ${missionById[next].shortTitle}`;
       replayInlineButton.hidden = !state.sandboxUnlocked;
+      replayInlineButton.disabled = transitioning;
+      replayButton.disabled = transitioning;
       root.dataset.effects = state.settings.reducedEffects ? 'reduced' : 'full';
       root.dataset.motion = state.settings.reducedMotion ? 'reduced' : 'full';
       root.toggleAttribute('data-sandbox', state.sandboxUnlocked);
@@ -815,7 +866,7 @@ const { game } = Astro.props;
         startButton.textContent = 'Resume patrol';
       } else {
         startKicker.textContent = 'Loop Patrol dispatch';
-        startHeading.textContent = 'One city. Twelve damaged systems. Every loop matters.';
+        startHeading.textContent = 'Ride the rail. Restore every loop.';
         startButton.textContent = 'Start Loop Patrol';
       }
 
@@ -833,15 +884,25 @@ const { game } = Astro.props;
       });
     }
 
-    function render(options: { preserveControls?: boolean } = {}) {
+    function render(
+      options: {
+        missionChanged?: boolean;
+        preserveControls?: boolean;
+        updateRenderer?: boolean;
+      } = {},
+    ) {
       renderNavigation();
       renderServiceState();
       if (!options.preserveControls) renderControls();
-      renderReadout();
+      renderReadout(options);
       renderActions();
     }
 
     function navigateToMission(mission: MissionId) {
+      if (transitioning) {
+        announce('The patrol is already riding to the next stop.');
+        return;
+      }
       if (!isMissionUnlocked(state, mission)) {
         announce(`${missionById[mission].title} is still locked. Restore the connected system first.`);
         return;
@@ -853,14 +914,35 @@ const { game } = Astro.props;
         mount.focus({ preventScroll: true });
         return;
       }
+      const transition = describeMissionTransition(previous, mission, state.settings.reducedMotion);
       serviceAvailable = state.settings.mode === 'planning';
+      transitioning = true;
+      root.dataset.transition = 'true';
+      transitionPanel.hidden = false;
+      required<HTMLElement>('[data-transition-label]').textContent = transition.label;
+      required<HTMLElement>('[data-transition-destination]').textContent = transition.destination;
+      missionDock.scrollTop = 0;
+      controlPanel.open = !getMissionReadout(state, mission).objectiveMet;
       saveState();
-      render();
-      renderer?.update(state, getMissionReadout(state, mission), lensActive, true);
-      renderer?.dockAtService();
-      mount.focus({ preventScroll: true });
-      announce(`Travelling to mission ${missionById[mission].order}, ${missionById[mission].title}.`);
+      render({ missionChanged: true });
+      announce(`Riding to mission ${missionById[mission].order}, ${missionById[mission].title}.`);
       playTone('move');
+      window.clearTimeout(transitionTimer);
+      transitionTimer = window.setTimeout(() => {
+        transitioning = false;
+        delete root.dataset.transition;
+        transitionPanel.hidden = true;
+        serviceAvailable = state.settings.mode === 'planning';
+        renderer?.dockAtService();
+        render({ preserveControls: true, updateRenderer: false });
+        if (paused) {
+          resumeButton.focus();
+          announce('Patrol paused. The system will wait.');
+        } else {
+          mount.focus({ preventScroll: true });
+          announce(`Arrived at ${missionById[mission].title}.`);
+        }
+      }, transition.durationMs);
     }
 
     function toggleLens() {
@@ -880,6 +962,7 @@ const { game } = Astro.props;
       pauseCard.hidden = !paused;
       pauseButton.setAttribute('aria-label', paused ? 'Resume game' : 'Pause game');
       renderer?.setPaused(paused);
+      renderServiceState();
       if (paused) resumeButton.focus();
       else mount.focus({ preventScroll: true });
       announce(paused ? 'Patrol paused. The system will wait.' : 'Patrol resumed.');
@@ -892,7 +975,6 @@ const { game } = Astro.props;
       serviceAvailable = mode === 'planning' || previousMode === 'planning';
       saveState();
       render();
-      renderer?.update(state, getMissionReadout(state, state.activeMission), lensActive);
       if (mode === 'planning') renderer?.dockAtService();
       announce(
         mode === 'planning'
@@ -954,14 +1036,15 @@ const { game } = Astro.props;
           onServiceChange: (available) => {
             serviceAvailable = available;
             renderServiceState();
-            controlFieldset.disabled = !canOperate();
             if (available && state.settings.mode === 'action') {
               announce(`${missionById[state.activeMission].title} service controls are in range.`);
             }
           },
         });
         if (paused) renderer.setPaused(true);
+        root.dataset.engine = 'running';
         startCard.hidden = true;
+        controlPanel.open = !getMissionReadout(state, state.activeMission).objectiveMet;
         mount.focus({ preventScroll: true });
         render();
         if (state.settings.mode === 'planning') renderer.dockAtService();
@@ -974,6 +1057,7 @@ const { game } = Astro.props;
         );
         playTone('start');
       } catch (error) {
+        root.dataset.engine = 'idle';
         startButton.disabled = false;
         startButton.textContent = 'Try opening patrol again';
         announce('The game renderer did not start. Refresh the page and try again.');
@@ -1027,11 +1111,13 @@ const { game } = Astro.props;
     });
 
     rewindButton.addEventListener('click', () => {
+      if (transitioning) return;
       mutate(rewindCampaignState(state), 'The latest system move was rewound.');
     });
 
     retryButton.addEventListener('click', () => {
-      mutate(resetMissionState(state, state.activeMission), 'Current mission reset instantly.');
+      if (transitioning) return;
+      mutate(resetMissionState(state, state.activeMission), 'Current mission restarted.');
     });
 
     nextButton.addEventListener('click', () => {
@@ -1049,6 +1135,7 @@ const { game } = Astro.props;
     });
 
     function replayCampaign() {
+      if (transitioning) return;
       state = createInitialCampaignState({
         muted: state.settings.muted,
         soundVolume: state.settings.soundVolume,
@@ -1059,18 +1146,19 @@ const { game } = Astro.props;
         bindings: state.settings.bindings,
       });
       completionCard.hidden = true;
+      controlPanel.open = true;
       serviceAvailable = state.settings.mode === 'planning';
       saveState();
-      render();
-      renderer?.update(state, getMissionReadout(state, state.activeMission), lensActive, true);
+      render({ missionChanged: true });
       renderer?.dockAtService();
       announce('Campaign replay started at The Missing Return.');
     }
 
-    required<HTMLButtonElement>('[data-replay-button]').addEventListener('click', replayCampaign);
+    replayButton.addEventListener('click', replayCampaign);
     replayInlineButton.addEventListener('click', replayCampaign);
 
     required<HTMLButtonElement>('[data-fresh-button]').addEventListener('click', () => {
+      if (transitioning) return;
       if (!window.confirm('Reset all Circuit Riders progress stored in this browser?')) return;
       state = createInitialCampaignState({
         reducedMotion: state.settings.reducedMotion,
@@ -1083,10 +1171,10 @@ const { game } = Astro.props;
       });
       hadSavedGame = false;
       serviceAvailable = state.settings.mode === 'planning';
+      controlPanel.open = true;
       saveState();
       settingsDialog.close();
-      render();
-      renderer?.update(state, getMissionReadout(state, state.activeMission), lensActive, true);
+      render({ missionChanged: true });
       renderer?.dockAtService();
       announce('All local progress reset. Loop Patrol is ready at mission one.');
     });
@@ -1127,6 +1215,7 @@ const { game } = Astro.props;
     });
 
     const destroyRenderer = () => {
+      window.clearTimeout(transitionTimer);
       renderer?.destroy();
       renderer = null;
     };
