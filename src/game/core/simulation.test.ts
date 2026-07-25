@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { districts, lessonMechanicMap } from '../content/districts';
+import { challengeDefinitions } from '../challenges/engine';
 import {
   advanceTime,
   chargeWorkshopVane,
   clearWorkshopDischarge,
+  completeChallengePhase,
   createInitialGameState,
   getDistrictReadout,
+  initialControls,
   parseSavedGameState,
   rewindGameState,
   runConverterDiagnostic,
@@ -14,6 +17,13 @@ import {
   setGameSettings,
   visitDistrict,
 } from './simulation';
+
+function completeStation(state: ReturnType<typeof createInitialGameState>, district: (typeof districts)[number]['id']) {
+  return challengeDefinitions[district].phases.reduce(
+    (current, phase) => completeChallengePhase(current, district, phase.id),
+    state,
+  );
+}
 
 describe('curriculum spine', () => {
   it('maps every lesson exactly once across six connected districts', () => {
@@ -144,17 +154,15 @@ describe('causal electricity model', () => {
 });
 
 describe('progression and persistence', () => {
-  it('re-evaluates the active objective when Assisted play lowers its thresholds', () => {
+  it('keeps Assisted play from bypassing the physical challenge phases', () => {
     let state = createInitialGameState();
-    state = setDistrictControl(state, 'workshop', 'loopClosed', true);
-    state = setDistrictControl(state, 'workshop', 'voltage', 7);
-    state = setDistrictControl(state, 'workshop', 'resistance', 6);
-    state = chargeWorkshopVane(state);
-    state = chargeWorkshopVane(state);
-    state = chargeWorkshopVane(state);
+    state = completeChallengePhase(state, 'workshop', 'build-loop');
+    state = completeChallengePhase(state, 'workshop', 'tune-flow');
     expect(state.restored).not.toContain('workshop');
 
     state = setGameSettings(state, { assisted: true });
+    expect(state.restored).not.toContain('workshop');
+    state = completeChallengePhase(state, 'workshop', 'spark-reset');
     expect(state.restored).toContain('workshop');
     expect(getDistrictReadout(state, 'workshop').objectiveMet).toBe(true);
   });
@@ -162,41 +170,28 @@ describe('progression and persistence', () => {
   it('can restore all six districts through play and unlock the sandbox', () => {
     let state = createInitialGameState();
 
-    state = setDistrictControl(state, 'workshop', 'loopClosed', true);
-    state = setDistrictControl(state, 'workshop', 'voltage', 9);
-    state = setDistrictControl(state, 'workshop', 'resistance', 4);
-    state = chargeWorkshopVane(state);
-    state = chargeWorkshopVane(state);
-    state = chargeWorkshopVane(state);
+    state = completeStation(state, 'workshop');
     state = visitDistrict(state, 'converter');
 
-    state = setDistrictControl(state, 'converter', 'adapterMatch', 'wrong');
-    state = runConverterDiagnostic(state);
-    state = setDistrictControl(state, 'converter', 'rectifierOn', true);
-    state = setDistrictControl(state, 'converter', 'smoothingOn', true);
-    state = setDistrictControl(state, 'converter', 'adapterMatch', 'correct');
+    state = completeStation(state, 'converter');
     state = visitDistrict(state, 'wind');
 
-    state = setDistrictControl(state, 'wind', 'loopClosed', true);
-    state = setDistrictControl(state, 'wind', 'windStrength', 0.85);
-    state = setDistrictControl(state, 'wind', 'fieldStrength', 0.8);
+    state = completeStation(state, 'wind');
     state = visitDistrict(state, 'longline');
 
-    state = setDistrictControl(state, 'longline', 'transmissionVoltage', 'high');
-    state = setDistrictControl(state, 'longline', 'transformerOn', true);
+    state = completeStation(state, 'longline');
     state = visitDistrict(state, 'lantern');
 
-    state = setDistrictControl(state, 'lantern', 'lampTech', 'warm-led');
-    state = advanceTime(state, 4);
+    state = completeStation(state, 'lantern');
     state = visitDistrict(state, 'harbor');
 
-    state = setDistrictControl(state, 'harbor', 'groundProtectionOn', true);
-    state = setDistrictControl(state, 'harbor', 'insulationState', 'sound');
-    state = setDistrictControl(state, 'harbor', 'homeLoad', 0.65);
-    state = setDistrictControl(state, 'harbor', 'feederCapacity', 0.9);
+    state = completeStation(state, 'harbor');
+    const completedState = state;
+    state = completeStation(state, 'harbor');
 
     expect(state.restored).toEqual(['workshop', 'converter', 'wind', 'longline', 'lantern', 'harbor']);
     expect(state.sandboxUnlocked).toBe(true);
+    expect(state).toBe(completedState);
     expect(districts.every((district) => getDistrictReadout(state, district.id).objectiveMet)).toBe(true);
   });
 
@@ -204,24 +199,28 @@ describe('progression and persistence', () => {
     let state = createInitialGameState();
     expect(visitDistrict(state, 'converter').activeDistrict).toBe('workshop');
 
-    state = setDistrictControl(state, 'workshop', 'loopClosed', true);
-    state = setDistrictControl(state, 'workshop', 'voltage', 9);
-    state = setDistrictControl(state, 'workshop', 'resistance', 4);
-    state = chargeWorkshopVane(state);
-    state = chargeWorkshopVane(state);
-    state = chargeWorkshopVane(state);
+    state = completeStation(state, 'workshop');
     expect(state.restored).toContain('workshop');
     expect(visitDistrict(state, 'converter').activeDistrict).toBe('converter');
   });
 
+  it('rejects remote and out-of-order challenge checkpoints', () => {
+    let state = createInitialGameState();
+    const untouched = state;
+
+    state = completeChallengePhase(state, 'converter', 'shape-wave');
+    expect(state).toBe(untouched);
+    state = completeChallengePhase(state, 'workshop', 'spark-reset');
+    expect(state).toBe(untouched);
+
+    state = completeChallengePhase(state, 'workshop', 'build-loop');
+    expect(state.challengeProgress.workshop.completedPhaseIds).toEqual(['build-loop']);
+    expect(state.history).toHaveLength(1);
+  });
+
   it('does not record travel in the electrical-action rewind history', () => {
     let state = createInitialGameState();
-    state = setDistrictControl(state, 'workshop', 'loopClosed', true);
-    state = setDistrictControl(state, 'workshop', 'voltage', 9);
-    state = setDistrictControl(state, 'workshop', 'resistance', 4);
-    state = chargeWorkshopVane(state);
-    state = chargeWorkshopVane(state);
-    state = chargeWorkshopVane(state);
+    state = completeStation(state, 'workshop');
     const historyLength = state.history.length;
 
     state = visitDistrict(state, 'converter');
@@ -235,12 +234,13 @@ describe('progression and persistence', () => {
     state = setDistrictControl(state, 'workshop', 'loopClosed', true);
     const restored = parseSavedGameState(serializeGameState(state));
     expect(restored.controls.workshop.loopClosed).toBe(true);
-    expect(parseSavedGameState('{broken').version).toBe(1);
+    expect(parseSavedGameState('{broken').version).toBe(2);
     const sanitized = parseSavedGameState(
       JSON.stringify({ version: 1, restored: ['workshop', 'workshop'], settings: { assisted: 'yes' } }),
     );
     expect(sanitized.restored).toEqual(['workshop']);
     expect(sanitized.settings.assisted).toBe(false);
+    expect(sanitized.challengeProgress.workshop.completedPhaseIds).toHaveLength(3);
   });
 
   it('migrates Lantern energy from older v1 saves without the accumulator field', () => {
@@ -248,10 +248,66 @@ describe('progression and persistence', () => {
     state = setDistrictControl(state, 'lantern', 'lampCount', 10);
     state = advanceTime(state, 8);
     const legacySave = JSON.parse(serializeGameState(state));
+    legacySave.version = 1;
+    delete legacySave.challengeProgress;
     delete legacySave.controls.lantern.energySpent;
 
     const migrated = parseSavedGameState(JSON.stringify(legacySave));
     expect(getDistrictReadout(migrated, 'lantern').metrics.energy).toBeCloseTo(3.4);
+  });
+
+  it('preserves v1 progress, controls, settings, active district, and elapsed time during migration', () => {
+    const legacy = {
+      version: 1,
+      activeDistrict: 'lantern',
+      controls: {
+        ...initialControls,
+        lantern: { ...initialControls.lantern, lampCount: 9, lampTech: 'warm-led' },
+      },
+      elapsedSeconds: 42,
+      milestones: {
+        workshop: ['static-discharge'], converter: ['mismatch-blocked'], wind: [], longline: [], lantern: [], harbor: [],
+      },
+      restored: ['workshop', 'converter', 'wind', 'longline'],
+      sandboxUnlocked: false,
+      settings: { assisted: true, muted: true, reducedEffects: true, reducedMotion: true },
+    };
+
+    const migrated = parseSavedGameState(JSON.stringify(legacy));
+    expect(migrated.version).toBe(2);
+    expect(migrated.activeDistrict).toBe('lantern');
+    expect(migrated.elapsedSeconds).toBe(42);
+    expect(migrated.controls.lantern).toMatchObject({ lampCount: 9, lampTech: 'warm-led' });
+    expect(migrated.settings).toEqual(legacy.settings);
+    expect(migrated.restored).toEqual(['workshop', 'converter', 'wind', 'longline']);
+    expect(migrated.challengeProgress.longline.completedPhaseIds).toEqual(
+      challengeDefinitions.longline.phases.map((phase) => phase.id),
+    );
+    expect(migrated.challengeProgress.lantern.completedPhaseIds).toEqual([]);
+    expect(migrated.history).toEqual([]);
+  });
+
+  it('derives v2 restoration only from a contiguous validated phase prefix', () => {
+    const candidate = JSON.parse(serializeGameState(createInitialGameState()));
+    candidate.restored = ['workshop'];
+    candidate.sandboxUnlocked = true;
+    candidate.challengeProgress.workshop.completedPhaseIds = ['build-loop', 'spark-reset', 'tune-flow'];
+
+    const parsed = parseSavedGameState(JSON.stringify(candidate));
+    expect(parsed.challengeProgress.workshop.completedPhaseIds).toEqual(['build-loop']);
+    expect(parsed.restored).toEqual([]);
+    expect(parsed.sandboxUnlocked).toBe(false);
+  });
+
+  it('stops v2 challenge recovery at a missing middle checkpoint', () => {
+    const candidate = JSON.parse(serializeGameState(createInitialGameState()));
+    candidate.challengeProgress.workshop.completedPhaseIds = ['build-loop', null, 'spark-reset'];
+
+    const parsed = parseSavedGameState(JSON.stringify(candidate));
+    expect(parsed.challengeProgress.workshop.completedPhaseIds).toEqual(['build-loop']);
+
+    const resumed = completeChallengePhase(parsed, 'workshop', 'tune-flow');
+    expect(resumed.challengeProgress.workshop.completedPhaseIds).toEqual(['build-loop', 'tune-flow']);
   });
 
   it('rewinds the latest meaningful action without corrupting the save schema', () => {
@@ -259,6 +315,6 @@ describe('progression and persistence', () => {
     const changed = setDistrictControl(initial, 'workshop', 'voltage', 9);
     const rewound = rewindGameState(changed);
     expect(rewound.controls.workshop.voltage).toBe(initial.controls.workshop.voltage);
-    expect(rewound.version).toBe(1);
+    expect(rewound.version).toBe(2);
   });
 });

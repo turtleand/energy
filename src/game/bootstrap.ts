@@ -16,7 +16,7 @@ export interface GridkeeperRenderer {
   resetRover: (mode: RoverStartMode) => void;
   setDistrictDestination: (district: DistrictId) => void;
   setPaused: (paused: boolean) => void;
-  update: (state: GameState, readout: DistrictReadout, flowLensActive: boolean) => void;
+  update: (state: GameState, readout: DistrictReadout, flowVisible: boolean) => void;
 }
 
 export function startGridkeeper(
@@ -55,6 +55,6 @@ export function startGridkeeper(
         scene.scene.resume();
       }
     },
-    update: (state, readout, flowLensActive) => scene.setModel(state, readout, flowLensActive),
+    update: (state, readout, flowVisible) => scene.setModel(state, readout, flowVisible),
   };
 }
