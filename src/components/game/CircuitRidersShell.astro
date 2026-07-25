@@ -1,0 +1,1512 @@
+---
+import { acts, missionById, missions } from '@game/circuit-riders/content/campaign';
+
+interface Props {
+  game: {
+    title: string;
+    summary: string;
+    accessibilityDescription: string;
+  };
+}
+
+const { game } = Astro.props;
+---
+
+<section
+  class="circuit-riders"
+  data-game-root
+  data-effects="full"
+  data-engine="idle"
+  data-motion="full"
+  data-mode="action"
+  aria-labelledby="circuit-riders-title"
+>
+  <header class="riders-topbar">
+    <a class="riders-brand" href="/" aria-label="Back to Turtleand Energy articles">
+      <img src="/logo.svg" alt="" width="44" height="44" />
+      <span>Energy</span>
+    </a>
+
+    <div class="riders-title">
+      <p class="riders-kicker">Electrical maintenance arcade</p>
+      <h1 id="circuit-riders-title">{game.title}</h1>
+    </div>
+
+    <div class="riders-progress" aria-label="Campaign progress">
+      <span class="riders-progress-track" aria-hidden="true"><i data-campaign-meter></i></span>
+      <strong data-campaign-count>0 / 12</strong>
+      <span>systems restored</span>
+    </div>
+
+    <div class="riders-tools" aria-label="Game tools">
+      <button class="riders-button tool-button" type="button" data-mode-button aria-pressed="false">
+        <span aria-hidden="true">◇</span>
+        <span data-mode-label>Action</span>
+      </button>
+      <button
+        class="riders-button tool-button"
+        type="button"
+        data-lens-button
+        aria-label="Toggle Flow Lens"
+        aria-pressed="false"
+      >
+        <span aria-hidden="true">◎</span>
+        <span>Flow Lens</span>
+      </button>
+      <button class="riders-button icon-button" type="button" data-pause-button aria-label="Pause game">
+        <span aria-hidden="true">Ⅱ</span>
+      </button>
+      <button class="riders-button icon-button" type="button" data-settings-button aria-label="Open settings">
+        <span aria-hidden="true">⚙</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="riders-layout">
+    <nav class="campaign-rail" aria-label="Loop Patrol campaign">
+      {acts.map((act) => (
+        <section class="act-group" aria-labelledby={`act-${act.id}`}>
+          <div class="act-heading">
+            <span>{act.order.toString().padStart(2, '0')}</span>
+            <strong id={`act-${act.id}`}>{act.title.replace(/^Act [IVX]+:\s*/, '')}</strong>
+          </div>
+          <div class="act-missions">
+            {act.missionIds.map((missionId) => {
+              const mission = missionById[missionId];
+              return (
+                <button
+                  class="mission-tab"
+                  type="button"
+                  data-mission-button={mission.id}
+                  aria-current={mission.order === 1 ? 'step' : undefined}
+                  aria-disabled={mission.order > 1 ? 'true' : undefined}
+                  aria-label={`Mission ${mission.order}: ${mission.title}`}
+                >
+                  <span class="mission-tab-node" aria-hidden="true">{mission.order}</span>
+                  <span>
+                    <strong>{mission.shortTitle}</strong>
+                    <small data-mission-state={mission.id}>{mission.order === 1 ? 'Current' : 'Locked'}</small>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      ))}
+    </nav>
+
+    <div class="riders-stage" data-riders-stage>
+      <div
+        class="riders-canvas"
+        data-phaser-mount
+        tabindex="0"
+        role="application"
+        aria-label="Circuit Riders rail field. Move the blue PATROL maintenance drone with remappable movement keys, or click and tap the rail. Diamond markers are control stations. Electrical flow appears as separate moving markers."
+      ></div>
+
+      <div class="stage-status" data-stage-status data-phase="approach">
+        <span class="stage-status-mark" aria-hidden="true"></span>
+        <span>
+          <strong data-service-title>Ride to the Source</strong>
+          <small data-service-detail>Follow the diamond marker with the blue PATROL drone.</small>
+        </span>
+      </div>
+
+      <div class="riders-start-card" data-start-card>
+        <p class="riders-kicker" data-start-kicker>Loop Patrol dispatch</p>
+        <h2 data-start-heading>Ride the rail. Restore every loop.</h2>
+        <p>{game.summary}</p>
+        <p class="start-signal"><span aria-hidden="true">◇</span> Diamonds mark control stations. Blue is your patrol drone. Amber and white markers show electrical flow.</p>
+        <button class="riders-button primary-button" type="button" data-start-button>
+          Start Loop Patrol
+        </button>
+        <p class="model-note">Educational abstraction only. No real wiring procedure is shown.</p>
+      </div>
+
+      <div class="flow-lens" data-flow-lens hidden aria-label="Flow Lens readout">
+        <div class="flow-lens-title">
+          <span class="flow-lens-orbit" aria-hidden="true"></span>
+          <div>
+            <p>Flow Lens</p>
+            <strong data-flow-direction>Path waiting</strong>
+          </div>
+        </div>
+        <dl>
+          <div><dt>Potential</dt><dd class="lens-meter"><span data-lens-meter="fieldAmplitude"></span></dd><dd class="lens-value"><output data-lens-value="fieldAmplitude">0</output></dd></div>
+          <div><dt>Current</dt><dd class="lens-meter"><span data-lens-meter="density"></span></dd><dd class="lens-value"><output data-lens-value="density">0</output></dd></div>
+          <div><dt>Power now</dt><dd class="lens-meter"><span data-lens-meter="power"></span></dd><dd class="lens-value"><output data-lens-value="power">0</output></dd></div>
+          <div><dt>Energy total</dt><dd class="lens-meter"><span data-lens-meter="energy"></span></dd><dd class="lens-value"><output data-lens-value="energy">0</output></dd></div>
+          <div><dt>Heat</dt><dd class="lens-meter"><span data-lens-meter="heat"></span></dd><dd class="lens-value"><output data-lens-value="heat">0</output></dd></div>
+          <div><dt>Leakage</dt><dd class="lens-meter"><span data-lens-meter="leakage"></span></dd><dd class="lens-value"><output data-lens-value="leakage">0</output></dd></div>
+        </dl>
+        <p>Marker count shows current rate. Marker speed stays fixed so the drone is never mistaken for charge flow.</p>
+      </div>
+
+      <div class="mission-transition" data-mission-transition hidden aria-hidden="true">
+        <span class="transition-rail" aria-hidden="true"><i></i></span>
+        <span>
+          <small data-transition-label>Next patrol stop</small>
+          <strong data-transition-destination></strong>
+        </span>
+      </div>
+
+      <div class="pause-overlay" data-pause-card hidden>
+        <p class="riders-kicker">Patrol paused</p>
+        <h2>The system will wait.</h2>
+        <button class="riders-button primary-button" type="button" data-resume-button>Resume patrol</button>
+      </div>
+
+      <div class="completion-overlay" data-completion-card hidden>
+        <p class="riders-kicker">Loop Patrol complete</p>
+        <h2>The City of Loops is alive.</h2>
+        <p>Every mission remains available for replay and sandbox experimentation.</p>
+        <div class="completion-actions">
+          <button class="riders-button primary-button" type="button" data-sandbox-button>Open sandbox</button>
+          <button class="riders-button" type="button" data-replay-button>Replay campaign</button>
+        </div>
+      </div>
+
+      <div class="touch-controls" aria-label="Touch movement controls">
+        <div class="touch-dpad">
+          <button type="button" data-touch-move="left" aria-label="Ride counterclockwise">↶</button>
+          <button type="button" data-touch-move="right" aria-label="Ride clockwise">↷</button>
+        </div>
+        <button class="touch-action" type="button" data-touch-action>
+          <span aria-hidden="true">◇</span>
+          Operate
+        </button>
+      </div>
+    </div>
+
+    <aside class="mission-dock" id="circuit-riders-controls" aria-labelledby="mission-title">
+      <div class="mission-heading">
+        <div>
+          <p class="riders-kicker" data-mission-place>Loopworks landing</p>
+          <h2 id="mission-title" data-mission-title>The Missing Return</h2>
+        </div>
+        <span class="mission-number" data-mission-number>01</span>
+      </div>
+
+      <div class="objective-panel">
+        <div class="objective-title">
+          <span>Patrol objective</span>
+          <strong data-objective-progress>Step 1 of 3</strong>
+        </div>
+        <p data-objective-text></p>
+        <div
+          class="objective-meter"
+          role="progressbar"
+          aria-label="Mission completion"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+          data-objective-meter
+        ><span></span></div>
+      </div>
+
+      <details class="mission-brief">
+        <summary>Mission briefing</summary>
+        <p class="mission-summary" data-mission-summary></p>
+        <ol data-objective-steps></ol>
+      </details>
+
+      <details class="control-panel" data-control-panel open>
+        <summary>System controls</summary>
+        <fieldset class="mission-controls-fieldset" data-control-fieldset disabled>
+          <legend class="visually-hidden">Current mission controls</legend>
+          <div class="mission-controls" data-control-stack></div>
+        </fieldset>
+      </details>
+
+      <section class="system-readout" aria-labelledby="readout-title">
+        <div class="readout-heading">
+          <h3 id="readout-title">System response</h3>
+          <span data-system-status>Waiting</span>
+        </div>
+        <p data-system-caption></p>
+      </section>
+
+      <div class="mission-actions">
+        <button class="riders-button" type="button" data-rewind-button hidden disabled>Undo</button>
+        <button class="riders-button" type="button" data-retry-button hidden>Restart</button>
+        <button class="riders-button" type="button" data-replay-inline hidden>Replay campaign</button>
+        <button class="riders-button primary-button" type="button" data-next-button hidden>
+          Continue
+        </button>
+      </div>
+
+      <details class="model-boundary">
+        <summary>About this model</summary>
+        <p>Circuit Riders simplifies electrical behavior so relationships can be seen. It is not a design tool, safety test, or guide for mains work.</p>
+      </details>
+    </aside>
+  </div>
+
+  <dialog class="riders-dialog" data-settings-dialog aria-labelledby="settings-title">
+    <form method="dialog">
+      <div class="dialog-heading">
+        <div>
+          <p class="riders-kicker">Play your way</p>
+          <h2 id="settings-title">Patrol settings</h2>
+        </div>
+        <button class="riders-button icon-button" value="cancel" aria-label="Close settings">×</button>
+      </div>
+
+      <fieldset class="mode-fieldset">
+        <legend>Interaction mode</legend>
+        <label>
+          <input type="radio" name="play-mode" value="action" data-mode-setting />
+          <span><strong>Action</strong><small>Ride to each marked station before operating its controls</small></span>
+        </label>
+        <label>
+          <input type="radio" name="play-mode" value="planning" data-mode-setting />
+          <span><strong>Planning / autodrive</strong><small>Choose a station and watch the patrol arrive before its controls unlock</small></span>
+        </label>
+      </fieldset>
+
+      <label class="setting-row">
+        <span><strong>Slow play</strong><small>Moves the drone and system motion at a calmer pace</small></span>
+        <input type="checkbox" data-setting="slowMotion" />
+      </label>
+      <label class="setting-row">
+        <span><strong>Reduced motion</strong><small>Stops nonessential pulses and movement</small></span>
+        <input type="checkbox" data-setting="reducedMotion" />
+      </label>
+      <label class="setting-row">
+        <span><strong>Reduced effects</strong><small>Quiets glows, sparks, and decorative layers</small></span>
+        <input type="checkbox" data-setting="reducedEffects" />
+      </label>
+      <label class="setting-row">
+        <span><strong>Mute sound</strong><small>Every cue keeps a visual and text equivalent</small></span>
+        <input type="checkbox" data-setting="muted" />
+      </label>
+      <label class="setting-row volume-row">
+        <span><strong>Sound level</strong><small>Independent game sound volume</small></span>
+        <input type="range" min="0" max="1" step="0.1" data-volume-setting aria-label="Sound level" />
+      </label>
+
+      <fieldset class="binding-fieldset">
+        <legend>Remap controls</legend>
+        <div class="binding-grid">
+          {[
+            ['left', 'Move counterclockwise'],
+            ['right', 'Move clockwise'],
+            ['up', 'Alternate counterclockwise'],
+            ['down', 'Alternate clockwise'],
+            ['action', 'Operate'],
+            ['pause', 'Pause'],
+            ['lens', 'Flow Lens'],
+          ].map(([binding, label]) => (
+            <label>
+              <span>{label}</span>
+              <select data-binding={binding} aria-label={`${label} key`}>
+                <option value="KeyA">A</option>
+                <option value="KeyD">D</option>
+                <option value="KeyW">W</option>
+                <option value="KeyS">S</option>
+                <option value="ArrowLeft">Left arrow</option>
+                <option value="ArrowRight">Right arrow</option>
+                <option value="ArrowUp">Up arrow</option>
+                <option value="ArrowDown">Down arrow</option>
+                <option value="Space">Space</option>
+                <option value="Enter">Enter</option>
+                <option value="KeyF">F</option>
+                <option value="KeyP">P</option>
+                <option value="KeyJ">J</option>
+                <option value="KeyK">K</option>
+                <option value="KeyL">L</option>
+              </select>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <button class="riders-button danger-button" type="button" data-fresh-button>
+        Reset all local progress
+      </button>
+    </form>
+  </dialog>
+
+  <p class="visually-hidden" aria-live="polite" aria-atomic="true" data-live-region>
+    Loop Patrol is ready.
+  </p>
+  <p class="visually-hidden" data-accessibility-description>{game.accessibilityDescription}</p>
+</section>
+
+<script>
+  import {
+    missionById,
+    missions,
+    type MissionControlDefinition,
+    type MissionId,
+  } from '@game/circuit-riders/content/campaign';
+  import {
+    getStation,
+    getStationForControl,
+    interactionStations,
+    type InteractionStationId,
+  } from '@game/circuit-riders/content/stations';
+  import {
+    CIRCUIT_RIDERS_SAVE_KEY,
+    advanceCampaignTime,
+    clearMissionEvent,
+    createInitialCampaignState,
+    getCampaignProgress,
+    getMissionReadout,
+    getNextMission,
+    getNextIncompleteStep,
+    initialMissionControls,
+    isMissionUnlocked,
+    parseCampaignSave,
+    resetMissionState,
+    rewindCampaignState,
+    serializeCampaignState,
+    setCampaignSettings,
+    travelToMission,
+    type CampaignState,
+    type InputBindings,
+    type MissionReadout,
+  } from '@game/circuit-riders/core/model';
+  import {
+    applyActionInteraction,
+    applyControlInteraction,
+  } from '@game/circuit-riders/core/interactions';
+  import { describeMissionTransition } from '@game/circuit-riders/core/transitions';
+  import type { CircuitRidersRenderer } from '@game/circuit-riders/bootstrap';
+
+  const root = document.querySelector<HTMLElement>('[data-game-root]');
+
+  if (root) {
+    const required = <T extends Element>(selector: string) => {
+      const element = root.querySelector<T>(selector);
+      if (!element) throw new Error(`Circuit Riders element missing: ${selector}`);
+      return element;
+    };
+
+    const startCard = required<HTMLElement>('[data-start-card]');
+    const startButton = required<HTMLButtonElement>('[data-start-button]');
+    const mount = required<HTMLElement>('[data-phaser-mount]');
+    const missionDock = required<HTMLElement>('.mission-dock');
+    const controlPanel = required<HTMLDetailsElement>('[data-control-panel]');
+    const controlStack = required<HTMLElement>('[data-control-stack]');
+    const controlFieldset = required<HTMLFieldSetElement>('[data-control-fieldset]');
+    const lensButton = required<HTMLButtonElement>('[data-lens-button]');
+    const lensPanel = required<HTMLElement>('[data-flow-lens]');
+    const transitionPanel = required<HTMLElement>('[data-mission-transition]');
+    const modeButton = required<HTMLButtonElement>('[data-mode-button]');
+    const pauseButton = required<HTMLButtonElement>('[data-pause-button]');
+    const pauseCard = required<HTMLElement>('[data-pause-card]');
+    const resumeButton = required<HTMLButtonElement>('[data-resume-button]');
+    const settingsButton = required<HTMLButtonElement>('[data-settings-button]');
+    const settingsDialog = required<HTMLDialogElement>('[data-settings-dialog]');
+    const rewindButton = required<HTMLButtonElement>('[data-rewind-button]');
+    const retryButton = required<HTMLButtonElement>('[data-retry-button]');
+    const replayInlineButton = required<HTMLButtonElement>('[data-replay-inline]');
+    const replayButton = required<HTMLButtonElement>('[data-replay-button]');
+    const nextButton = required<HTMLButtonElement>('[data-next-button]');
+    const completionCard = required<HTMLElement>('[data-completion-card]');
+    const liveRegion = required<HTMLElement>('[data-live-region]');
+
+    let hadSavedGame = false;
+    let saveWasRecovered = false;
+    let state = loadState();
+    let renderer: CircuitRidersRenderer | null = null;
+    let nearbyStation: InteractionStationId | null = null;
+    let targetStation: InteractionStationId | null = null;
+    let assistedStation: InteractionStationId | null = null;
+    let pendingPrimaryControl: {
+      controlId: string;
+      station: InteractionStationId;
+    } | null = null;
+    let lensActive = false;
+    let paused = false;
+    let transitioning = false;
+    let completionTimer: number | undefined;
+    let modelTimer: number | undefined;
+    let transitionTimer: number | undefined;
+    let audioContext: AudioContext | null = null;
+
+    function loadState() {
+      let saved: string | null = null;
+      try {
+        saved = window.localStorage.getItem(CIRCUIT_RIDERS_SAVE_KEY);
+      } catch {
+        saved = null;
+      }
+
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved) as { version?: unknown };
+          hadSavedGame = parsed.version === 1 || parsed.version === 2;
+          saveWasRecovered = !hadSavedGame;
+        } catch {
+          saveWasRecovered = true;
+        }
+      }
+
+      const loaded = parseCampaignSave(saved);
+      if (!saved && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return setCampaignSettings(loaded, { reducedMotion: true });
+      }
+      return loaded;
+    }
+
+    function saveState() {
+      try {
+        window.localStorage.setItem(CIRCUIT_RIDERS_SAVE_KEY, serializeCampaignState(state));
+      } catch {
+        announce('Local progress could not be saved. The patrol remains playable in this tab.');
+      }
+    }
+
+    function announce(message: string) {
+      liveRegion.textContent = '';
+      window.setTimeout(() => {
+        liveRegion.textContent = message;
+      }, 20);
+    }
+
+    function formatValue(value: number) {
+      if (!Number.isFinite(value)) return '0';
+      if (Math.abs(value) >= 10) return value.toFixed(0);
+      if (Math.abs(value) >= 1) return value.toFixed(1);
+      return value.toFixed(2);
+    }
+
+    function playTone(kind: 'start' | 'move' | 'restore' | 'protect' | 'complete') {
+      if (state.settings.muted || state.settings.soundVolume <= 0) return;
+      try {
+        audioContext ??= new AudioContext();
+        if (audioContext.state === 'suspended') void audioContext.resume();
+        const now = audioContext.currentTime;
+        const patterns = {
+          start: [293.66, 392],
+          move: [330],
+          restore: [392, 523.25, 659.25],
+          protect: [220, 174.61],
+          complete: [293.66, 392, 493.88, 659.25],
+        };
+        patterns[kind].forEach((frequency, index) => {
+          const oscillator = audioContext!.createOscillator();
+          const gain = audioContext!.createGain();
+          oscillator.type = kind === 'protect' ? 'triangle' : 'sine';
+          oscillator.frequency.value = frequency;
+          const start = now + index * 0.08;
+          const level = 0.1 * state.settings.soundVolume;
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.exponentialRampToValueAtTime(Math.max(0.001, level), start + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.26);
+          oscillator.connect(gain).connect(audioContext!.destination);
+          oscillator.start(start);
+          oscillator.stop(start + 0.28);
+        });
+      } catch {
+        // Every sound has a visual and text equivalent.
+      }
+    }
+
+    function isStationOperable(station: InteractionStationId) {
+      return (
+        !paused &&
+        !transitioning &&
+        assistedStation === null &&
+        nearbyStation === station
+      );
+    }
+
+    function clearAssistedInteraction() {
+      renderer?.cancelTargeting();
+      targetStation = null;
+      assistedStation = null;
+      pendingPrimaryControl = null;
+    }
+
+    function clearCompletionReveal() {
+      window.clearTimeout(completionTimer);
+      completionTimer = undefined;
+    }
+
+    function mutate(
+      next: CampaignState,
+      message?: string,
+      options: { preserveControls?: boolean; eventMission?: MissionId } = {},
+    ) {
+      const previousCompleted = state.completed.length;
+      const wasComplete = state.campaignComplete;
+      if (!next.campaignComplete) {
+        clearCompletionReveal();
+        completionCard.hidden = true;
+      }
+      state = next;
+      saveState();
+      render(options);
+
+      if (state.completed.length > previousCompleted) {
+        const restored = missionById[state.completed.at(-1)!];
+        controlPanel.open = false;
+        root.dataset.celebrate = 'true';
+        window.setTimeout(
+          () => delete root.dataset.celebrate,
+          state.settings.reducedMotion ? 100 : 950,
+        );
+        announce(`${restored.title} restored. The rail pulse has opened the next system.`);
+        playTone(state.campaignComplete ? 'complete' : 'restore');
+      } else if (message) {
+        announce(message);
+        if (message.toLowerCase().includes('open') || message.toLowerCase().includes('trip')) {
+          playTone('protect');
+        }
+      }
+
+      if (state.campaignComplete && !wasComplete) {
+        clearCompletionReveal();
+        completionTimer = window.setTimeout(
+          () => {
+            completionTimer = undefined;
+            if (!state.campaignComplete) return;
+            completionCard.hidden = false;
+            required<HTMLButtonElement>('[data-sandbox-button]').focus();
+          },
+          state.settings.reducedMotion ? 120 : 1_150,
+        );
+      }
+
+      if (options.eventMission && state.missions[options.eventMission].lastEvent) {
+        const mission = options.eventMission;
+        window.setTimeout(
+          () => {
+            state = clearMissionEvent(state, mission);
+            saveState();
+            render({ preserveControls: true });
+          },
+          state.settings.reducedMotion ? 120 : 720,
+        );
+      }
+    }
+
+    function renderNavigation() {
+      root.querySelectorAll<HTMLButtonElement>('[data-mission-button]').forEach((button) => {
+        const mission = button.dataset.missionButton as MissionId;
+        const unlocked = isMissionUnlocked(state, mission);
+        const completed = state.completed.includes(mission);
+        const active = state.activeMission === mission;
+        button.setAttribute('aria-disabled', String(!unlocked));
+        button.disabled = transitioning;
+        button.toggleAttribute('data-unlocked', unlocked);
+        button.toggleAttribute('data-completed', completed);
+        button.toggleAttribute('data-active', active);
+        if (active) button.setAttribute('aria-current', 'step');
+        else button.removeAttribute('aria-current');
+        const status = required<HTMLElement>(`[data-mission-state="${mission}"]`);
+        status.textContent = active
+          ? completed
+            ? 'Replay'
+            : 'Current'
+          : completed
+            ? 'Restored'
+            : unlocked
+              ? 'Open'
+              : 'Locked';
+      });
+    }
+
+    function renderServiceState() {
+      const planning = state.settings.mode === 'planning';
+      const mission = missionById[state.activeMission];
+      const readout = getMissionReadout(state, state.activeMission);
+      const completed = state.completed.includes(state.activeMission) && readout.objectiveMet;
+      const suggestedControl = getPrimaryControlId(readout);
+      const suggestedStation = getStationForControl(state.activeMission, suggestedControl);
+      const currentStation = nearbyStation
+        ? getStation(state.activeMission, nearbyStation)
+        : null;
+      const travelStation = assistedStation
+        ? getStation(state.activeMission, assistedStation)
+        : null;
+      const routeStation = targetStation
+        ? getStation(state.activeMission, targetStation)
+        : null;
+      root.dataset.mode = state.settings.mode;
+      root.dataset.station = currentStation?.id ?? 'between';
+      root.dataset.targetStation = routeStation?.id ?? 'none';
+      root.dataset.assisted = travelStation?.id ?? 'idle';
+      required<HTMLElement>('[data-mode-label]').textContent = planning ? 'Planning' : 'Action';
+      modeButton.setAttribute('aria-pressed', String(planning));
+      modeButton.setAttribute(
+        'aria-label',
+        planning ? 'Switch to Action mode' : 'Switch to Planning mode',
+      );
+      modeButton.disabled = transitioning;
+      controlFieldset.disabled = paused || transitioning;
+      const stageStatus = required<HTMLElement>('[data-stage-status]');
+      stageStatus.dataset.phase =
+        transitioning || travelStation
+          ? 'travel'
+          : completed || currentStation
+            ? 'ready'
+            : 'approach';
+
+      const title = required<HTMLElement>('[data-service-title]');
+      const detail = required<HTMLElement>('[data-service-detail]');
+      if (transitioning) {
+        title.textContent = `Riding to ${mission.shortTitle}`;
+        detail.textContent = 'Patrol controls return on arrival.';
+      } else if (paused) {
+        title.textContent = 'Patrol paused';
+        detail.textContent = 'Resume when you are ready to continue.';
+      } else if (travelStation) {
+        title.textContent = `Autodriving to ${travelStation.label}`;
+        detail.textContent = pendingPrimaryControl
+          ? 'The selected action waits until the patrol drone arrives.'
+          : 'Station controls unlock when the patrol drone arrives.';
+      } else if (completed) {
+        title.textContent = `${mission.shortTitle} restored`;
+        detail.textContent = state.sandboxUnlocked
+          ? 'Experiment here, or choose another restored system.'
+          : 'Rail pulse complete. Continue when ready.';
+      } else if (routeStation && currentStation?.id !== routeStation.id) {
+        title.textContent = `Ride to ${routeStation.label}`;
+        detail.textContent = planning
+          ? 'Autodrive is moving the blue PATROL drone to the marked station.'
+          : 'Follow the diamond marker with the blue PATROL drone.';
+      } else if (currentStation) {
+        title.textContent = `${currentStation.label} ready`;
+        detail.textContent = 'Only the controls at this station are available.';
+      } else {
+        title.textContent = `Ride to ${suggestedStation.label}`;
+        detail.textContent = planning
+          ? 'Choose Autodrive, or move the blue PATROL drone yourself.'
+          : 'Follow the diamond marker with the blue PATROL drone.';
+      }
+    }
+
+    function makeElement<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string) {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      return element;
+    }
+
+    function appendControlHeading(
+      container: HTMLElement,
+      label: string,
+      value?: string,
+    ) {
+      const strong = makeElement('strong');
+      strong.textContent = label;
+      container.append(strong);
+      if (value !== undefined) {
+        const output = makeElement('output');
+        output.textContent = value;
+        container.append(output);
+      }
+    }
+
+    function describeControl(control: HTMLElement, hint: HTMLElement, id: string) {
+      hint.id = `hint-${state.activeMission}-${id}`;
+      hint.className = 'visually-hidden';
+      control.dataset.gameControl = 'true';
+      control.dataset.controlId = id;
+      control.setAttribute('aria-describedby', hint.id);
+    }
+
+    function actionMessage(action: string, before: CampaignState, after: CampaignState) {
+      const mission = state.activeMission;
+      const event = after.missions[mission].lastEvent;
+      if (event === 'static-discharge') {
+        return 'A brief static discharge restores balance. The maintained circuit remains a different behavior.';
+      }
+      if (event === 'mismatch-blocked') {
+        return 'The protected dock blocks the incompatible module before the model load energizes.';
+      }
+      if (event === 'adapter-docked') return 'Compatible module docked safely in the abstract bench.';
+      if (event === 'leakage-trip') {
+        return 'Leakage protection detects missing return current and opens the affected model branch.';
+      }
+      if (event === 'breaker-trip') return 'The breaker sees overcurrent and opens the affected branch.';
+      if (event === 'gfci-trip') return 'The GFCI sees missing return current and opens the affected branch.';
+      if (event === 'protection-reset') return 'The model fault is clear and the protected branch resets.';
+      if (event === 'reset-blocked') return 'Reset blocked. Clear the model fault after observing both protections.';
+      if (action === 'advance-shift') return 'Two shift hours pass. Power stays immediate while energy accumulates.';
+      return before === after ? 'That operation is not available in the current state.' : 'System updated.';
+    }
+
+    function guideToControl(controlId: string, executeAfterArrival = false) {
+      if (paused || transitioning) return;
+      const mission = state.activeMission;
+      const station = getStationForControl(mission, controlId);
+      const assisted = state.settings.mode === 'planning';
+
+      if (nearbyStation === station.id) {
+        if (executeAfterArrival) activateControl(controlId);
+        return;
+      }
+
+      pendingPrimaryControl = executeAfterArrival
+        ? { controlId, station: station.id }
+        : null;
+      targetStation = station.id;
+      assistedStation = assisted ? station.id : null;
+      renderer?.targetStation(station.id, assisted);
+      renderServiceState();
+      renderControls();
+      mount.focus({ preventScroll: true });
+      announce(
+        assisted
+          ? pendingPrimaryControl
+            ? `Autodrive started for ${station.label}. The selected action will wait for arrival.`
+            : `Autodrive started for ${station.label}. Its controls will unlock on arrival.`
+          : `${station.label} marked on the rail. Ride the blue patrol drone to the diamond.`,
+      );
+    }
+
+    function renderControl(definition: MissionControlDefinition, mission: MissionId) {
+      const missionState = state.missions[mission];
+      const row = makeElement('div', `mission-control mission-control-${definition.kind}`);
+      row.dataset.controlRow = definition.id;
+      const heading = makeElement('div', 'mission-control-heading');
+      const hint = makeElement('small');
+      const station = getStationForControl(mission, definition.id);
+      const available = isStationOperable(station.id);
+      hint.textContent = `${definition.hint} Operate this control at ${station.label}.`;
+      const stationName = makeElement('span', 'control-station-name');
+      stationName.textContent = station.label;
+      heading.append(stationName);
+
+      if (!available) {
+        row.dataset.stationState =
+          assistedStation === station.id ? 'traveling' : 'away';
+        appendControlHeading(heading, definition.label);
+        const routeButton = makeElement('button', 'riders-button station-route');
+        routeButton.type = 'button';
+        routeButton.disabled = paused || transitioning || assistedStation !== null;
+        routeButton.textContent =
+          assistedStation === station.id
+            ? 'Riding…'
+            : state.settings.mode === 'planning'
+              ? 'Autodrive'
+              : 'Locate';
+        routeButton.setAttribute(
+          'aria-label',
+          `${routeButton.textContent} to ${station.label} for ${definition.label}`,
+        );
+        hint.id = `hint-${mission}-${definition.id}`;
+        hint.className = 'visually-hidden';
+        routeButton.setAttribute('aria-describedby', hint.id);
+        routeButton.addEventListener('click', () => guideToControl(definition.id));
+        row.append(heading, routeButton, hint);
+        return row;
+      }
+
+      row.dataset.stationState = 'ready';
+
+      if (definition.kind === 'toggle') {
+        const value = Boolean(missionState.controls[definition.id]);
+        appendControlHeading(heading, definition.label, value ? definition.onLabel : definition.offLabel);
+        const button = makeElement('button', 'switch-control');
+        button.type = 'button';
+        button.setAttribute('role', 'switch');
+        button.setAttribute('aria-checked', String(value));
+        button.setAttribute('aria-label', definition.label);
+        describeControl(button, hint, definition.id);
+        button.append(makeElement('span'));
+        button.addEventListener('click', () => {
+          const result = applyControlInteraction(
+            state,
+            mission,
+            definition.id,
+            !value,
+            nearbyStation,
+          );
+          if (!result.accepted) {
+            guideToControl(definition.id);
+            return;
+          }
+          mutate(result.state);
+        });
+        row.append(heading, button, hint);
+      }
+
+      if (definition.kind === 'range') {
+        const value = Number(missionState.controls[definition.id]);
+        appendControlHeading(heading, definition.label, `${formatValue(value)}${definition.unit}`);
+        const output = heading.querySelector('output');
+        const input = makeElement('input');
+        input.type = 'range';
+        input.min = String(definition.min);
+        input.max = String(definition.max);
+        input.step = String(definition.step);
+        input.value = String(value);
+        input.setAttribute('aria-label', definition.label);
+        describeControl(input, hint, definition.id);
+        input.addEventListener('input', () => {
+          const nextValue = Number(input.value);
+          const result = applyControlInteraction(
+            state,
+            mission,
+            definition.id,
+            nextValue,
+            nearbyStation,
+          );
+          if (!result.accepted) {
+            input.value = String(value);
+            guideToControl(definition.id);
+            return;
+          }
+          if (output) output.textContent = `${formatValue(nextValue)}${definition.unit}`;
+          mutate(result.state, undefined, {
+            preserveControls: true,
+          });
+        });
+        row.append(heading, input, hint);
+      }
+
+      if (definition.kind === 'choice') {
+        appendControlHeading(heading, definition.label);
+        const select = makeElement('select');
+        select.setAttribute('aria-label', definition.label);
+        describeControl(select, hint, definition.id);
+        definition.options.forEach((option) => {
+          const optionElement = makeElement('option');
+          optionElement.value = option.value;
+          optionElement.textContent = option.label;
+          select.append(optionElement);
+        });
+        select.value = String(missionState.controls[definition.id]);
+        select.addEventListener('change', () => {
+          const result = applyControlInteraction(
+            state,
+            mission,
+            definition.id,
+            select.value,
+            nearbyStation,
+          );
+          if (!result.accepted) {
+            select.value = String(missionState.controls[definition.id]);
+            guideToControl(definition.id);
+            return;
+          }
+          mutate(result.state);
+        });
+        row.append(heading, select, hint);
+      }
+
+      if (definition.kind === 'action') {
+        const button = makeElement('button', 'riders-button action-control');
+        button.type = 'button';
+        button.textContent = definition.label;
+        describeControl(button, hint, definition.id);
+        button.addEventListener('click', () => {
+          const before = state;
+          const result = applyActionInteraction(
+            state,
+            mission,
+            definition.id,
+            nearbyStation,
+          );
+          if (!result.accepted) {
+            guideToControl(definition.id);
+            return;
+          }
+          mutate(result.state, actionMessage(definition.action, before, result.state), {
+            eventMission: mission,
+          });
+        });
+        row.append(heading, button, hint);
+      }
+
+      return row;
+    }
+
+    function renderControls() {
+      controlStack.replaceChildren();
+      const mission = missionById[state.activeMission];
+      mission.controls.forEach((definition) => {
+        controlStack.append(renderControl(definition, mission.id));
+      });
+      controlFieldset.disabled = paused || transitioning;
+    }
+
+    function renderReadout(options: { missionChanged?: boolean; updateRenderer?: boolean } = {}) {
+      const mission = missionById[state.activeMission];
+      const readout = getMissionReadout(state, mission.id);
+      required<HTMLElement>('[data-mission-place]').textContent = mission.place;
+      required<HTMLElement>('[data-mission-title]').textContent = mission.title;
+      required<HTMLElement>('[data-mission-number]').textContent = String(mission.order).padStart(2, '0');
+      required<HTMLElement>('[data-mission-summary]').textContent = mission.summary;
+      required<HTMLElement>('[data-objective-text]').textContent = mission.objective;
+
+      const percent = Math.round(readout.objectiveProgress * 100);
+      const nextIncompleteStep = getNextIncompleteStep(readout.stepCompletion);
+      const restoredPreviously =
+        state.completed.includes(mission.id) && !readout.objectiveMet;
+      required<HTMLElement>('[data-objective-progress]').textContent =
+        restoredPreviously
+          ? 'Restored earlier'
+          : percent === 100
+            ? 'Restored'
+            : `Step ${nextIncompleteStep} of ${mission.steps.length}`;
+      const meter = required<HTMLElement>('[data-objective-meter]');
+      meter.setAttribute('aria-valuenow', String(percent));
+      const meterFill = meter.querySelector<HTMLElement>('span');
+      if (meterFill) meterFill.style.width = `${percent}%`;
+
+      const steps = required<HTMLOListElement>('[data-objective-steps]');
+      steps.replaceChildren();
+      mission.steps.forEach((step, index) => {
+        const item = makeElement('li');
+        item.textContent = step;
+        item.toggleAttribute('data-done', Boolean(readout.stepCompletion[index]));
+        steps.append(item);
+      });
+
+      required<HTMLElement>('[data-system-caption]').textContent = readout.caption;
+      const status = required<HTMLElement>('[data-system-status]');
+      status.textContent = readout.status[0].toUpperCase() + readout.status.slice(1);
+      status.dataset.status = readout.status;
+      required<HTMLElement>('[data-flow-direction]').textContent =
+        readout.flow.direction === 'alternating'
+          ? 'Direction reversing'
+          : readout.flow.direction === 'one-way'
+            ? 'One-way circulation'
+            : 'Path waiting';
+      for (const metric of ['fieldAmplitude', 'density', 'power', 'energy', 'heat', 'leakage']) {
+        const value = Number(readout.flow[metric as keyof MissionReadout['flow']]) || 0;
+        const lensMeter = required<HTMLElement>(`[data-lens-meter="${metric}"]`);
+        lensMeter.style.setProperty('--meter-value', `${Math.max(0.02, Math.min(1, value)) * 100}%`);
+        lensMeter.setAttribute('aria-label', `${metric} ${Math.round(value * 100)} percent of the model range`);
+        const readoutMetric =
+          metric === 'fieldAmplitude'
+            ? readout.metrics.voltage
+            : metric === 'density'
+              ? readout.metrics.current
+              : readout.metrics[metric];
+        required<HTMLOutputElement>(`[data-lens-value="${metric}"]`).textContent = formatValue(
+          Number(readoutMetric ?? value),
+        );
+      }
+
+      if (options.updateRenderer !== false) {
+        renderer?.update(state, readout, lensActive, options.missionChanged);
+      }
+    }
+
+    function renderActions() {
+      const progress = getCampaignProgress(state);
+      required<HTMLElement>('[data-campaign-count]').textContent = `${state.completed.length} / ${missions.length}`;
+      required<HTMLElement>('[data-campaign-meter]').style.width = `${progress * 100}%`;
+      rewindButton.disabled = transitioning || state.history.length === 0;
+      rewindButton.hidden = state.history.length === 0;
+      const activeState = state.missions[state.activeMission];
+      const missionChanged =
+        state.completed.includes(state.activeMission) ||
+        activeState.elapsedSeconds !== 0 ||
+        activeState.milestones.length > 0 ||
+        JSON.stringify(activeState.controls) !== JSON.stringify(initialMissionControls[state.activeMission]);
+      retryButton.hidden = !missionChanged;
+      retryButton.disabled = transitioning;
+      retryButton.textContent = state.sandboxUnlocked ? 'Reset controls' : 'Restart';
+      const next = getNextMission(state);
+      nextButton.hidden = !(state.completed.includes(state.activeMission) && next);
+      nextButton.disabled = transitioning;
+      if (next) nextButton.textContent = `Continue to ${missionById[next].shortTitle}`;
+      replayInlineButton.hidden = !state.sandboxUnlocked;
+      replayInlineButton.disabled = transitioning;
+      replayButton.disabled = transitioning;
+      root.dataset.effects = state.settings.reducedEffects ? 'reduced' : 'full';
+      root.dataset.motion = state.settings.reducedMotion ? 'reduced' : 'full';
+      root.toggleAttribute('data-sandbox', state.sandboxUnlocked);
+
+      const startKicker = required<HTMLElement>('[data-start-kicker]');
+      const startHeading = required<HTMLElement>('[data-start-heading]');
+      if (state.campaignComplete) {
+        startKicker.textContent = 'Loop Patrol complete';
+        startHeading.textContent = 'Return to the City of Loops sandbox.';
+        startButton.textContent = 'Open sandbox';
+      } else if (state.completed.length > 0 || hadSavedGame) {
+        startKicker.textContent = 'Patrol in progress';
+        startHeading.textContent = `Continue from ${missionById[state.activeMission].title}.`;
+        startButton.textContent = 'Resume patrol';
+      } else {
+        startKicker.textContent = 'Loop Patrol dispatch';
+        startHeading.textContent = 'Ride the rail. Restore every loop.';
+        startButton.textContent = 'Start Loop Patrol';
+      }
+
+      root.querySelectorAll<HTMLInputElement>('[data-setting]').forEach((input) => {
+        const setting = input.dataset.setting as 'slowMotion' | 'reducedMotion' | 'reducedEffects' | 'muted';
+        input.checked = state.settings[setting];
+      });
+      required<HTMLInputElement>('[data-volume-setting]').value = String(state.settings.soundVolume);
+      root.querySelectorAll<HTMLInputElement>('[data-mode-setting]').forEach((input) => {
+        input.checked = input.value === state.settings.mode;
+      });
+      root.querySelectorAll<HTMLSelectElement>('[data-binding]').forEach((select) => {
+        const binding = select.dataset.binding as keyof InputBindings;
+        select.value = state.settings.bindings[binding];
+      });
+    }
+
+    function render(
+      options: {
+        missionChanged?: boolean;
+        preserveControls?: boolean;
+        updateRenderer?: boolean;
+      } = {},
+    ) {
+      renderNavigation();
+      renderServiceState();
+      if (!options.preserveControls) renderControls();
+      renderReadout(options);
+      renderActions();
+    }
+
+    function navigateToMission(mission: MissionId) {
+      if (transitioning) {
+        announce('The patrol is already riding to the next stop.');
+        return;
+      }
+      if (!isMissionUnlocked(state, mission)) {
+        announce(`${missionById[mission].title} is still locked. Restore the connected system first.`);
+        return;
+      }
+      const previous = state.activeMission;
+      state = travelToMission(state, mission);
+      if (state.activeMission === previous && mission === previous) {
+        guideToControl(getPrimaryControlId(getMissionReadout(state, mission)));
+        mount.focus({ preventScroll: true });
+        return;
+      }
+      const transition = describeMissionTransition(previous, mission, state.settings.reducedMotion);
+      clearAssistedInteraction();
+      nearbyStation = null;
+      transitioning = true;
+      root.dataset.transition = 'true';
+      transitionPanel.hidden = false;
+      required<HTMLElement>('[data-transition-label]').textContent = transition.label;
+      required<HTMLElement>('[data-transition-destination]').textContent = transition.destination;
+      missionDock.scrollTop = 0;
+      controlPanel.open = !getMissionReadout(state, mission).objectiveMet;
+      saveState();
+      render({ missionChanged: true });
+      announce(`Riding to mission ${missionById[mission].order}, ${missionById[mission].title}.`);
+      playTone('move');
+      window.clearTimeout(transitionTimer);
+      transitionTimer = window.setTimeout(() => {
+        transitioning = false;
+        delete root.dataset.transition;
+        transitionPanel.hidden = true;
+        render({ preserveControls: true, updateRenderer: false });
+        guideToControl(getPrimaryControlId(getMissionReadout(state, mission)));
+        if (paused) {
+          resumeButton.focus();
+          announce('Patrol paused. The system will wait.');
+        } else {
+          mount.focus({ preventScroll: true });
+          announce(`Arrived at ${missionById[mission].title}.`);
+        }
+      }, transition.durationMs);
+    }
+
+    function toggleLens() {
+      lensActive = !lensActive;
+      lensButton.setAttribute('aria-pressed', String(lensActive));
+      lensPanel.hidden = !lensActive;
+      renderReadout();
+      announce(
+        lensActive
+          ? 'Flow Lens open. Current rate is marker density, not marker speed.'
+          : 'Flow Lens closed.',
+      );
+    }
+
+    function setPaused(next: boolean) {
+      paused = next;
+      pauseCard.hidden = !paused;
+      pauseButton.setAttribute('aria-label', paused ? 'Resume game' : 'Pause game');
+      renderer?.setPaused(paused);
+      renderServiceState();
+      if (paused) resumeButton.focus();
+      else mount.focus({ preventScroll: true });
+      announce(paused ? 'Patrol paused. The system will wait.' : 'Patrol resumed.');
+    }
+
+    function toggleMode() {
+      const mode = state.settings.mode === 'action' ? 'planning' : 'action';
+      clearAssistedInteraction();
+      state = setCampaignSettings(state, { mode });
+      saveState();
+      render();
+      guideToControl(getPrimaryControlId(getMissionReadout(state, state.activeMission)));
+      announce(
+        mode === 'planning'
+          ? 'Planning mode active. Autodrive moves the patrol drone before a station can operate.'
+          : 'Action mode active. Ride the patrol drone to each marked station.',
+      );
+    }
+
+    function getPrimaryControlId(readout: MissionReadout) {
+      const mission = state.activeMission;
+      const controls = state.missions[mission].controls;
+      if (mission === 'loopworks-01') {
+        if (!controls.sourceOn) return 'sourceOn';
+        if (!controls.switchClosed) return 'switchClosed';
+        if (!controls.returnClosed) return 'returnClosed';
+      }
+      if (mission === 'loopworks-02') return 'chargeLevel';
+      if (mission === 'loopworks-03') {
+        if (!controls.switchClosed) return 'switchClosed';
+        if (controls.route !== 'load') return 'route';
+        if (!controls.returnClosed) return 'returnClosed';
+      }
+      if (mission === 'loopworks-04') {
+        if (!controls.switchClosed) return 'switchClosed';
+        return readout.metrics.power < 7 ? 'voltage' : 'resistance';
+      }
+      if (mission === 'converter-05') {
+        if (!readout.flags.phaseAligned) return 'phaseTrim';
+        if (!readout.flags.rectifierOn) return 'rectifierOn';
+        if (!readout.flags.smoothingOn) return 'smoothingOn';
+        return 'regulatorOn';
+      }
+      if (mission === 'converter-06') {
+        if (!readout.flags.mismatchBlocked) return 'diagnose';
+        if (!readout.flags.compatible) return 'adapter';
+        return 'dock';
+      }
+      if (mission === 'converter-07') {
+        if (Number(controls.loadCount) < 6) return 'loadCount';
+        if (!readout.flags.efficient) return 'lampTech';
+        return 'advanceShift';
+      }
+      if (mission === 'gridfall-08') {
+        if (!readout.flags.protectionTripped) {
+          if (!readout.flags.leakagePath) return 'path';
+          if (!readout.flags.protectionArmed) return 'protectionArmed';
+          return 'testPath';
+        }
+        if (!readout.flags.conducting) return 'material';
+        return 'path';
+      }
+      if (mission === 'gridfall-09') {
+        if (!readout.flags.loopClosed) return 'loopClosed';
+        if (Number(readout.metrics.induction) < 0.5) {
+          return Number(controls.motion) <= Number(controls.field) ? 'motion' : 'field';
+        }
+        return 'load';
+      }
+      if (mission === 'gridfall-10') {
+        if (!readout.flags.highVoltage) return 'lineVoltage';
+        return 'transformerOn';
+      }
+      if (mission === 'gridfall-11') {
+        if (!readout.flags.breakerTripped) {
+          if (!readout.flags.overload) return 'fault';
+          return 'testProtection';
+        }
+        if (!readout.flags.gfciTripped) {
+          if (!readout.flags.leakageFault) return 'fault';
+          return 'testProtection';
+        }
+        if (String(controls.fault) !== 'none') return 'fault';
+        return 'resetProtection';
+      }
+      if (mission === 'gridfall-12') {
+        if (!readout.flags.stableGeneration) return 'generation';
+        if (!readout.flags.transmissionHigh) return 'transmissionHigh';
+        if (!readout.flags.balanced) return 'priorityRoute';
+        if (Number(readout.metrics.feederMargin) < 0.04) return 'feederCapacity';
+        if (!readout.flags.protectionArmed) return 'protectionArmed';
+      }
+      const firstIncomplete = missionById[mission].controls.find((_, index) => !readout.stepCompletion[index]);
+      return firstIncomplete?.id ?? missionById[mission].controls[0]?.id;
+    }
+
+    function activateControl(id: string) {
+      const control = controlStack.querySelector<HTMLElement>(`[data-control-id="${id}"]`);
+      if (!control) {
+        guideToControl(id);
+        return;
+      }
+      control.focus();
+      if (control instanceof HTMLButtonElement) control.click();
+      else announce(`${control.getAttribute('aria-label') ?? 'Control'} focused. Adjust it to continue.`);
+    }
+
+    function triggerPrimaryAction() {
+      if (paused || transitioning || assistedStation) return;
+      const readout = getMissionReadout(state, state.activeMission);
+      const suggested = getPrimaryControlId(readout);
+
+      if (!nearbyStation) {
+        guideToControl(suggested, state.settings.mode === 'planning');
+        return;
+      }
+
+      const station = getStation(state.activeMission, nearbyStation);
+      if (station.controlIds.includes(suggested)) {
+        activateControl(suggested);
+        return;
+      }
+
+      guideToControl(suggested, state.settings.mode === 'planning');
+    }
+
+    startButton.addEventListener('click', async () => {
+      startButton.disabled = true;
+      startButton.textContent = 'Opening patrol…';
+      try {
+        const { startCircuitRiders } = await import('@game/circuit-riders/bootstrap');
+        renderer = startCircuitRiders(mount, {
+          initialState: state,
+          initialReadout: getMissionReadout(state, state.activeMission),
+          onFrameSample: (sample) => {
+            root.dataset.renderFps = String(sample.fps);
+            root.dataset.worstFrameMs = String(sample.worstFrameMs);
+          },
+          onPrimaryAction: triggerPrimaryAction,
+          onStationChange: (station) => {
+            nearbyStation = station;
+            if (station && targetStation === station) targetStation = null;
+            renderServiceState();
+            renderControls();
+          },
+          onAssistedTravelEnd: (station, arrived) => {
+            const pending =
+              arrived && pendingPrimaryControl?.station === station
+                ? pendingPrimaryControl
+                : null;
+            if (assistedStation === station) assistedStation = null;
+            if (arrived && targetStation === station) targetStation = null;
+            if (pending || (!arrived && pendingPrimaryControl?.station === station)) {
+              pendingPrimaryControl = null;
+            }
+            renderServiceState();
+            renderControls();
+            if (pending) {
+              window.queueMicrotask(() => {
+                if (nearbyStation === station && !paused && !transitioning) {
+                  activateControl(pending.controlId);
+                }
+              });
+            }
+            const label = getStation(state.activeMission, station).label;
+            announce(
+              arrived
+                ? `${label} reached. Its local controls are ready.`
+                : `Autodrive to ${label} cancelled. Manual patrol control resumed.`,
+            );
+          },
+        });
+        if (paused) renderer.setPaused(true);
+        root.dataset.engine = 'running';
+        startCard.hidden = true;
+        controlPanel.open = !getMissionReadout(state, state.activeMission).objectiveMet;
+        mount.focus({ preventScroll: true });
+        render();
+        guideToControl(getPrimaryControlId(getMissionReadout(state, state.activeMission)));
+        announce(
+          saveWasRecovered
+            ? 'A damaged local save was reset safely. Loop Patrol starts from mission one.'
+            : hadSavedGame
+              ? `Patrol resumed at ${missionById[state.activeMission].title}.`
+              : 'Loop Patrol started. Ride the blue drone to the Source diamond.',
+        );
+        playTone('start');
+      } catch (error) {
+        root.dataset.engine = 'idle';
+        startButton.disabled = false;
+        startButton.textContent = 'Try opening patrol again';
+        announce('The game renderer did not start. Refresh the page and try again.');
+        console.error('Circuit Riders failed to start', error);
+      }
+    });
+
+    root.querySelectorAll<HTMLButtonElement>('[data-mission-button]').forEach((button) => {
+      button.addEventListener('click', () => {
+        navigateToMission(button.dataset.missionButton as MissionId);
+      });
+    });
+
+    modeButton.addEventListener('click', toggleMode);
+    lensButton.addEventListener('click', toggleLens);
+    pauseButton.addEventListener('click', () => setPaused(!paused));
+    resumeButton.addEventListener('click', () => setPaused(false));
+    settingsButton.addEventListener('click', () => settingsDialog.showModal());
+
+    root.querySelectorAll<HTMLInputElement>('[data-mode-setting]').forEach((input) => {
+      input.addEventListener('change', () => {
+        if (input.checked && input.value !== state.settings.mode) toggleMode();
+      });
+    });
+
+    root.querySelectorAll<HTMLInputElement>('[data-setting]').forEach((input) => {
+      input.addEventListener('change', () => {
+        const setting = input.dataset.setting as 'slowMotion' | 'reducedMotion' | 'reducedEffects' | 'muted';
+        state = setCampaignSettings(state, { [setting]: input.checked });
+        saveState();
+        render();
+      });
+    });
+
+    required<HTMLInputElement>('[data-volume-setting]').addEventListener('input', (event) => {
+      const input = event.currentTarget as HTMLInputElement;
+      state = setCampaignSettings(state, { soundVolume: Number(input.value) });
+      saveState();
+    });
+
+    root.querySelectorAll<HTMLSelectElement>('[data-binding]').forEach((select) => {
+      select.addEventListener('change', () => {
+        const binding = select.dataset.binding as keyof InputBindings;
+        state = setCampaignSettings(state, {
+          bindings: { [binding]: select.value },
+        });
+        saveState();
+        renderActions();
+        announce(`${select.getAttribute('aria-label') ?? 'Control'} remapped.`);
+      });
+    });
+
+    rewindButton.addEventListener('click', () => {
+      if (transitioning) return;
+      clearAssistedInteraction();
+      mutate(rewindCampaignState(state), 'The latest system move was rewound.');
+      guideToControl(getPrimaryControlId(getMissionReadout(state, state.activeMission)));
+    });
+
+    retryButton.addEventListener('click', () => {
+      if (transitioning) return;
+      clearAssistedInteraction();
+      mutate(resetMissionState(state, state.activeMission), 'Current mission restarted.');
+      guideToControl(getPrimaryControlId(getMissionReadout(state, state.activeMission)));
+    });
+
+    nextButton.addEventListener('click', () => {
+      const next = getNextMission(state);
+      if (next) navigateToMission(next);
+    });
+
+    required<HTMLButtonElement>('[data-sandbox-button]').addEventListener('click', () => {
+      completionCard.hidden = true;
+      render();
+      guideToControl(getPrimaryControlId(getMissionReadout(state, state.activeMission)));
+      mount.focus({ preventScroll: true });
+      announce('Sandbox open. Every mission remains available, with controls at their marked stations.');
+    });
+
+    function replayCampaign() {
+      if (transitioning) return;
+      clearCompletionReveal();
+      state = createInitialCampaignState({
+        muted: state.settings.muted,
+        soundVolume: state.settings.soundVolume,
+        reducedEffects: state.settings.reducedEffects,
+        reducedMotion: state.settings.reducedMotion,
+        slowMotion: state.settings.slowMotion,
+        mode: state.settings.mode,
+        bindings: state.settings.bindings,
+      });
+      completionCard.hidden = true;
+      controlPanel.open = true;
+      clearAssistedInteraction();
+      nearbyStation = null;
+      saveState();
+      render({ missionChanged: true });
+      guideToControl(getPrimaryControlId(getMissionReadout(state, state.activeMission)));
+      announce('Campaign replay started at The Missing Return.');
+    }
+
+    replayButton.addEventListener('click', replayCampaign);
+    replayInlineButton.addEventListener('click', replayCampaign);
+
+    required<HTMLButtonElement>('[data-fresh-button]').addEventListener('click', () => {
+      if (transitioning) return;
+      if (!window.confirm('Reset all Circuit Riders progress stored in this browser?')) return;
+      clearCompletionReveal();
+      state = createInitialCampaignState({
+        reducedMotion: state.settings.reducedMotion,
+        reducedEffects: state.settings.reducedEffects,
+        muted: state.settings.muted,
+        soundVolume: state.settings.soundVolume,
+        mode: state.settings.mode,
+        slowMotion: state.settings.slowMotion,
+        bindings: state.settings.bindings,
+      });
+      hadSavedGame = false;
+      clearAssistedInteraction();
+      nearbyStation = null;
+      controlPanel.open = true;
+      saveState();
+      settingsDialog.close();
+      render({ missionChanged: true });
+      guideToControl(getPrimaryControlId(getMissionReadout(state, state.activeMission)));
+      announce('All local progress reset. Loop Patrol is ready at mission one.');
+    });
+
+    root.querySelectorAll<HTMLButtonElement>('[data-touch-move]').forEach((button) => {
+      const direction = button.dataset.touchMove as 'left' | 'right' | 'up' | 'down';
+      const release = () => {
+        mount.dispatchEvent(
+          new KeyboardEvent('keyup', { bubbles: true, code: state.settings.bindings[direction] }),
+        );
+      };
+      button.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        mount.focus({ preventScroll: true });
+        mount.dispatchEvent(
+          new KeyboardEvent('keydown', { bubbles: true, code: state.settings.bindings[direction] }),
+        );
+      });
+      button.addEventListener('pointerup', release);
+      button.addEventListener('pointercancel', release);
+      button.addEventListener('pointerleave', release);
+    });
+
+    required<HTMLButtonElement>('[data-touch-action]').addEventListener('click', triggerPrimaryAction);
+
+    window.addEventListener('keydown', (event) => {
+      const target = event.target as HTMLElement | null;
+      const editing = target?.matches('input, select, textarea, [contenteditable="true"]');
+      if (editing || event.repeat) return;
+      if (event.code === state.settings.bindings.pause) {
+        event.preventDefault();
+        setPaused(!paused);
+      }
+      if (event.code === state.settings.bindings.lens) {
+        event.preventDefault();
+        toggleLens();
+      }
+    });
+
+    modelTimer = window.setInterval(() => {
+      if (
+        !renderer ||
+        paused ||
+        transitioning ||
+        document.hidden ||
+        state.activeMission === 'converter-07'
+      ) {
+        return;
+      }
+      const readout = getMissionReadout(state, state.activeMission);
+      if (Number(readout.metrics.power) <= 0) return;
+      state = advanceCampaignTime(state, 1);
+      saveState();
+      render({ preserveControls: true });
+    }, 1_000);
+
+    const destroyRenderer = () => {
+      clearCompletionReveal();
+      window.clearInterval(modelTimer);
+      window.clearTimeout(transitionTimer);
+      modelTimer = undefined;
+      renderer?.destroy();
+      renderer = null;
+    };
+    const handlePageHide = (event: PageTransitionEvent) => {
+      if (!event.persisted) destroyRenderer();
+    };
+    window.addEventListener('pagehide', handlePageHide);
+
+    render();
+  }
+</script>

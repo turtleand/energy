@@ -5,6 +5,9 @@ import { getCollection } from 'astro:content';
 const lessons = (await getCollection('lessons', ({ data }) => data.status === 'ready')).sort(
   (a, b) => a.data.order - b.data.order
 );
+const games = (await getCollection('games', ({ data }) => data.status === 'ready')).sort(
+  (a, b) => a.data.order - b.data.order
+);
 ---
 
 <BaseLayout>
@@ -17,6 +20,49 @@ const lessons = (await getCollection('lessons', ({ data }) => data.status === 'r
       </p>
     </div>
   </section>
+
+  {games.length > 0 && (
+    <section class="game-entry-section" aria-labelledby="game-entry-title">
+      <div class="container">
+        <div class="game-entry-heading">
+          <p class="eyebrow">Playable campaigns</p>
+          <h2 id="game-entry-title">Choose your restoration run.</h2>
+        </div>
+
+        <div class="game-entry-list">
+          {games.map((game) => {
+            const chapterCount = game.data.campaignActs?.length ?? game.data.districts?.length ?? 0;
+            const chapterLabel = game.data.campaignActs ? 'acts' : 'districts';
+            const missionCount = game.data.missions?.length ?? game.data.coveredLessonSlugs.length;
+            const missionLabel = game.data.missions ? 'missions' : 'lessons';
+
+            return (
+              <a
+                class="game-entry"
+                data-game={game.data.slug}
+                href={`/play/${game.data.slug}/`}
+                aria-label={`Play ${game.data.title}`}
+              >
+                <span class="game-entry-signal" aria-hidden="true">
+                  <i></i><i></i><i></i><i></i><i></i><i></i>
+                </span>
+                <span class="game-entry-copy">
+                  <span class="eyebrow">Playable campaign</span>
+                  <strong>{game.data.title}</strong>
+                  <span>{game.data.summary}</span>
+                </span>
+                <span class="game-entry-meta">
+                  <span>{chapterCount} {chapterLabel}</span>
+                  <span>{missionCount} {missionLabel}</span>
+                  <b>Play game</b>
+                </span>
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  )}
 
   <section class="section article-index" aria-labelledby="article-index-title">
     <div class="container">
@@ -33,7 +79,9 @@ const lessons = (await getCollection('lessons', ({ data }) => data.status === 'r
             aria-label={`Read ${lesson.data.title}`}
           >
             <div>
-              <p class="card-kicker">Lesson {lesson.data.order.toString().padStart(2, '0')}</p>
+              <p class="card-kicker">
+                Lesson {lesson.data.numberLabel ?? lesson.data.order.toString().padStart(2, '0')}
+              </p>
               <h3>{lesson.data.title}</h3>
               <p>{lesson.data.summary}</p>
             </div>
