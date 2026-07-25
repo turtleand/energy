@@ -79,7 +79,9 @@ const games = (await getCollection('games', ({ data }) => data.status === 'ready
             aria-label={`Read ${lesson.data.title}`}
           >
             <div>
-              <p class="card-kicker">Lesson {lesson.data.order.toString().padStart(2, '0')}</p>
+              <p class="card-kicker">
+                Lesson {lesson.data.numberLabel ?? lesson.data.order.toString().padStart(2, '0')}
+              </p>
               <h3>{lesson.data.title}</h3>
               <p>{lesson.data.summary}</p>
             </div>

@@ -10,6 +10,7 @@ const lessons = defineCollection({
     summary: z.string(),
     module: z.string(),
     order: z.number(),
+    numberLabel: z.string().optional(),
     status: lessonStatus,
     labSlug: z.string().optional(),
   }),

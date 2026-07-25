@@ -1,8 +1,9 @@
 ---
-title: "Lesson 10: Batteries and Chemical Electricity"
+title: "Lesson 10 bis: Batteries and Chemical Electricity"
 summary: "Learn the beginner battery model: chemical difference creates voltage, electrons move through the outside circuit, and ions move through the electrolyte inside the battery."
 module: "Foundations"
-order: 10
+order: 10.5
+numberLabel: "10 bis"
 status: ready
 labSlug: "lesson-10-batteries-chemical-electricity"
 ---

@@ -1,8 +1,8 @@
 ---
-title: "Lesson 10 Lab: Battery Paths"
+title: "Lesson 10 bis Lab: Battery Paths"
 summary: "Switch between discharge, run-down, and charging states to see the outside electron path, inside ion path, and chemical difference change together."
 lessonSlug: "lesson-10-batteries-chemical-electricity"
-order: 10
+order: 10.5
 status: ready
 ---
 
