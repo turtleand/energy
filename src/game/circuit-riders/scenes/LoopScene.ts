@@ -5,6 +5,15 @@ import {
   type MissionId,
   type VisualKind,
 } from '../content/campaign';
+import {
+  getNearbyStation,
+  getStation,
+  interactionStations,
+  moveTowardProgress,
+  wrapProgress,
+  type InteractionStation,
+  type InteractionStationId,
+} from '../content/stations';
 import type { CircuitRidersRendererOptions } from '../bootstrap';
 import type { CampaignState, MissionReadout } from '../core/model';
 
@@ -19,7 +28,6 @@ const TRACK = {
 const TRACK_WIDTH = TRACK.right - TRACK.left;
 const TRACK_HEIGHT = TRACK.bottom - TRACK.top;
 const TRACK_LENGTH = TRACK_WIDTH * 2 + TRACK_HEIGHT * 2;
-const SERVICE_PROGRESS = 0.075;
 
 const COLORS = {
   paper: 0xfffaf0,
@@ -40,15 +48,6 @@ const COLORS = {
 interface Point {
   x: number;
   y: number;
-}
-
-function wrapProgress(value: number) {
-  return ((value % 1) + 1) % 1;
-}
-
-function shortestProgressDelta(from: number, to: number) {
-  const forward = wrapProgress(to - from);
-  return forward > 0.5 ? forward - 1 : forward;
 }
 
 function pointOnTrack(progress: number): Point {
@@ -112,7 +111,9 @@ export class LoopScene extends Phaser.Scene {
   private drone!: Phaser.GameObjects.Container;
   private droneProgress = 0.018;
   private droneTarget: number | null = null;
-  private serviceAvailable = false;
+  private nearbyStation: InteractionStation | null = null;
+  private targetStationId: InteractionStationId | null = null;
+  private assistedStationId: InteractionStationId | null = null;
   private mount?: HTMLElement;
   private pressedKeys = new Set<string>();
   private labels: Phaser.GameObjects.Text[] = [];
@@ -131,7 +132,7 @@ export class LoopScene extends Phaser.Scene {
       event.code === bindings.down
     ) {
       event.preventDefault();
-      this.droneTarget = null;
+      this.cancelAssistedTravel();
       this.pressedKeys.add(event.code);
     }
     if (event.code === bindings.action && !event.repeat) {
@@ -166,11 +167,7 @@ export class LoopScene extends Phaser.Scene {
     this.configureInput();
     this.renderMission();
     this.applyDronePosition();
-    this.updateServiceAvailability(true);
-
-    if (this.state.settings.mode === 'planning') {
-      this.droneTarget = SERVICE_PROGRESS;
-    }
+    this.updateStationAvailability(true);
   }
 
   update(time: number, delta: number) {
@@ -210,13 +207,16 @@ export class LoopScene extends Phaser.Scene {
     if (!this.systemGraphics) return;
 
     if (missionChanged || previousMission !== state.activeMission) {
-      this.droneProgress = state.settings.mode === 'planning' ? 0.88 : 0.018;
-      this.droneTarget = SERVICE_PROGRESS;
+      this.droneProgress = 0.018;
+      this.droneTarget = null;
+      this.nearbyStation = null;
+      this.targetStationId = null;
+      this.assistedStationId = null;
       this.lastObjectiveMet = false;
       this.completionPulseStarted = -1;
       this.renderMission();
       this.applyDronePosition();
-      this.updateServiceAvailability(true);
+      this.updateStationAvailability(true);
     } else {
       this.renderMission();
     }
@@ -226,9 +226,6 @@ export class LoopScene extends Phaser.Scene {
     }
     this.lastObjectiveMet = readout.objectiveMet;
 
-    if (state.settings.mode === 'planning' && !this.serviceAvailable) {
-      this.droneTarget = SERVICE_PROGRESS;
-    }
   }
 
   setExternalPaused(paused: boolean) {
@@ -236,8 +233,22 @@ export class LoopScene extends Phaser.Scene {
     this.clearKeys();
   }
 
-  dockAtService() {
-    this.droneTarget = SERVICE_PROGRESS;
+  targetStation(stationId: InteractionStationId, assisted: boolean) {
+    const station = getStation(this.state.activeMission, stationId);
+    this.targetStationId = station.id;
+    if (assisted) {
+      this.droneTarget = station.progress;
+      this.assistedStationId = station.id;
+    } else {
+      this.cancelAssistedTravel();
+    }
+    this.renderMission();
+  }
+
+  cancelTargeting() {
+    this.cancelAssistedTravel(false);
+    this.targetStationId = null;
+    this.renderMission();
   }
 
   private drawBase() {
@@ -308,6 +319,7 @@ export class LoopScene extends Phaser.Scene {
 
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
       if (mount instanceof HTMLElement) mount.focus({ preventScroll: true });
+      this.cancelAssistedTravel();
       this.droneTarget = nearestTrackProgress({ x: pointer.worldX, y: pointer.worldY });
     });
   }
@@ -331,24 +343,34 @@ export class LoopScene extends Phaser.Scene {
     if (this.pressedKeys.has(bindings.right) || this.pressedKeys.has(bindings.down)) direction += 1;
 
     if (direction !== 0) {
-      this.droneTarget = null;
+      this.cancelAssistedTravel();
       this.droneProgress = wrapProgress(this.droneProgress + direction * speed);
     } else if (this.droneTarget !== null) {
-      const difference = shortestProgressDelta(this.droneProgress, this.droneTarget);
       const assistedSpeed =
         (settings.mode === 'planning' ? 0.00034 : settings.slowMotion ? 0.0001 : 0.0002) * delta;
-      if (Math.abs(difference) <= assistedSpeed) {
-        this.droneProgress = this.droneTarget;
+      const movement = moveTowardProgress(
+        this.droneProgress,
+        this.droneTarget,
+        assistedSpeed,
+      );
+      this.droneProgress = movement.progress;
+      if (movement.arrived) {
         this.droneTarget = null;
-      } else {
-        this.droneProgress = wrapProgress(
-          this.droneProgress + Math.sign(difference) * assistedSpeed,
-        );
       }
     }
 
     this.applyDronePosition();
-    this.updateServiceAvailability();
+    this.updateStationAvailability();
+
+    if (
+      this.assistedStationId &&
+      this.nearbyStation?.id === this.assistedStationId &&
+      this.droneTarget === null
+    ) {
+      const arrived = this.assistedStationId;
+      this.assistedStationId = null;
+      this.options.onAssistedTravelEnd(arrived, true);
+    }
   }
 
   private applyDronePosition() {
@@ -360,11 +382,25 @@ export class LoopScene extends Phaser.Scene {
     this.drone.setRotation(Phaser.Math.DegToRad(angle));
   }
 
-  private updateServiceAvailability(force = false) {
-    const next = Math.abs(shortestProgressDelta(this.droneProgress, SERVICE_PROGRESS)) <= 0.055;
-    if (!force && next === this.serviceAvailable) return;
-    this.serviceAvailable = next;
-    this.options.onServiceChange(next);
+  private cancelAssistedTravel(notify = true) {
+    const cancelled = this.assistedStationId;
+    this.assistedStationId = null;
+    this.droneTarget = null;
+    if (cancelled && notify) this.options.onAssistedTravelEnd(cancelled, false);
+  }
+
+  private updateStationAvailability(force = false) {
+    const next = getNearbyStation(
+      this.state.activeMission,
+      this.droneProgress,
+      this.nearbyStation?.id ?? null,
+    );
+    const reachedTarget = next?.id === this.targetStationId;
+    if (reachedTarget) this.targetStationId = null;
+    if (!force && next?.id === this.nearbyStation?.id && !reachedTarget) return;
+    this.nearbyStation = next;
+    this.renderMission();
+    this.options.onStationChange(next?.id ?? null);
   }
 
   private addLabel(
@@ -401,7 +437,7 @@ export class LoopScene extends Phaser.Scene {
     this.drawTrack(g);
     this.drawSource(g);
     this.drawLoad(g);
-    this.drawServiceNode(g);
+    this.drawInteractionStations(g);
     this.drawMissionSystem(g, this.mission.visualKind);
   }
 
@@ -475,24 +511,41 @@ export class LoopScene extends Phaser.Scene {
     });
   }
 
-  private drawServiceNode(g: Phaser.GameObjects.Graphics) {
-    const point = pointOnTrack(SERVICE_PROGRESS);
-    const available = this.serviceAvailable || this.state.settings.mode === 'planning';
-    g.fillStyle(available ? this.mission.accent : COLORS.paper, 1);
-    g.fillCircle(point.x, point.y, 22);
-    g.lineStyle(4, COLORS.greenDark, 0.9);
-    g.strokeCircle(point.x, point.y, 22);
-    g.fillStyle(available ? COLORS.greenDark : COLORS.muted, 1);
-    g.fillCircle(point.x, point.y, 6);
-    g.lineStyle(2, this.mission.accent, available ? 0.8 : 0.35);
-    g.strokeCircle(point.x, point.y, 31);
-    this.addLabel(point.x + 6, point.y - 42, available ? 'SERVICE READY' : 'SERVICE NODE', {
-      fontFamily: 'ui-monospace, SFMono-Regular, monospace',
-      fontSize: '10px',
-      color: available ? '#0d4637' : '#66726d',
-      backgroundColor: '#fffaf0',
-      padding: { x: 5, y: 3 },
+  private drawInteractionStations(g: Phaser.GameObjects.Graphics) {
+    interactionStations[this.state.activeMission].forEach((station) => {
+      const point = pointOnTrack(station.progress);
+      const nearby = station.id === this.nearbyStation?.id;
+      const targeted = station.id === this.targetStationId;
+      const radius = nearby ? 18 : targeted ? 15 : 11;
+
+      g.fillStyle(nearby ? this.mission.accent : COLORS.paper, 1);
+      g.fillCircle(point.x, point.y, radius);
+      g.lineStyle(nearby || targeted ? 4 : 2, nearby ? COLORS.greenDark : this.mission.accent, 0.9);
+      g.strokeCircle(point.x, point.y, radius);
+      g.fillStyle(nearby ? COLORS.greenDark : targeted ? this.mission.accent : COLORS.muted, 1);
+      g.fillCircle(point.x, point.y, nearby ? 6 : 4);
+
+      const labelPosition = this.getStationLabelPosition(station, point);
+      this.addLabel(
+        labelPosition.x,
+        labelPosition.y,
+        `${targeted ? '◇ ' : ''}${station.label.toUpperCase()}`,
+        {
+          fontFamily: 'ui-monospace, SFMono-Regular, monospace',
+          fontSize: nearby || targeted ? '10px' : '8px',
+          color: nearby || targeted ? '#0d4637' : '#66726d',
+          backgroundColor: '#fffaf0',
+          padding: { x: 4, y: 3 },
+        },
+      );
     });
+  }
+
+  private getStationLabelPosition(station: InteractionStation, point: Point): Point {
+    if (station.progress < 0.18) return { x: point.x + 62, y: point.y };
+    if (station.progress < 0.5) return { x: point.x, y: point.y + 34 };
+    if (station.progress < 0.67) return { x: point.x - 62, y: point.y };
+    return { x: point.x, y: point.y - 34 };
   }
 
   private drawMissionSystem(g: Phaser.GameObjects.Graphics, kind: VisualKind) {
@@ -750,12 +803,15 @@ export class LoopScene extends Phaser.Scene {
     const g = this.effectGraphics;
     g.clear();
 
-    const servicePoint = pointOnTrack(SERVICE_PROGRESS);
-    const servicePulse = this.state.settings.reducedMotion
-      ? 1
-      : 0.65 + Math.sin(time / 360) * 0.15;
-    g.lineStyle(3, this.mission.accent, servicePulse);
-    g.strokeCircle(servicePoint.x, servicePoint.y, 32 + servicePulse * 8);
+    if (this.targetStationId) {
+      const target = getStation(this.state.activeMission, this.targetStationId);
+      const targetPoint = pointOnTrack(target.progress);
+      const targetPulse = this.state.settings.reducedMotion
+        ? 1
+        : 0.65 + Math.sin(time / 360) * 0.15;
+      g.lineStyle(3, this.mission.accent, targetPulse);
+      g.strokeCircle(targetPoint.x, targetPoint.y, 24 + targetPulse * 9);
+    }
 
     if (this.readout.flow.leakage > 0) {
       g.lineStyle(5, COLORS.danger, 0.34 + this.readout.flow.leakage * 0.55);

@@ -442,6 +442,11 @@ body.circuit-riders-page {
   background: var(--riders-green);
 }
 
+.stage-status[data-phase="travel"] .stage-status-mark {
+  border-color: rgba(128, 207, 224, 0.38);
+  background: var(--riders-sky);
+}
+
 .stage-status strong,
 .stage-status small {
   display: block;
@@ -953,8 +958,30 @@ body.circuit-riders-page {
   background: #fffdf8;
 }
 
+.mission-control[data-station-state="away"] {
+  border-style: dashed;
+  background: rgba(255, 253, 248, 0.58);
+}
+
+.mission-control[data-station-state="traveling"] {
+  border-color: rgba(74, 174, 209, 0.72);
+  background: rgba(128, 207, 224, 0.1);
+}
+
 .mission-control-heading {
   min-width: 0;
+}
+
+.control-station-name {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--riders-green);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
 }
 
 .mission-control-heading strong,
@@ -1038,6 +1065,18 @@ body.circuit-riders-page {
 
 .action-control {
   width: 100%;
+}
+
+.station-route {
+  min-width: 92px;
+  min-height: 48px;
+  padding-inline: 12px;
+  color: var(--riders-green-dark);
+  background: var(--riders-paper);
+}
+
+.mission-control[data-station-state="traveling"] .station-route {
+  background: rgba(128, 207, 224, 0.2);
 }
 
 .system-readout {
@@ -1486,9 +1525,9 @@ body.circuit-riders-page {
 
   .riders-start-card,
   .completion-overlay {
-    top: 44%;
+    top: 50%;
     width: calc(100% - 20px);
-    max-height: 75%;
+    max-height: calc(100% - 20px);
     padding: 20px;
     overflow: auto;
     border-radius: 22px;

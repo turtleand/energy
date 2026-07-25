@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import type { InteractionStationId } from './content/stations';
 import { LoopScene } from './scenes/LoopScene';
 import type { CampaignState, MissionReadout } from './core/model';
 
@@ -7,12 +8,14 @@ export interface CircuitRidersRendererOptions {
   initialReadout: MissionReadout;
   onFrameSample?: (sample: { fps: number; worstFrameMs: number }) => void;
   onPrimaryAction: () => void;
-  onServiceChange: (available: boolean) => void;
+  onStationChange: (station: InteractionStationId | null) => void;
+  onAssistedTravelEnd: (station: InteractionStationId, arrived: boolean) => void;
 }
 
 export interface CircuitRidersRenderer {
+  cancelTargeting: () => void;
   destroy: () => void;
-  dockAtService: () => void;
+  targetStation: (station: InteractionStationId, assisted: boolean) => void;
   setPaused: (paused: boolean) => void;
   update: (
     state: CampaignState,
@@ -66,12 +69,13 @@ export function startCircuitRiders(
   resizeObserver.observe(parent);
 
   return {
+    cancelTargeting: () => scene.cancelTargeting(),
     destroy: () => {
       document.removeEventListener('visibilitychange', handleVisibility);
       resizeObserver.disconnect();
       game.destroy(true);
     },
-    dockAtService: () => scene.dockAtService(),
+    targetStation: (station, assisted) => scene.targetStation(station, assisted),
     setPaused: (paused) => {
       manuallyPaused = paused;
       applyPause();

@@ -101,14 +101,14 @@ const { game } = Astro.props;
         data-phaser-mount
         tabindex="0"
         role="application"
-        aria-label="Circuit Riders rail field. Move the blue PATROL maintenance drone with remappable movement keys, or click and tap the rail. Electrical flow appears as separate moving markers."
+        aria-label="Circuit Riders rail field. Move the blue PATROL maintenance drone with remappable movement keys, or click and tap the rail. Diamond markers are control stations. Electrical flow appears as separate moving markers."
       ></div>
 
       <div class="stage-status" data-stage-status data-phase="approach">
         <span class="stage-status-mark" aria-hidden="true"></span>
         <span>
-          <strong data-service-title>Ride to the service node</strong>
-          <small data-service-detail>The drone is blue. Flow markers are amber and white.</small>
+          <strong data-service-title>Ride to the Source</strong>
+          <small data-service-detail>Follow the diamond marker with the blue PATROL drone.</small>
         </span>
       </div>
 
@@ -116,7 +116,7 @@ const { game } = Astro.props;
         <p class="riders-kicker" data-start-kicker>Loop Patrol dispatch</p>
         <h2 data-start-heading>Ride the rail. Restore every loop.</h2>
         <p>{game.summary}</p>
-        <p class="start-signal"><span aria-hidden="true">◇</span> Blue is your patrol drone. Amber and white markers show electrical flow.</p>
+        <p class="start-signal"><span aria-hidden="true">◇</span> Diamonds mark control stations. Blue is your patrol drone. Amber and white markers show electrical flow.</p>
         <button class="riders-button primary-button" type="button" data-start-button>
           Start Loop Patrol
         </button>
@@ -256,11 +256,11 @@ const { game } = Astro.props;
         <legend>Interaction mode</legend>
         <label>
           <input type="radio" name="play-mode" value="action" data-mode-setting />
-          <span><strong>Action</strong><small>Ride to each service node before operating it</small></span>
+          <span><strong>Action</strong><small>Ride to each marked station before operating its controls</small></span>
         </label>
         <label>
           <input type="radio" name="play-mode" value="planning" data-mode-setting />
-          <span><strong>Planning / autodrive</strong><small>Choose systems and operate with equivalent choices</small></span>
+          <span><strong>Planning / autodrive</strong><small>Choose a station and watch the patrol arrive before its controls unlock</small></span>
         </label>
       </fieldset>
 
@@ -341,6 +341,12 @@ const { game } = Astro.props;
     type MissionId,
   } from '@game/circuit-riders/content/campaign';
   import {
+    getStation,
+    getStationForControl,
+    interactionStations,
+    type InteractionStationId,
+  } from '@game/circuit-riders/content/stations';
+  import {
     CIRCUIT_RIDERS_SAVE_KEY,
     clearMissionEvent,
     createInitialCampaignState,
@@ -351,17 +357,19 @@ const { game } = Astro.props;
     initialMissionControls,
     isMissionUnlocked,
     parseCampaignSave,
-    performMissionAction,
     resetMissionState,
     rewindCampaignState,
     serializeCampaignState,
     setCampaignSettings,
-    setMissionControl,
     travelToMission,
     type CampaignState,
     type InputBindings,
     type MissionReadout,
   } from '@game/circuit-riders/core/model';
+  import {
+    applyActionInteraction,
+    applyControlInteraction,
+  } from '@game/circuit-riders/core/interactions';
   import { describeMissionTransition } from '@game/circuit-riders/core/transitions';
   import type { CircuitRidersRenderer } from '@game/circuit-riders/bootstrap';
 
@@ -402,7 +410,13 @@ const { game } = Astro.props;
     let saveWasRecovered = false;
     let state = loadState();
     let renderer: CircuitRidersRenderer | null = null;
-    let serviceAvailable = state.settings.mode === 'planning';
+    let nearbyStation: InteractionStationId | null = null;
+    let targetStation: InteractionStationId | null = null;
+    let assistedStation: InteractionStationId | null = null;
+    let pendingPrimaryControl: {
+      controlId: string;
+      station: InteractionStationId;
+    } | null = null;
     let lensActive = false;
     let paused = false;
     let transitioning = false;
@@ -488,8 +502,20 @@ const { game } = Astro.props;
       }
     }
 
-    function canOperate() {
-      return !paused && !transitioning && (state.settings.mode === 'planning' || serviceAvailable);
+    function isStationOperable(station: InteractionStationId) {
+      return (
+        !paused &&
+        !transitioning &&
+        assistedStation === null &&
+        nearbyStation === station
+      );
+    }
+
+    function clearAssistedInteraction() {
+      renderer?.cancelTargeting();
+      targetStation = null;
+      assistedStation = null;
+      pendingPrimaryControl = null;
     }
 
     function mutate(
@@ -571,11 +597,24 @@ const { game } = Astro.props;
 
     function renderServiceState() {
       const planning = state.settings.mode === 'planning';
-      const available = canOperate();
       const mission = missionById[state.activeMission];
       const readout = getMissionReadout(state, state.activeMission);
       const completed = state.completed.includes(state.activeMission) && readout.objectiveMet;
+      const suggestedControl = getPrimaryControlId(readout);
+      const suggestedStation = getStationForControl(state.activeMission, suggestedControl);
+      const currentStation = nearbyStation
+        ? getStation(state.activeMission, nearbyStation)
+        : null;
+      const travelStation = assistedStation
+        ? getStation(state.activeMission, assistedStation)
+        : null;
+      const routeStation = targetStation
+        ? getStation(state.activeMission, targetStation)
+        : null;
       root.dataset.mode = state.settings.mode;
+      root.dataset.station = currentStation?.id ?? 'between';
+      root.dataset.targetStation = routeStation?.id ?? 'none';
+      root.dataset.assisted = travelStation?.id ?? 'idle';
       required<HTMLElement>('[data-mode-label]').textContent = planning ? 'Planning' : 'Action';
       modeButton.setAttribute('aria-pressed', String(planning));
       modeButton.setAttribute(
@@ -583,9 +622,14 @@ const { game } = Astro.props;
         planning ? 'Switch to Action mode' : 'Switch to Planning mode',
       );
       modeButton.disabled = transitioning;
-      controlFieldset.disabled = !available;
+      controlFieldset.disabled = paused || transitioning;
       const stageStatus = required<HTMLElement>('[data-stage-status]');
-      stageStatus.dataset.phase = transitioning ? 'travel' : completed || available ? 'ready' : 'approach';
+      stageStatus.dataset.phase =
+        transitioning || travelStation
+          ? 'travel'
+          : completed || currentStation
+            ? 'ready'
+            : 'approach';
 
       const title = required<HTMLElement>('[data-service-title]');
       const detail = required<HTMLElement>('[data-service-detail]');
@@ -595,19 +639,29 @@ const { game } = Astro.props;
       } else if (paused) {
         title.textContent = 'Patrol paused';
         detail.textContent = 'Resume when you are ready to continue.';
+      } else if (travelStation) {
+        title.textContent = `Autodriving to ${travelStation.label}`;
+        detail.textContent = pendingPrimaryControl
+          ? 'The selected action waits until the patrol drone arrives.'
+          : 'Station controls unlock when the patrol drone arrives.';
       } else if (completed) {
         title.textContent = `${mission.shortTitle} restored`;
         detail.textContent = state.sandboxUnlocked
           ? 'Experiment here, or choose another restored system.'
           : 'Rail pulse complete. Continue when ready.';
-      } else if (available) {
-        title.textContent = planning ? 'Planning link ready' : 'Service node ready';
+      } else if (routeStation && currentStation?.id !== routeStation.id) {
+        title.textContent = `Ride to ${routeStation.label}`;
         detail.textContent = planning
-          ? 'Operate the system from this console.'
-          : 'Operate the system, or keep riding to inspect the loop.';
+          ? 'Autodrive is moving the blue PATROL drone to the marked station.'
+          : 'Follow the diamond marker with the blue PATROL drone.';
+      } else if (currentStation) {
+        title.textContent = `${currentStation.label} ready`;
+        detail.textContent = 'Only the controls at this station are available.';
       } else {
-        title.textContent = 'Ride to the service node';
-        detail.textContent = 'Move the blue PATROL drone. Electrical flow remains separate.';
+        title.textContent = `Ride to ${suggestedStation.label}`;
+        detail.textContent = planning
+          ? 'Choose Autodrive, or move the blue PATROL drone yourself.'
+          : 'Follow the diamond marker with the blue PATROL drone.';
       }
     }
 
@@ -661,13 +715,74 @@ const { game } = Astro.props;
       return before === after ? 'That operation is not available in the current state.' : 'System updated.';
     }
 
+    function guideToControl(controlId: string, executeAfterArrival = false) {
+      if (paused || transitioning) return;
+      const mission = state.activeMission;
+      const station = getStationForControl(mission, controlId);
+      const assisted = state.settings.mode === 'planning';
+
+      if (nearbyStation === station.id) {
+        if (executeAfterArrival) activateControl(controlId);
+        return;
+      }
+
+      pendingPrimaryControl = executeAfterArrival
+        ? { controlId, station: station.id }
+        : null;
+      targetStation = station.id;
+      assistedStation = assisted ? station.id : null;
+      renderer?.targetStation(station.id, assisted);
+      renderServiceState();
+      renderControls();
+      mount.focus({ preventScroll: true });
+      announce(
+        assisted
+          ? pendingPrimaryControl
+            ? `Autodrive started for ${station.label}. The selected action will wait for arrival.`
+            : `Autodrive started for ${station.label}. Its controls will unlock on arrival.`
+          : `${station.label} marked on the rail. Ride the blue patrol drone to the diamond.`,
+      );
+    }
+
     function renderControl(definition: MissionControlDefinition, mission: MissionId) {
       const missionState = state.missions[mission];
       const row = makeElement('div', `mission-control mission-control-${definition.kind}`);
       row.dataset.controlRow = definition.id;
       const heading = makeElement('div', 'mission-control-heading');
       const hint = makeElement('small');
-      hint.textContent = definition.hint;
+      const station = getStationForControl(mission, definition.id);
+      const available = isStationOperable(station.id);
+      hint.textContent = `${definition.hint} Operate this control at ${station.label}.`;
+      const stationName = makeElement('span', 'control-station-name');
+      stationName.textContent = station.label;
+      heading.append(stationName);
+
+      if (!available) {
+        row.dataset.stationState =
+          assistedStation === station.id ? 'traveling' : 'away';
+        appendControlHeading(heading, definition.label);
+        const routeButton = makeElement('button', 'riders-button station-route');
+        routeButton.type = 'button';
+        routeButton.disabled = paused || transitioning || assistedStation !== null;
+        routeButton.textContent =
+          assistedStation === station.id
+            ? 'Riding…'
+            : state.settings.mode === 'planning'
+              ? 'Autodrive'
+              : 'Locate';
+        routeButton.setAttribute(
+          'aria-label',
+          `${routeButton.textContent} to ${station.label} for ${definition.label}`,
+        );
+        hint.id = `hint-${mission}-${definition.id}`;
+        hint.className = 'visually-hidden';
+        routeButton.setAttribute('aria-describedby', hint.id);
+        routeButton.addEventListener('click', () => guideToControl(definition.id));
+        row.append(heading, routeButton, hint);
+        return row;
+      }
+
+      row.dataset.stationState = 'ready';
 
       if (definition.kind === 'toggle') {
         const value = Boolean(missionState.controls[definition.id]);
@@ -680,12 +795,18 @@ const { game } = Astro.props;
         describeControl(button, hint, definition.id);
         button.append(makeElement('span'));
         button.addEventListener('click', () => {
-          if (!canOperate()) {
-            renderer?.dockAtService();
-            announce('Ride to the service node before operating this system.');
+          const result = applyControlInteraction(
+            state,
+            mission,
+            definition.id,
+            !value,
+            nearbyStation,
+          );
+          if (!result.accepted) {
+            guideToControl(definition.id);
             return;
           }
-          mutate(setMissionControl(state, mission, definition.id, !value));
+          mutate(result.state);
         });
         row.append(heading, button, hint);
       }
@@ -703,10 +824,21 @@ const { game } = Astro.props;
         input.setAttribute('aria-label', definition.label);
         describeControl(input, hint, definition.id);
         input.addEventListener('input', () => {
-          if (!canOperate()) return;
           const nextValue = Number(input.value);
+          const result = applyControlInteraction(
+            state,
+            mission,
+            definition.id,
+            nextValue,
+            nearbyStation,
+          );
+          if (!result.accepted) {
+            input.value = String(value);
+            guideToControl(definition.id);
+            return;
+          }
           if (output) output.textContent = `${formatValue(nextValue)}${definition.unit}`;
-          mutate(setMissionControl(state, mission, definition.id, nextValue), undefined, {
+          mutate(result.state, undefined, {
             preserveControls: true,
           });
         });
@@ -726,8 +858,19 @@ const { game } = Astro.props;
         });
         select.value = String(missionState.controls[definition.id]);
         select.addEventListener('change', () => {
-          if (!canOperate()) return;
-          mutate(setMissionControl(state, mission, definition.id, select.value));
+          const result = applyControlInteraction(
+            state,
+            mission,
+            definition.id,
+            select.value,
+            nearbyStation,
+          );
+          if (!result.accepted) {
+            select.value = String(missionState.controls[definition.id]);
+            guideToControl(definition.id);
+            return;
+          }
+          mutate(result.state);
         });
         row.append(heading, select, hint);
       }
@@ -738,18 +881,22 @@ const { game } = Astro.props;
         button.textContent = definition.label;
         describeControl(button, hint, definition.id);
         button.addEventListener('click', () => {
-          if (!canOperate()) {
-            renderer?.dockAtService();
-            announce('Ride to the service node before operating this system.');
+          const before = state;
+          const result = applyActionInteraction(
+            state,
+            mission,
+            definition.id,
+            nearbyStation,
+          );
+          if (!result.accepted) {
+            guideToControl(definition.id);
             return;
           }
-          const before = state;
-          const after = performMissionAction(state, mission, definition.action);
-          mutate(after, actionMessage(definition.action, before, after), {
+          mutate(result.state, actionMessage(definition.action, before, result.state), {
             eventMission: mission,
           });
         });
-        row.append(button, hint);
+        row.append(heading, button, hint);
       }
 
       return row;
@@ -761,7 +908,7 @@ const { game } = Astro.props;
       mission.controls.forEach((definition) => {
         controlStack.append(renderControl(definition, mission.id));
       });
-      controlFieldset.disabled = !canOperate();
+      controlFieldset.disabled = paused || transitioning;
     }
 
     function renderReadout(options: { missionChanged?: boolean; updateRenderer?: boolean } = {}) {
@@ -910,12 +1057,13 @@ const { game } = Astro.props;
       const previous = state.activeMission;
       state = travelToMission(state, mission);
       if (state.activeMission === previous && mission === previous) {
-        renderer?.dockAtService();
+        guideToControl(getPrimaryControlId(getMissionReadout(state, mission)));
         mount.focus({ preventScroll: true });
         return;
       }
       const transition = describeMissionTransition(previous, mission, state.settings.reducedMotion);
-      serviceAvailable = state.settings.mode === 'planning';
+      clearAssistedInteraction();
+      nearbyStation = null;
       transitioning = true;
       root.dataset.transition = 'true';
       transitionPanel.hidden = false;
@@ -932,9 +1080,8 @@ const { game } = Astro.props;
         transitioning = false;
         delete root.dataset.transition;
         transitionPanel.hidden = true;
-        serviceAvailable = state.settings.mode === 'planning';
-        renderer?.dockAtService();
         render({ preserveControls: true, updateRenderer: false });
+        guideToControl(getPrimaryControlId(getMissionReadout(state, mission)));
         if (paused) {
           resumeButton.focus();
           announce('Patrol paused. The system will wait.');
@@ -969,17 +1116,16 @@ const { game } = Astro.props;
     }
 
     function toggleMode() {
-      const previousMode = state.settings.mode;
       const mode = state.settings.mode === 'action' ? 'planning' : 'action';
+      clearAssistedInteraction();
       state = setCampaignSettings(state, { mode });
-      serviceAvailable = mode === 'planning' || previousMode === 'planning';
       saveState();
       render();
-      if (mode === 'planning') renderer?.dockAtService();
+      guideToControl(getPrimaryControlId(getMissionReadout(state, state.activeMission)));
       announce(
         mode === 'planning'
-          ? 'Planning mode active. Autodrive and equivalent system controls are available.'
-          : 'Action mode active. Ride the drone to each service node.',
+          ? 'Planning mode active. Autodrive moves the patrol drone before a station can operate.'
+          : 'Action mode active. Ride the patrol drone to each marked station.',
       );
     }
 
@@ -1001,23 +1147,93 @@ const { game } = Astro.props;
         if (!controls.switchClosed) return 'switchClosed';
         return readout.metrics.power < 7 ? 'voltage' : 'resistance';
       }
+      if (mission === 'converter-05') {
+        if (!readout.flags.phaseAligned) return 'phaseTrim';
+        if (!readout.flags.rectifierOn) return 'rectifierOn';
+        if (!readout.flags.smoothingOn) return 'smoothingOn';
+        return 'regulatorOn';
+      }
+      if (mission === 'converter-06') {
+        if (!readout.flags.mismatchBlocked) return 'diagnose';
+        if (!readout.flags.compatible) return 'adapter';
+        return 'dock';
+      }
+      if (mission === 'converter-07') {
+        if (Number(controls.loadCount) < 6) return 'loadCount';
+        if (!readout.flags.efficient) return 'lampTech';
+        return 'advanceShift';
+      }
+      if (mission === 'gridfall-08') {
+        if (!readout.flags.protectionTripped) {
+          if (!readout.flags.leakagePath) return 'path';
+          if (!readout.flags.protectionArmed) return 'protectionArmed';
+          return 'testPath';
+        }
+        if (!readout.flags.conducting) return 'material';
+        return 'path';
+      }
+      if (mission === 'gridfall-09') {
+        if (!readout.flags.loopClosed) return 'loopClosed';
+        if (Number(readout.metrics.induction) < 0.5) {
+          return Number(controls.motion) <= Number(controls.field) ? 'motion' : 'field';
+        }
+        return 'load';
+      }
+      if (mission === 'gridfall-10') {
+        if (!readout.flags.highVoltage) return 'lineVoltage';
+        return 'transformerOn';
+      }
+      if (mission === 'gridfall-11') {
+        if (!readout.flags.breakerTripped) {
+          if (!readout.flags.overload) return 'fault';
+          return 'testProtection';
+        }
+        if (!readout.flags.gfciTripped) {
+          if (!readout.flags.leakageFault) return 'fault';
+          return 'testProtection';
+        }
+        if (String(controls.fault) !== 'none') return 'fault';
+        return 'resetProtection';
+      }
+      if (mission === 'gridfall-12') {
+        if (!readout.flags.stableGeneration) return 'generation';
+        if (!readout.flags.transmissionHigh) return 'transmissionHigh';
+        if (!readout.flags.balanced) return 'priorityRoute';
+        if (Number(readout.metrics.feederMargin) < 0.04) return 'feederCapacity';
+        if (!readout.flags.protectionArmed) return 'protectionArmed';
+      }
       const firstIncomplete = missionById[mission].controls.find((_, index) => !readout.stepCompletion[index]);
       return firstIncomplete?.id ?? missionById[mission].controls[0]?.id;
     }
 
-    function triggerPrimaryAction() {
-      if (!canOperate()) {
-        renderer?.dockAtService();
-        announce('Autodrive set for the current service node.');
+    function activateControl(id: string) {
+      const control = controlStack.querySelector<HTMLElement>(`[data-control-id="${id}"]`);
+      if (!control) {
+        guideToControl(id);
         return;
       }
-      const readout = getMissionReadout(state, state.activeMission);
-      const id = getPrimaryControlId(readout);
-      const control = controlStack.querySelector<HTMLElement>(`[data-control-id="${id}"]`);
-      if (!control) return;
       control.focus();
       if (control instanceof HTMLButtonElement) control.click();
       else announce(`${control.getAttribute('aria-label') ?? 'Control'} focused. Adjust it to continue.`);
+    }
+
+    function triggerPrimaryAction() {
+      if (paused || transitioning || assistedStation) return;
+      const readout = getMissionReadout(state, state.activeMission);
+      const suggested = getPrimaryControlId(readout);
+
+      if (!nearbyStation) {
+        guideToControl(suggested, state.settings.mode === 'planning');
+        return;
+      }
+
+      const station = getStation(state.activeMission, nearbyStation);
+      if (station.controlIds.includes(suggested)) {
+        activateControl(suggested);
+        return;
+      }
+
+      guideToControl(suggested, state.settings.mode === 'planning');
     }
 
     startButton.addEventListener('click', async () => {
@@ -1033,12 +1249,37 @@ const { game } = Astro.props;
             root.dataset.worstFrameMs = String(sample.worstFrameMs);
           },
           onPrimaryAction: triggerPrimaryAction,
-          onServiceChange: (available) => {
-            serviceAvailable = available;
+          onStationChange: (station) => {
+            nearbyStation = station;
+            if (station && targetStation === station) targetStation = null;
             renderServiceState();
-            if (available && state.settings.mode === 'action') {
-              announce(`${missionById[state.activeMission].title} service controls are in range.`);
+            renderControls();
+          },
+          onAssistedTravelEnd: (station, arrived) => {
+            const pending =
+              arrived && pendingPrimaryControl?.station === station
+                ? pendingPrimaryControl
+                : null;
+            if (assistedStation === station) assistedStation = null;
+            if (arrived && targetStation === station) targetStation = null;
+            if (pending || (!arrived && pendingPrimaryControl?.station === station)) {
+              pendingPrimaryControl = null;
             }
+            renderServiceState();
+            renderControls();
+            if (pending) {
+              window.queueMicrotask(() => {
+                if (nearbyStation === station && !paused && !transitioning) {
+                  activateControl(pending.controlId);
+                }
+              });
+            }
+            const label = getStation(state.activeMission, station).label;
+            announce(
+              arrived
+                ? `${label} reached. Its local controls are ready.`
+                : `Autodrive to ${label} cancelled. Manual patrol control resumed.`,
+            );
           },
         });
         if (paused) renderer.setPaused(true);
@@ -1047,13 +1288,13 @@ const { game } = Astro.props;
         controlPanel.open = !getMissionReadout(state, state.activeMission).objectiveMet;
         mount.focus({ preventScroll: true });
         render();
-        if (state.settings.mode === 'planning') renderer.dockAtService();
+        guideToControl(getPrimaryControlId(getMissionReadout(state, state.activeMission)));
         announce(
           saveWasRecovered
             ? 'A damaged local save was reset safely. Loop Patrol starts from mission one.'
             : hadSavedGame
               ? `Patrol resumed at ${missionById[state.activeMission].title}.`
-              : 'Loop Patrol started. Ride the blue drone to the first service node.',
+              : 'Loop Patrol started. Ride the blue drone to the Source diamond.',
         );
         playTone('start');
       } catch (error) {
@@ -1112,12 +1353,16 @@ const { game } = Astro.props;
 
     rewindButton.addEventListener('click', () => {
       if (transitioning) return;
+      clearAssistedInteraction();
       mutate(rewindCampaignState(state), 'The latest system move was rewound.');
+      guideToControl(getPrimaryControlId(getMissionReadout(state, state.activeMission)));
     });
 
     retryButton.addEventListener('click', () => {
       if (transitioning) return;
+      clearAssistedInteraction();
       mutate(resetMissionState(state, state.activeMission), 'Current mission restarted.');
+      guideToControl(getPrimaryControlId(getMissionReadout(state, state.activeMission)));
     });
 
     nextButton.addEventListener('click', () => {
@@ -1127,11 +1372,10 @@ const { game } = Astro.props;
 
     required<HTMLButtonElement>('[data-sandbox-button]').addEventListener('click', () => {
       completionCard.hidden = true;
-      serviceAvailable = true;
       render();
-      renderer?.dockAtService();
+      guideToControl(getPrimaryControlId(getMissionReadout(state, state.activeMission)));
       mount.focus({ preventScroll: true });
-      announce('Sandbox open. Every mission and control remains available.');
+      announce('Sandbox open. Every mission remains available, with controls at their marked stations.');
     });
 
     function replayCampaign() {
@@ -1147,10 +1391,11 @@ const { game } = Astro.props;
       });
       completionCard.hidden = true;
       controlPanel.open = true;
-      serviceAvailable = state.settings.mode === 'planning';
+      clearAssistedInteraction();
+      nearbyStation = null;
       saveState();
       render({ missionChanged: true });
-      renderer?.dockAtService();
+      guideToControl(getPrimaryControlId(getMissionReadout(state, state.activeMission)));
       announce('Campaign replay started at The Missing Return.');
     }
 
@@ -1170,12 +1415,13 @@ const { game } = Astro.props;
         bindings: state.settings.bindings,
       });
       hadSavedGame = false;
-      serviceAvailable = state.settings.mode === 'planning';
+      clearAssistedInteraction();
+      nearbyStation = null;
       controlPanel.open = true;
       saveState();
       settingsDialog.close();
       render({ missionChanged: true });
-      renderer?.dockAtService();
+      guideToControl(getPrimaryControlId(getMissionReadout(state, state.activeMission)));
       announce('All local progress reset. Loop Patrol is ready at mission one.');
     });
 
