@@ -15,6 +15,10 @@ import {
   type InteractionStationId,
 } from '../content/stations';
 import type { CircuitRidersRendererOptions } from '../bootstrap';
+import {
+  getMovementDirection,
+  shouldCaptureMovementInput,
+} from '../core/input';
 import type { CampaignState, MissionReadout } from '../core/model';
 
 const WORLD_WIDTH = 960;
@@ -123,26 +127,46 @@ export class LoopScene extends Phaser.Scene {
   private externalPaused = false;
   private frameSamples: number[] = [];
 
-  private readonly handleKeyDown = (event: KeyboardEvent) => {
+  private readonly handleMovementKeyDown = (event: KeyboardEvent) => {
     const bindings = this.state.settings.bindings;
-    if (
-      event.code === bindings.left ||
-      event.code === bindings.right ||
-      event.code === bindings.up ||
-      event.code === bindings.down
-    ) {
-      event.preventDefault();
-      this.cancelAssistedTravel();
-      this.pressedKeys.add(event.code);
-    }
+    const root = this.mount?.closest<HTMLElement>('[data-game-root]');
+    const target = event.target;
+    const editing =
+      target instanceof Element &&
+      Boolean(target.closest('input, select, textarea, [contenteditable="true"]'));
+    const shouldCapture = shouldCaptureMovementInput(event.code, bindings, {
+      editing,
+      externallyPaused: this.externalPaused || document.hidden,
+      modalOpen: Boolean(root?.querySelector('dialog[open]')),
+      transitioning: root?.dataset.transition === 'true',
+    });
+    if (!shouldCapture) return;
+
+    event.preventDefault();
+    this.cancelAssistedTravel();
+    this.pressedKeys.add(event.code);
+  };
+
+  private readonly handleActionKeyDown = (event: KeyboardEvent) => {
+    const bindings = this.state.settings.bindings;
     if (event.code === bindings.action && !event.repeat) {
       event.preventDefault();
       this.options.onPrimaryAction();
     }
   };
 
-  private readonly handleKeyUp = (event: KeyboardEvent) => {
+  private readonly handleMovementKeyUp = (event: KeyboardEvent) => {
     this.pressedKeys.delete(event.code);
+  };
+
+  private readonly handleFocusIn = (event: FocusEvent) => {
+    const target = event.target;
+    if (
+      target instanceof Element &&
+      target.closest('dialog[open], input, select, textarea, [contenteditable="true"]')
+    ) {
+      this.clearKeys();
+    }
   };
 
   private readonly clearKeys = () => {
@@ -212,6 +236,7 @@ export class LoopScene extends Phaser.Scene {
       this.nearbyStation = null;
       this.targetStationId = null;
       this.assistedStationId = null;
+      this.clearKeys();
       this.lastObjectiveMet = false;
       this.completionPulseStarted = -1;
       this.renderMission();
@@ -311,9 +336,11 @@ export class LoopScene extends Phaser.Scene {
     const mount = this.game.canvas.parentElement;
     if (mount instanceof HTMLElement) {
       this.mount = mount;
-      mount.addEventListener('keydown', this.handleKeyDown);
-      mount.addEventListener('keyup', this.handleKeyUp);
-      mount.addEventListener('blur', this.clearKeys);
+      mount.addEventListener('keydown', this.handleActionKeyDown);
+      window.addEventListener('keydown', this.handleMovementKeyDown);
+      window.addEventListener('keyup', this.handleMovementKeyUp);
+      window.addEventListener('blur', this.clearKeys);
+      window.addEventListener('focusin', this.handleFocusIn);
       this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.removeInputListeners, this);
     }
 
@@ -325,9 +352,11 @@ export class LoopScene extends Phaser.Scene {
   }
 
   private removeInputListeners() {
-    this.mount?.removeEventListener('keydown', this.handleKeyDown);
-    this.mount?.removeEventListener('keyup', this.handleKeyUp);
-    this.mount?.removeEventListener('blur', this.clearKeys);
+    this.mount?.removeEventListener('keydown', this.handleActionKeyDown);
+    window.removeEventListener('keydown', this.handleMovementKeyDown);
+    window.removeEventListener('keyup', this.handleMovementKeyUp);
+    window.removeEventListener('blur', this.clearKeys);
+    window.removeEventListener('focusin', this.handleFocusIn);
     this.clearKeys();
     this.mount = undefined;
   }
@@ -336,11 +365,7 @@ export class LoopScene extends Phaser.Scene {
     if (!this.drone) return;
     const settings = this.state.settings;
     const speed = (settings.slowMotion ? 0.0001 : 0.00018) * delta;
-    const bindings = settings.bindings;
-    let direction = 0;
-
-    if (this.pressedKeys.has(bindings.left) || this.pressedKeys.has(bindings.up)) direction -= 1;
-    if (this.pressedKeys.has(bindings.right) || this.pressedKeys.has(bindings.down)) direction += 1;
+    const direction = getMovementDirection(this.pressedKeys, settings.bindings);
 
     if (direction !== 0) {
       this.cancelAssistedTravel();
