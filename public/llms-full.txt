@@ -11,7 +11,15 @@ Turtleand Energy is a public learning surface for energy, electricity, circuits,
 - [Lesson 6: How to Read a Power Adapter Label Without Burning Your Device](https://energy.turtleand.com/lessons/lesson-6-power-adapter-labels/): Learn the label checks that matter before plugging an adapter into a device: voltage, type, current, connector, polarity, and USB-C negotiation. Includes embedded simulation: Change a sample adapter label and see which field makes the device safe, underpowered, or dangerous.
 - [Lesson 7: Power and Energy: Watts, Watt-hours, and Electric Bills](https://energy.turtleand.com/lessons/lesson-7-power-energy-bills/): Learn why watts measure the rate of energy transfer, why watt-hours measure total energy, and how kilowatt-hours become an electric bill. Includes embedded simulation: Change watts, runtime, and price to see how power times time becomes watt-hours, kilowatt-hours, and cost.
 - [Lesson 8: Conductors, Insulators, Grounding, and Safety](https://energy.turtleand.com/lessons/lesson-8-conductors-insulators-grounding-safety/): Learn how conductors guide current, how insulators resist unwanted paths, and how grounding gives fault current a safer route. Includes embedded simulation: Switch between normal operation, an unsafe fault, a grounded fault, and a leakage fault to see which path current takes and which protection responds.
+- [Lesson 9: Generators and Electromagnetic Induction](https://energy.turtleand.com/lessons/lesson-9-generators-electromagnetic-induction/): See how motion between a magnet and wire coil changes magnetic flux and makes voltage appear at the wire ends. Includes embedded simulation: Move a magnet near a wire coil to see magnetic flux change and voltage appear at the wire ends.
 - [Lesson 10: Batteries and Chemical Electricity](https://energy.turtleand.com/lessons/lesson-10-batteries-chemical-electricity/): Learn the beginner battery model: chemical difference creates voltage, electrons move through the outside circuit, and ions move through the electrolyte inside the battery. Includes embedded simulation: Switch between discharge, run-down, and charging states to see the outside electron path, inside ion path, and chemical difference change together.
+- [Lesson 10: Why AC Won the Grid](https://energy.turtleand.com/lessons/lesson-10-why-ac-won-the-grid-transformers-voltage-heat-loss/): Learn how transformers made long-distance AC power practical by raising voltage, lowering current, and reducing wire heat loss before power is stepped down near users. Includes embedded simulation: Adjust transmitted power and line voltage in a simplified model to see how higher voltage lowers current and reduces relative wire heat loss.
+- [Lesson 11: House Wiring Faults and Protection](https://energy.turtleand.com/lessons/lesson-11-house-wiring-faults-and-protection/): Use one simple mental model: live and neutral form the normal loop, breakers/fuses watch too much current, and GFCI/RCD devices watch leakage. Includes embedded simulation: Pick normal use, too much current, or leaking current and see whether the breaker/fuse or GFCI/RCD is the device that reacts.
+- [Lesson 12: Neighborhood Distribution](https://energy.turtleand.com/lessons/lesson-12-neighborhood-distribution/): Learn how power moves from transmission into neighborhood feeders, local transformers, and home service connections, and why higher distribution voltage lowers feeder current and heat loss. Includes embedded simulation: Adjust neighborhood load, feeder voltage, and home load to see how feeder current, relative wire heat loss, and home service current respond.
+
+## Games
+- [Circuit Riders: Loop Patrol](https://energy.turtleand.com/play/circuit-riders/): Ride a maintenance drone through one connected electrical city, restore 12 systems, and make every loop pulse.
+- [Gridkeeper: Light the Island](https://energy.turtleand.com/play/gridkeeper/): Restore six connected districts and make electricity visible through a living island grid.
 
 ## Article details
 ### Lesson 1: Electricity from first principles
@@ -785,6 +793,96 @@ Embedded simulation:
 
 Switch between normal operation, an unsafe fault, a grounded fault, and a leakage fault to see which path current takes and which protection responds.
 
+### Lesson 9: Generators and Electromagnetic Induction
+
+A generator does not create electricity from nothing.
+
+It converts motion into electrical energy by changing the relationship between a magnetic field and a wire coil.
+
+```text
+motion + magnetic field + wire coil -> changing magnetic flux -> induced voltage
+```
+
+If the circuit is closed, that voltage can push current through a load.
+
+## The core picture
+
+A simple generator needs three ideas:
+
+```text
+motion = something turns or moves
+magnet-coil relationship = the magnetic field through the coil changes
+closed circuit = current has a path through a load
+```
+
+The turbine, engine, or hand crank supplies motion. That motion can spin a magnet near coils, or spin coils through a magnetic field. The exact hardware can vary.
+
+The key is not which part moves. The key is that the magnetic flux through the coil changes.
+
+## Magnetic flux, in plain language
+
+Magnetic flux means the amount of magnetic field passing through the coil.
+
+If more field passes through the coil, flux increases. If less field passes through the coil, flux decreases. If the field direction through the coil flips, the flux changes direction.
+
+A generator works because motion keeps changing that flux.
+
+```text
+steady flux -> no sustained induced voltage
+changing flux -> induced voltage
+```
+
+## Voltage first, then current if the path closes
+
+Changing magnetic flux induces voltage in the coil.
+
+Voltage is electrical push. It is not the same as current.
+
+```text
+changing flux -> induced voltage
+induced voltage + closed circuit -> current through the load
+```
+
+If the circuit is open, voltage can exist at the terminals, but sustained current does not flow through the load. If the circuit is closed, the induced voltage pushes current and the load receives electrical power.
+
+## Why load makes the generator harder to turn
+
+A generator under load is harder to turn because energy is being transferred to the electrical circuit.
+
+The current in the coil creates its own magnetic effect that opposes the motion that caused it. This is not a flaw. It is energy conservation showing up mechanically.
+
+```text
+more electrical load -> more current -> stronger opposing effect -> more mechanical work required
+```
+
+That is why a generator does not make free energy. If the load takes more electrical power, the turbine, engine, water wheel, wind rotor, or hand crank must supply more mechanical power.
+
+## Durable model
+
+Keep this chain:
+
+```text
+1. A turbine or engine supplies motion.
+2. Motion changes the magnet-coil relationship.
+3. The changing relationship changes magnetic flux through the coil.
+4. Changing magnetic flux induces voltage.
+5. A closed circuit lets that voltage push current.
+6. Current delivers power to the load.
+7. More load requires more mechanical work.
+```
+
+## Bottom line
+
+Generators convert motion into electrical energy through electromagnetic induction. The important event is changing magnetic flux through a coil.
+
+The magnet can move near coils, or the coils can move through a magnetic field. Either way, changing flux induces voltage. Current flows only when the circuit is closed, and real electrical load pushes back mechanically because energy must come from somewhere.
+
+This is a simplified educational model. It is not a guide for building, wiring, connecting, or servicing generators. Real generators can involve dangerous voltage, rotating machinery, heat, stored energy, backfeed hazards, and grid interconnection rules.
+
+Embedded simulation:
+
+Move a magnet near a wire coil to see magnetic flux change and voltage appear at the wire ends.
+
 ### Lesson 10: Batteries and Chemical Electricity
 
 A battery is not just a container of electricity.
@@ -889,3 +987,339 @@ This is a simplified educational model. It is not a guide for opening batteries,
 Embedded simulation:
 
 Switch between discharge, run-down, and charging states to see the outside electron path, inside ion path, and chemical difference change together.
+
+### Lesson 10: Why AC Won the Grid
+
+A transformer is like a gearbox for electricity.
+
+It does not create energy from nowhere. It trades voltage and current so the same electrical power can travel more efficiently or become more usable.
+
+```text
+same power -> higher voltage -> lower current -> less wire heating
+```
+
+That one relationship is why transformers became so important to AC power grids.
+
+## The long-distance problem
+
+Wires resist current. When current moves through a wire, some energy becomes heat.
+
+The simplified heat-loss relationship is:
+
+```text
+wire heat loss grows with current squared
+I²R loss = current × current × wire resistance
+```
+
+Current matters strongly. Double the current and the heat loss becomes roughly four times larger in this simplified model.
+
+A grid needs to move large amounts of power over long distances. Sending that power at low voltage would require high current. High current makes wires hotter and wastes more energy.
+
+## Power connects voltage and current
+
+Use the power relationship as a sanity check:
+
+```text
+power = voltage × current
+P = V × I
+```
+
+For the same power, voltage and current move in opposite directions.
+
+```text
+10,000 W at 100 V  -> 100 A
+10,000 W at 1,000 V -> 10 A
+```
+
+Both examples move 10,000 watts in the simplified arithmetic. The second uses much less current, so the wire heating is much lower.
+
+## What a transformer changes
+
+A transformer changes AC voltage using magnetic fields and two coils.
+
+```text
+changing current in coil 1 -> changing magnetic flux -> voltage in coil 2
+```
+
+The key word is **changing**. AC naturally changes direction and size over time. That changing current creates changing magnetic flux in the transformer's core. The changing flux links to the second coil and creates voltage there.
+
+The coil turn ratio shapes the voltage change:
+
+```text
+more turns on output coil -> step up voltage
+fewer turns on output coil -> step down voltage
+```
+
+This is the electrical gearbox idea. A step-up transformer raises voltage for travel. A step-down transformer lowers voltage near the place where power will be used.
+
+## The grid pattern
+
+A simplified AC grid pattern looks like this:
+
+```text
+generator -> step-up transformer -> long-distance line -> step-down transformer -> usable local voltage
+```
+
+Step up for travel because high voltage lowers current for the same power.
+
+Step down near users because very high transmission voltage is not the form people can safely or practically use in buildings and devices.
+
+## Why AC became grid-friendly
+
+AC did not matter only because it was alternating. It mattered because alternating current made transformer-based voltage changes practical for large power systems.
+
+That meant the grid could combine two needs:
+
+```text
+high voltage for efficient travel
+lower voltage for local use
+```
+
+The historical story has more parts than one device, but transformers were central to making AC practical for long-distance power transmission.
+
+## Safety boundary
+
+This lesson is a conceptual model, not an electrical-work guide.
+
+Do not use simplified diagrams or simulations to handle transformers, outlets, panels, utility equipment, power lines, or unknown electrical systems. Real electrical systems need proper training, isolation, rated equipment, local code knowledge, and safety procedures.
+
+## Bottom line
+
+Transformers made AC grid power practical because they let the system raise voltage for long-distance travel and lower voltage near users.
+
+For the same power, higher voltage means lower current. Lower current means much less wire heating in the simplified I²R model. That is the core reason the electrical gearbox matters.
+
+Embedded simulation:
+
+Adjust transmitted power and line voltage in a simplified model to see how higher voltage lowers current and reduces relative wire heat loss.
+
+### Lesson 11: House Wiring Faults and Protection
+
+House wiring is easier to reason about when the simulation asks fewer questions. Start with one loop and two kinds of protection.
+
+```text
+live or hot -> sends electrical push into the circuit
+neutral -> completes the normal return path
+ground -> waits as an emergency safety path
+breaker -> opens when current is too high
+GFCI/RCD -> opens when live and neutral do not balance
+```
+
+This is a mental model, not a wiring guide.
+
+## The normal path
+
+In normal operation, current uses the working loop:
+
+```text
+live or hot -> device -> neutral
+```
+
+The device can be a lamp, charger, heater, motor, or appliance. It receives energy because current can move through the load and return through neutral.
+
+Ground is different. Ground is not supposed to carry normal current. It exists so some faults have a safer path that helps protective devices react.
+
+```text
+neutral = normal return path
+ground = exceptional fault path
+```
+
+## Overload means too much demand
+
+An overload happens when the circuit is asked to carry more current than it is designed for. The path may still be normal, but the amount is too high.
+
+Examples in the mental model:
+
+- too many devices on one circuit
+- a load drawing more current than the wiring should carry
+- a long period of demand that can overheat wiring
+
+A normal breaker protects against this by opening the circuit when current stays too high for too long.
+
+## A live-neutral short is a very easy wrong path
+
+A live-neutral short happens when live touches neutral before the intended load.
+
+```text
+live -> neutral
+```
+
+That path has very low resistance, so current can surge dangerously. A breaker or fuse should open quickly because it sees overcurrent.
+
+This is one kind of short circuit.
+
+## A live-ground fault is live touching a grounded path
+
+A live-ground fault happens when live touches something connected to ground, such as an exposed metal case or equipment grounding conductor.
+
+```text
+live -> metal case or grounding path -> ground return path
+```
+
+If the ground path is low impedance, fault current becomes large enough that the breaker or fuse can open the circuit.
+
+Ground does not absorb electricity. It gives fault current a safer path than a person and helps protection disconnect power.
+
+## Normal breakers detect overcurrent
+
+A normal breaker is mainly an overcurrent protection device.
+
+That includes two common cases:
+
+| Fault or condition | What happens | What the breaker sees |
+| --- | --- | --- |
+| Overload | Normal path, too much demand | Too much current for too long |
+| Short circuit | Very low-resistance fault path | Very high current quickly |
+
+So the correction is important: a normal breaker is not only a short-circuit device. It protects against overcurrent, including overloads and short circuits.
+
+## GFCI and RCD devices detect imbalance
+
+A GFCI or RCD watches a different question:
+
+```text
+did all current that left on live return on neutral?
+```
+
+If 5 A leaves on live and 5 A returns on neutral, the device sees balance.
+
+If some current leaks through water, a case, ground, or a person, less current returns on neutral. The device sees imbalance and trips.
+
+```text
+breaker = too much current
+GFCI/RCD = current went somewhere it should not
+```
+
+That is why a GFCI/RCD can trip even when the current is too small to trip a normal breaker.
+
+## The comparison
+
+For a first mental model, use only three buckets:
+
+| Case | Simple meaning | Main protection response |
+| --- | --- | --- |
+| Normal operation | Live sends power through a device, neutral returns it | No trip needed |
+| Too much current | The circuit is overloaded or a short creates a very easy path | Breaker or fuse trips on overcurrent |
+| Current leaks away | Some current leaves the live-neutral loop | GFCI/RCD trips on imbalance |
+
+The detailed names still matter, but the first intuition is simpler: amount problem means breaker or fuse, balance problem means GFCI/RCD.
+
+## Safety boundary
+
+Do not use this lesson to work on outlets, plugs, breaker panels, appliances, mains wiring, extension cords, chargers, batteries, or unknown circuits.
+
+Real electrical work requires proper isolation, rated parts, test equipment, local code knowledge, and trained judgment. Simplified diagrams are for understanding protection concepts only.
+
+## Bottom line
+
+Live and neutral form the normal working loop. Ground should stay quiet unless something goes wrong.
+
+Normal breakers detect overcurrent. That includes overloads and short circuits. GFCI and RCD devices detect leakage by comparing current leaving on live with current returning on neutral.
+
+Embedded simulation:
+
+Pick normal use, too much current, or leaking current and see whether the breaker/fuse or GFCI/RCD is the device that reacts.
+
+### Lesson 12: Neighborhood Distribution
+
+A power grid does not connect a distant generator straight to a toaster.
+
+It moves power through stages. Each stage has a job.
+
+```text
+generation -> step-up transformer -> transmission -> substation -> feeder -> local transformer -> home service
+```
+
+Think of it like roads.
+
+Transmission lines are the highways. Distribution feeders are the neighborhood roads. The service connection is the driveway into one building.
+
+## The neighborhood stage
+
+After long-distance transmission, a substation lowers voltage and sends power into local distribution feeders.
+
+A feeder is the line that carries power through an area. It may serve many local transformers. Each local transformer lowers voltage again for a small group of homes or buildings.
+
+```text
+substation -> distribution feeder -> local transformer -> service connection -> home loads
+```
+
+The important idea is separation of roles.
+
+- **Transmission:** moves large amounts of power over long distances.
+- **Distribution feeder:** moves power around a city, town, or neighborhood.
+- **Local transformer:** lowers voltage near users.
+- **Service connection:** brings usable voltage into one building.
+
+## Same power, different current
+
+Use the power relationship again:
+
+```text
+power = voltage × current
+P = V × I
+```
+
+For the same amount of power, higher voltage means lower current.
+
+```text
+60,000 W at 240 V   -> 250 A
+60,000 W at 7,200 V -> about 8.3 A
+```
+
+Both examples move 60 kW in the simplified arithmetic. The higher-voltage feeder carries the same power with much lower current.
+
+## Why current matters for losses
+
+Wires have resistance. Current through resistance creates heat.
+
+For grid loss discussions, you will often see the heat-loss rate written as:
+
+```text
+P_loss = I²R
+```
+
+That means power lost as heat rises with current squared. If current falls a lot, feeder heat loss falls even more in this simplified model.
+
+This is why grids use higher voltage before power is delivered at lower voltage near users.
+
+## Home current depends on load
+
+The current into a home is not fixed.
+
+It depends on what is running.
+
+```text
+small load -> lower current
+large load -> higher current
+```
+
+A few lights, a laptop, and a phone charger demand much less power than a heater, oven, dryer, or air conditioner. The service connection supplies the current required by the active loads, within the limits of the system.
+
+## What the local transformer does
+
+The local transformer is the neighborhood handoff point.
+
+It receives higher-voltage distribution power from the feeder. It lowers voltage for nearby service connections.
+
+```text
+higher feeder voltage -> local transformer -> lower service voltage
+```
+
+The transformer does not decide how much current a home uses. The home loads decide the demand. The transformer and service equipment must be sized to supply that demand safely.
+
+## Safety boundary
+
+This lesson is a conceptual model, not an electrical-work guide.
+
+Do not use simplified grid diagrams or simulations to work on panels, meters, service conductors, transformers, utility lines, generators, or backfeeding equipment. Real electrical systems require trained professionals, rated equipment, isolation procedures, local code knowledge, and utility coordination.
+
+## Bottom line
+
+Neighborhood distribution is the middle layer between long-distance transmission and one building.
+
+Higher distribution voltage lowers feeder current for the same power. Lower current reduces simplified I²R heat loss. The current into a home is different: it changes with the active load inside that home.
+
+Embedded simulation:
+
+Adjust neighborhood load, feeder voltage, and home load to see how feeder current, relative wire heat loss, and home service current respond.

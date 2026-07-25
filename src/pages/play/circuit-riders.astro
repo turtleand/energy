@@ -1,0 +1,15 @@
+---
+import { getCollection } from 'astro:content';
+import CircuitRidersShell from '@components/game/CircuitRidersShell.astro';
+import CircuitRidersLayout from '@layouts/CircuitRidersLayout.astro';
+
+const game = (await getCollection('games')).find((entry) => entry.data.slug === 'circuit-riders');
+
+if (!game) {
+  throw new Error('Circuit Riders content entry is missing.');
+}
+---
+
+<CircuitRidersLayout title={game.data.title} description={game.data.summary}>
+  <CircuitRidersShell game={game.data} />
+</CircuitRidersLayout>
