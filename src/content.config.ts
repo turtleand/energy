@@ -35,13 +35,34 @@ const games = defineCollection({
     status: lessonStatus,
     slug: z.string(),
     coveredLessonSlugs: z.array(z.string()),
-    districts: z.array(
-      z.object({
-        id: z.string(),
-        name: z.string(),
-        lessonSlugs: z.array(z.string()),
-      }),
-    ),
+    districts: z
+      .array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+          lessonSlugs: z.array(z.string()),
+        }),
+      )
+      .optional(),
+    campaignActs: z
+      .array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+          missionIds: z.array(z.string()),
+        }),
+      )
+      .optional(),
+    missions: z
+      .array(
+        z.object({
+          id: z.string(),
+          title: z.string(),
+          lessonSlug: z.string(),
+          act: z.string(),
+        }),
+      )
+      .optional(),
     accessibilityDescription: z.string(),
     entryModule: z.string(),
   }),
