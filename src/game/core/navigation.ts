@@ -28,6 +28,27 @@ export interface NavigationSnapshot {
   phase: ProximityPhase;
 }
 
+export type NavigationTransition =
+  | { type: 'arrived'; district: DistrictId }
+  | { type: 'travel-interrupted' }
+  | { type: 'left-ring'; district: DistrictId };
+
+export function deriveNavigationTransition(
+  previous: NavigationSnapshot,
+  next: NavigationSnapshot,
+): NavigationTransition | null {
+  if (next.operatingDistrict && next.operatingDistrict !== previous.operatingDistrict) {
+    return { type: 'arrived', district: next.operatingDistrict };
+  }
+  if (previous.destinationDistrict && !next.destinationDistrict) {
+    return { type: 'travel-interrupted' };
+  }
+  if (previous.operatingDistrict && !next.operatingDistrict) {
+    return { type: 'left-ring', district: previous.operatingDistrict };
+  }
+  return null;
+}
+
 export function districtWorldPoint(district: DistrictId): NavigationPoint {
   const { position } = districtById[district];
   return { x: position.x * WORLD_WIDTH, y: position.y * WORLD_HEIGHT };
