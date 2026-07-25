@@ -313,6 +313,17 @@ describe('Circuit Riders progression controls', () => {
 });
 
 describe('Circuit Riders save format', () => {
+  it('uses W or D clockwise and S or A counter-clockwise by default', () => {
+    const bindings = createInitialCampaignState().settings.bindings;
+
+    expect(bindings).toMatchObject({
+      left: 'KeyA',
+      right: 'KeyD',
+      up: 'KeyS',
+      down: 'KeyW',
+    });
+  });
+
   it('round trips the current version', () => {
     let state = createInitialCampaignState();
     state = setMissionControl(state, 'loopworks-01', 'switchClosed', true);
@@ -322,6 +333,49 @@ describe('Circuit Riders save format', () => {
     expect(parsed.version).toBe(CIRCUIT_RIDERS_SAVE_VERSION);
     expect(parsed.missions['loopworks-01'].controls.switchClosed).toBe(true);
     expect(CIRCUIT_RIDERS_SAVE_KEY).toContain('circuit-riders');
+  });
+
+  it('migrates legacy default directions without changing progress or shortcuts', () => {
+    let legacy = createInitialCampaignState({
+      bindings: {
+        left: 'KeyA',
+        right: 'KeyD',
+        up: 'KeyW',
+        down: 'KeyS',
+        action: 'Enter',
+        pause: 'KeyJ',
+        lens: 'KeyL',
+      },
+    });
+    legacy = setMissionControl(legacy, 'loopworks-01', 'sourceOn', true);
+
+    const migrated = parseCampaignSave(serializeCampaignState(legacy));
+
+    expect(migrated.missions['loopworks-01'].controls.sourceOn).toBe(true);
+    expect(migrated.settings.bindings).toEqual({
+      left: 'KeyA',
+      right: 'KeyD',
+      up: 'KeyS',
+      down: 'KeyW',
+      action: 'Enter',
+      pause: 'KeyJ',
+      lens: 'KeyL',
+    });
+  });
+
+  it('preserves a partially customized directional mapping', () => {
+    const custom = createInitialCampaignState({
+      bindings: {
+        left: 'ArrowLeft',
+        right: 'KeyD',
+        up: 'KeyW',
+        down: 'KeyS',
+      },
+    });
+
+    const parsed = parseCampaignSave(serializeCampaignState(custom));
+
+    expect(parsed.settings.bindings).toEqual(custom.settings.bindings);
   });
 
   it('migrates a minimal version-one save and recovers from invalid data', () => {

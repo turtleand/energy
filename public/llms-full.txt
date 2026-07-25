@@ -18,6 +18,7 @@ Turtleand Energy is a public learning surface for energy, electricity, circuits,
 
 ## Games
 - [Circuit Riders: Loop Patrol](https://energy.turtleand.com/play/circuit-riders/): Ride a maintenance drone through one connected electrical city, restore 12 systems, and make every loop pulse.
+- [Gridkeeper: Light the Island](https://energy.turtleand.com/play/gridkeeper/): Restore six connected districts and make electricity visible through a living island grid.
 
 ## Article details
 ### Lesson 1: Electricity from first principles

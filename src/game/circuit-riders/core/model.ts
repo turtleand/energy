@@ -72,11 +72,18 @@ export interface MissionReadout {
 
 const MAX_HISTORY = 48;
 
-const defaultBindings: InputBindings = {
+const legacyDefaultDirections = {
   left: 'KeyA',
   right: 'KeyD',
   up: 'KeyW',
   down: 'KeyS',
+} as const;
+
+const defaultBindings: InputBindings = {
+  left: 'KeyA',
+  right: 'KeyD',
+  up: 'KeyS',
+  down: 'KeyW',
   action: 'Space',
   pause: 'KeyP',
   lens: 'KeyF',
@@ -1184,15 +1191,25 @@ function sanitizeSettings(value: unknown): CampaignSettings {
   const fresh = createInitialCampaignState().settings;
   if (!value || typeof value !== 'object' || Array.isArray(value)) return fresh;
   const candidate = value as Partial<CampaignSettings>;
-  const bindings =
+  const sanitizedBindings =
     candidate.bindings && typeof candidate.bindings === 'object'
       ? Object.fromEntries(
           Object.entries(defaultBindings).map(([key, fallback]) => {
             const incoming = candidate.bindings?.[key as keyof InputBindings];
             return [key, typeof incoming === 'string' && incoming.length <= 24 ? incoming : fallback];
           }),
-        )
+        ) as unknown as InputBindings
       : defaultBindings;
+  const usesLegacyDefaultDirections = Object.entries(legacyDefaultDirections).every(
+    ([key, value]) => sanitizedBindings[key as keyof typeof legacyDefaultDirections] === value,
+  );
+  const bindings = usesLegacyDefaultDirections
+    ? {
+        ...sanitizedBindings,
+        up: defaultBindings.up,
+        down: defaultBindings.down,
+      }
+    : sanitizedBindings;
 
   return {
     mode: candidate.mode === 'planning' ? 'planning' : 'action',
@@ -1209,7 +1226,7 @@ function sanitizeSettings(value: unknown): CampaignSettings {
       typeof candidate.reducedMotion === 'boolean' ? candidate.reducedMotion : fresh.reducedMotion,
     slowMotion:
       typeof candidate.slowMotion === 'boolean' ? candidate.slowMotion : fresh.slowMotion,
-    bindings: bindings as unknown as InputBindings,
+    bindings,
   };
 }
 

@@ -2,7 +2,7 @@
 title: "Gridkeeper: Light the Island"
 summary: "Restore six connected districts and make electricity visible through a living island grid."
 order: 2
-status: planned
+status: ready
 slug: "gridkeeper"
 coveredLessonSlugs:
   - "lesson-1-electricity-from-first-principles"
