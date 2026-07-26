@@ -4,7 +4,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 
 export function getStaticPaths() {
   return curricula
-    .filter((curriculum) => curriculum.status === 'ready')
+    .filter((curriculum) => curriculum.status === 'published')
     .map((curriculum) => ({
       params: { slug: curriculum.slug },
       props: { curriculum },
@@ -17,7 +17,7 @@ const { curriculum } = Astro.props;
 <BaseLayout title={curriculum.title} description={curriculum.summary}>
   <article class="curriculum-shell">
     <header class="container curriculum-hero">
-      <p class="eyebrow">Electricity depth curriculum</p>
+      <p class="eyebrow">Curriculum reference</p>
       <h1>{curriculum.title}</h1>
       <p class="lede">{curriculum.summary}</p>
       <div class="curriculum-outcome" aria-label="Program outcome">
@@ -28,7 +28,7 @@ const { curriculum } = Astro.props;
 
     <section class="container curriculum-sequence" aria-labelledby="curriculum-sequence-title">
       <div class="index-heading">
-        <p class="eyebrow">Six-part sequence</p>
+        <p class="eyebrow">{curriculum.modules.length}-part sequence</p>
         <h2 id="curriculum-sequence-title">Follow the circuit from structure to control.</h2>
       </div>
 

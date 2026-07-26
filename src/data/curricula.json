@@ -2,9 +2,10 @@
   {
     "slug": "electricity-depth-circuits-and-electronics",
     "title": "Electricity Depth: Circuits and Electronics",
-    "summary": "A six-part path from circuit structure and measurement to electronic components, motors, and controlled power.",
+    "summary": "A reference path from circuit structure and measurement to electronic components, motors, and controlled power.",
     "order": 1,
-    "status": "ready",
+    "status": "published",
+    "format": "outline",
     "outcome": "Build the circuit intuition and measurement discipline needed to reason about practical electronics without treating diagrams or formulas as magic.",
     "modules": [
       {

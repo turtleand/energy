@@ -50,7 +50,7 @@ const games = (await readCollection(gamesDir, '/play')).map((game) => ({
   url: `/play/${game.slug}/`,
 }));
 const curricula = JSON.parse(await readFile(curriculaPath, 'utf8'))
-  .filter((curriculum) => curriculum.status === 'ready')
+  .filter((curriculum) => curriculum.status === 'published')
   .sort((a, b) => a.order - b.order);
 const labsBySlug = new Map(labs.map((item) => [item.slug, item]));
 

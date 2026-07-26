@@ -9,8 +9,8 @@ const lessons = (await getCollection('lessons', ({ data }) => data.status === 'r
 const games = (await getCollection('games', ({ data }) => data.status === 'ready')).sort(
   (a, b) => a.data.order - b.data.order
 );
-const readyCurricula = curricula
-  .filter((curriculum) => curriculum.status === 'ready')
+const publishedCurricula = curricula
+  .filter((curriculum) => curriculum.status === 'published')
   .sort((a, b) => a.order - b.order);
 ---
 
@@ -25,7 +25,7 @@ const readyCurricula = curricula
     </div>
   </section>
 
-  {readyCurricula.length > 0 && (
+  {publishedCurricula.length > 0 && (
     <section class="section curriculum-index" aria-labelledby="curriculum-index-title">
       <div class="container">
         <div class="index-heading">
@@ -34,17 +34,17 @@ const readyCurricula = curricula
         </div>
 
         <div class="curriculum-list">
-          {readyCurricula.map((curriculum) => (
+          {publishedCurricula.map((curriculum) => (
             <a
               class="curriculum-entry"
               href={`/curricula/${curriculum.slug}/`}
-              aria-label={`Start ${curriculum.title}`}
+              aria-label={`View ${curriculum.title}`}
             >
               <span class="curriculum-entry-number">
                 {String(curriculum.order).padStart(2, '0')}
               </span>
               <span class="curriculum-entry-copy">
-                <span class="card-kicker">Electricity depth</span>
+                <span class="card-kicker">Curriculum reference</span>
                 <strong>{curriculum.title}</strong>
                 <span>{curriculum.summary}</span>
               </span>

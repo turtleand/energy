@@ -3,7 +3,7 @@
 Turtleand Energy is a public learning surface for energy, electricity, circuits, and physical systems.
 
 ## Curricula
-- [Electricity Depth: Circuits and Electronics](https://energy.turtleand.com/curricula/electricity-depth-circuits-and-electronics/): A six-part path from circuit structure and measurement to electronic components, motors, and controlled power.
+- [Electricity Depth: Circuits and Electronics](https://energy.turtleand.com/curricula/electricity-depth-circuits-and-electronics/): A reference path from circuit structure and measurement to electronic components, motors, and controlled power.
 
 ## Articles
 - [Lesson 1: Electricity from first principles](https://energy.turtleand.com/lessons/lesson-1-electricity-from-first-principles/): Start with source, push, flow, resistance, load, power, and energy before memorizing equations. Includes embedded simulation: Adjust voltage, resistance, time, and loop state to see current, power, and transferred energy change together.
