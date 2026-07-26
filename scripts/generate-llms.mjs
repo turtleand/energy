@@ -1,5 +1,6 @@
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { FOUNDATION_MODULES } from '../src/data/foundation-modules.mjs';
 
 const root = process.cwd();
 const publicDir = path.join(root, 'public');
@@ -62,12 +63,7 @@ const curricula = JSON.parse(await readFile(curriculaPath, 'utf8'))
   .filter((curriculum) => curriculum.status === 'published')
   .sort((a, b) => a.order - b.order);
 const labsBySlug = new Map(labs.map((item) => [item.slug, item]));
-const foundationModules = [
-  { id: 'core-electricity', title: 'Core electricity' },
-  { id: 'everyday-electricity', title: 'Everyday electricity' },
-  { id: 'generate-store-move', title: 'Generate, store, and move electricity' },
-  { id: 'buildings-to-grids', title: 'From buildings to grids' },
-];
+const foundationModules = [...FOUNDATION_MODULES].sort((a, b) => a.order - b.order);
 const foundationModuleIds = new Set(foundationModules.map((module) => module.id));
 const ungroupedLessons = lessons.filter((lesson) => !foundationModuleIds.has(lesson.module));
 

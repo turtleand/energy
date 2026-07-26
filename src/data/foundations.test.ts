@@ -91,6 +91,7 @@ describe('foundation content', () => {
     ).toEqual([
       'lesson-one: missing ready lab "missing-lab"',
       'lesson-two: unknown foundation module "unknown-module"',
+      'lesson-two: missing labSlug',
       'Duplicate lesson order: 1',
       'Foundation module "everyday-electricity" has no ready lessons',
       'Foundation module "generate-store-move" has no ready lessons',

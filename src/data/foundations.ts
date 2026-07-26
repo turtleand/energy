@@ -1,29 +1,6 @@
-export const FOUNDATION_MODULES = [
-  {
-    id: 'core-electricity',
-    order: 1,
-    title: 'Core electricity',
-    summary: 'Build the first mental model: charge, complete paths, voltage, current, and resistance.',
-  },
-  {
-    id: 'everyday-electricity',
-    order: 2,
-    title: 'Everyday electricity',
-    summary: 'Connect AC, DC, adapters, power, energy, conductors, and protection to daily life.',
-  },
-  {
-    id: 'generate-store-move',
-    order: 3,
-    title: 'Generate, store, and move electricity',
-    summary: 'See how generators, transformers, and batteries turn other forms of energy into useful electrical systems.',
-  },
-  {
-    id: 'buildings-to-grids',
-    order: 4,
-    title: 'From buildings to grids',
-    summary: 'Follow electricity through protected buildings, neighborhoods, balanced grids, and generation mixes.',
-  },
-] as const;
+import { FOUNDATION_MODULES } from './foundation-modules.mjs';
+
+export { FOUNDATION_MODULES } from './foundation-modules.mjs';
 
 export type FoundationModuleId = (typeof FOUNDATION_MODULES)[number]['id'];
 
@@ -76,7 +53,9 @@ export function validateFoundationLessons(
       errors.push(`${lesson.id}: unknown foundation module "${lesson.module}"`);
     }
 
-    if (lesson.labSlug && !readyLabSlugs.has(lesson.labSlug)) {
+    if (!lesson.labSlug) {
+      errors.push(`${lesson.id}: missing labSlug`);
+    } else if (!readyLabSlugs.has(lesson.labSlug)) {
       errors.push(`${lesson.id}: missing ready lab "${lesson.labSlug}"`);
     }
   }
