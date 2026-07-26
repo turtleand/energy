@@ -5,6 +5,9 @@ import { site } from '@data/site';
 const feedUrl = new URL('/rss.xml', site.url).href;
 
 export async function GET() {
+  const learningPaths = (await getCollection('learningPaths', ({ data }) => data.status === 'ready')).sort(
+    (a, b) => a.data.order - b.data.order
+  );
   const lessons = (await getCollection('lessons', ({ data }) => data.status === 'ready')).sort(
     (a, b) => a.data.order - b.data.order
   );
@@ -22,14 +25,23 @@ export async function GET() {
       `<lastBuildDate>${new Date().toUTCString()}</lastBuildDate>`,
       `<atom:link href="${feedUrl}" rel="self" type="application/rss+xml" />`,
     ].join(''),
-    items: lessons.map((lesson) => ({
-      title: lesson.data.title,
-      description: lesson.data.labSlug
-        ? `${lesson.data.summary} Includes an interactive simulation.`
-        : lesson.data.summary,
-      link: `lessons/${lesson.id}/`,
-      categories: [lesson.data.module, lesson.data.status, lesson.data.labSlug ? 'simulation-available' : 'lesson'].filter(Boolean),
-      customData: '<dc:creator>Turtleand</dc:creator>',
-    })),
+    items: [
+      ...learningPaths.map((learningPath) => ({
+        title: learningPath.data.title,
+        description: learningPath.data.summary,
+        link: `learning-paths/${learningPath.id}/`,
+        categories: ['learning-path', learningPath.data.status],
+        customData: '<dc:creator>Turtleand</dc:creator>',
+      })),
+      ...lessons.map((lesson) => ({
+        title: lesson.data.title,
+        description: lesson.data.labSlug
+          ? `${lesson.data.summary} Includes an interactive simulation.`
+          : lesson.data.summary,
+        link: `lessons/${lesson.id}/`,
+        categories: [lesson.data.module, lesson.data.status, lesson.data.labSlug ? 'simulation-available' : 'lesson'].filter(Boolean),
+        customData: '<dc:creator>Turtleand</dc:creator>',
+      })),
+    ],
   });
 }

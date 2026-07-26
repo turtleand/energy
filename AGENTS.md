@@ -31,6 +31,7 @@ Applies only to `energy/`.
 ## Progressive-learning artifacts
 
 - When converting a completed Progressive Learning session into an Energy artifact, turn the reusable concept into a public lesson plus its embedded interactive lab when the model benefits from visible behavior.
+- When the artifact maps several lessons, use the `learningPaths` collection and link only to real, ready lesson routes. Label future modules clearly instead of presenting them as finished.
 - Keep the lesson and interactive component connected through `labSlug` and `lessonSlug` so the simulation appears inside the lesson page, not as a disconnected artifact.
 - Strip lesson IDs, grades, checkpoint history, private tutoring notes, timestamps, and resume pointers from public prose.
 - Preserve the reusable mental model, final correction, proportionality or unit relationships, and public-safe caveats.

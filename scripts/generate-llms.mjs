@@ -3,6 +3,7 @@ import path from 'node:path';
 
 const root = process.cwd();
 const publicDir = path.join(root, 'public');
+const learningPathsDir = path.join(root, 'src/content/learning-paths');
 const lessonsDir = path.join(root, 'src/content/lessons');
 const labsDir = path.join(root, 'src/content/labs');
 const gamesDir = path.join(root, 'src/content/games');
@@ -42,6 +43,7 @@ async function readCollection(dir, routePrefix) {
   return items.sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
 }
 
+const learningPaths = await readCollection(learningPathsDir, '/learning-paths');
 const lessons = await readCollection(lessonsDir, '/lessons');
 const labs = await readCollection(labsDir, '/labs');
 const games = (await readCollection(gamesDir, '/play')).map((game) => ({
@@ -60,6 +62,11 @@ const compact = [
   '',
   'Turtleand Energy is a public learning surface for energy, electricity, circuits, and physical systems.',
   '',
+  '## Learning paths',
+  ...learningPaths.flatMap((item) => [
+    `- [${item.title}](https://energy.turtleand.com${item.url}): ${item.summary}`,
+  ]),
+  '',
   '## Articles',
   ...lessons.flatMap((item) => [
     `- [${item.title}](https://energy.turtleand.com${item.url}): ${item.summary}${embeddedSimulationSummary(item)}`,
@@ -74,6 +81,13 @@ const compact = [
 
 const full = [
   compact,
+  '## Learning path details',
+  ...learningPaths.flatMap((item) => [
+    `### ${item.title}`,
+    '',
+    item.body,
+    '',
+  ]),
   '## Article details',
   ...lessons.flatMap((item) => {
     const lab = item.labSlug ? labsBySlug.get(item.labSlug) : undefined;
@@ -92,5 +106,5 @@ await writeFile(path.join(publicDir, 'llms.txt'), compact, 'utf8');
 await writeFile(path.join(publicDir, 'llms-full.txt'), full, 'utf8');
 
 console.log(
-  `Generated llms.txt with ${lessons.length} article(s), ${games.length} game(s), and embedded simulation metadata.`,
+  `Generated llms.txt with ${learningPaths.length} learning path(s), ${lessons.length} article(s), ${games.length} game(s), and embedded simulation metadata.`,
 );

@@ -1,0 +1,60 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const learningPaths = await getCollection('learningPaths', ({ data }) => data.status === 'ready');
+
+  return learningPaths.map((learningPath) => ({
+    params: { slug: learningPath.id },
+    props: { learningPath },
+  }));
+}
+
+const { learningPath } = Astro.props;
+const { Content } = await render(learningPath);
+const lessons = (await getCollection('lessons', ({ data }) => data.status === 'ready')).sort(
+  (a, b) => a.data.order - b.data.order
+);
+---
+
+<BaseLayout title={learningPath.data.title} description={learningPath.data.summary}>
+  <article class="article-shell">
+    <div class="container article-container">
+      <p class="eyebrow">Learning path</p>
+      <h1>{learningPath.data.title}</h1>
+      <p class="lede">{learningPath.data.summary}</p>
+      <div class="prose">
+        <Content />
+      </div>
+
+      <section class="article-simulation-intro" aria-labelledby="path-lessons-title">
+        <p class="eyebrow">Current lessons</p>
+        <h2 id="path-lessons-title">Climb from foundations to grids.</h2>
+        <p>Move in order. Every lesson below is available now and includes an embedded simulation.</p>
+
+        <div class="content-cards article-cards">
+          {lessons.map((lesson) => (
+            <a
+              class="content-card article-card"
+              href={`/lessons/${lesson.id}/`}
+              aria-label={`Read ${lesson.data.title}`}
+            >
+              <div>
+                <p class="card-kicker">
+                  Lesson {lesson.data.numberLabel ?? lesson.data.order.toString().padStart(2, '0')}
+                </p>
+                <h3>{lesson.data.title}</h3>
+                <p>{lesson.data.summary}</p>
+              </div>
+              <div class="card-footer">
+                <span class="card-link">Read article</span>
+                {lesson.data.labSlug && <span>Simulation inside</span>}
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    </div>
+  </article>
+</BaseLayout>

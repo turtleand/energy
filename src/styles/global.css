@@ -655,6 +655,7 @@ h3 {
 
 .control input[type='range'] {
   width: 100%;
+  min-height: 32px;
   accent-color: var(--green);
 }
 
@@ -672,8 +673,8 @@ h3 {
 }
 
 .switch-control input {
-  width: 1.3rem;
-  height: 1.3rem;
+  width: 2rem;
+  height: 2rem;
   accent-color: var(--green);
 }
 
