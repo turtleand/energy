@@ -1,0 +1,58 @@
+---
+import curricula from '@data/curricula.json';
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+export function getStaticPaths() {
+  return curricula
+    .filter((curriculum) => curriculum.status === 'published')
+    .map((curriculum) => ({
+      params: { slug: curriculum.slug },
+      props: { curriculum },
+    }));
+}
+
+const { curriculum } = Astro.props;
+---
+
+<BaseLayout title={curriculum.title} description={curriculum.summary}>
+  <article class="curriculum-shell">
+    <header class="container curriculum-hero">
+      <p class="eyebrow">Curriculum reference</p>
+      <h1>{curriculum.title}</h1>
+      <p class="lede">{curriculum.summary}</p>
+      <div class="curriculum-outcome" aria-label="Program outcome">
+        <span>Outcome</span>
+        <p>{curriculum.outcome}</p>
+      </div>
+    </header>
+
+    <section class="container curriculum-sequence" aria-labelledby="curriculum-sequence-title">
+      <div class="index-heading">
+        <p class="eyebrow">{curriculum.modules.length}-part sequence</p>
+        <h2 id="curriculum-sequence-title">Follow the circuit from structure to control.</h2>
+      </div>
+
+      <ol class="curriculum-modules">
+        {curriculum.modules.map((module, index) => (
+          <li class="curriculum-module">
+            <span class="curriculum-module-number">{String(index + 1).padStart(2, '0')}</span>
+            <div class="curriculum-module-copy">
+              <h3>{module.title}</h3>
+              <p>{module.description}</p>
+              <ul aria-label={`${module.title} topics`}>
+                {module.topics.map((topic) => <li>{topic}</li>)}
+              </ul>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <aside class="container curriculum-safety" aria-label="Safety boundary">
+      <strong>Safety boundary</strong>
+      <p>
+        This curriculum uses educational and low-voltage circuit models. It is not a guide for mains wiring or live electrical work.
+      </p>
+    </aside>
+  </article>
+</BaseLayout>
