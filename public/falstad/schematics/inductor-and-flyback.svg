@@ -7,7 +7,8 @@
     <path d="M237 55l58-32"/>
     <path d="M355 55c0-35 30-35 30 0 0-35 30-35 30 0 0-35 30-35 30 0 0-35 30-35 30 0"/>
     <path d="M520 55l18-16 28 32 28-32 28 32 28-16"/>
-    <path d="M355 100H475M355 100l70 40zM435 105v70"/>
+    <path d="M355 55V145H475M525 145H650V55"/>
+    <path d="M525 123v44l-44-22zM475 123v44"/>
     <path d="M72 94h36M80 112h20"/>
   </g>
   <g fill="#ffd47a" font-family="system-ui,sans-serif" font-size="18" text-anchor="middle">

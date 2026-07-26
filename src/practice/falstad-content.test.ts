@@ -25,6 +25,20 @@ function array(source: string, key: string): string[] {
   return JSON.parse(match[1]) as string[];
 }
 
+function circuitElementKinds(source: string): string[] {
+  return source
+    .split('\n')
+    .filter((line) => line && !line.startsWith('$ ') && !line.startsWith('o '))
+    .map((line) => line.split(/\s+/, 1)[0]);
+}
+
+function scopeTargets(source: string): number[] {
+  return source
+    .split('\n')
+    .filter((line) => line.startsWith('o '))
+    .map((line) => Number(line.split(/\s+/)[1]));
+}
+
 describe('Falstad exercise files', () => {
   it('ships ten ordered exercises with valid lessons, circuits, and accessible schematics', async () => {
     const exerciseFiles = (await readdir(exercisesDir))
@@ -62,6 +76,19 @@ describe('Falstad exercise files', () => {
         true,
       );
       expect(await readFile(schematicFile, 'utf8')).toMatch(/<title>[\s\S]+<desc>/);
+
+      if (referenceCircuit === 'bridge-and-smoothing') {
+        const elements = circuitElementKinds(circuitText);
+        expect(scopeTargets(circuitText)).toEqual([0, 15]);
+        expect(elements[15]).toBe('r');
+      }
+
+      if (referenceCircuit === 'inductor-and-flyback') {
+        const elements = circuitElementKinds(circuitText);
+        expect(scopeTargets(circuitText)).toEqual([1, 3]);
+        expect(elements[1]).toBe('l');
+        expect(elements[3]).toBe('s');
+      }
 
       exercises.push({
         id: exerciseFile.replace(/^\d+-|\.md$/g, ''),

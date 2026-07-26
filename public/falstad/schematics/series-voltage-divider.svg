@@ -3,13 +3,13 @@
   <desc>A nine volt source connected to one kilohm and two kilohm resistors in series, with a midpoint between them.</desc>
   <rect width="720" height="250" rx="18" fill="#102a27"/>
   <g fill="none" stroke="#dbece4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M100 45H455V70M455 180V205H100V45"/>
+    <path d="M100 45H455V70M455 205H100V45"/>
     <path d="M455 70l-16 14 32 22-32 22 32 22-16 14"/>
-    <path d="M455 180l-16 14 32 22"/>
+    <path d="M455 164l-14 8 28 10-28 10 28 10-14 3"/>
     <path d="M82 86h36M90 105h20"/>
   </g>
-  <circle cx="455" cy="155" r="8" fill="#ffd47a"/>
+  <circle cx="455" cy="164" r="8" fill="#ffd47a"/>
   <g fill="#ffd47a" font-family="system-ui,sans-serif" font-size="20">
-    <text x="120" y="145">9 V DC</text><text x="505" y="112">1 kΩ</text><text x="505" y="194">2 kΩ</text><text x="300" y="150">midpoint: 6 V</text>
+    <text x="120" y="145">9 V DC</text><text x="505" y="112">1 kΩ</text><text x="505" y="194">2 kΩ</text><text x="300" y="159">midpoint: 6 V</text>
   </g>
 </svg>

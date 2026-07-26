@@ -1,6 +1,6 @@
 ---
 title: "Move power with less line loss"
-summary: "Use step-up and step-down transformers to lower line current for the same useful load."
+summary: "Compare direct and transformed transmission at the same delivered load power."
 order: 10
 module: "see-fields-and-systems"
 difficulty: "intermediate"
@@ -15,37 +15,39 @@ status: "ready"
 
 ## Components
 
-- One 10 V peak, 50 Hz AC voltage source
+- One 10 V peak, 50 Hz AC source for the transformer path
+- One adjustable 50 Hz AC source for the direct path
 - One 1:10 step-up transformer
-- Two 5 Ω line resistors
+- Two 5 Ω line resistors in each path
 - One 10:1 step-down transformer
-- One 10 Ω load resistor
+- One 10 Ω load resistor in each path
 - Power and current scopes
 
 ## Predict
 
-Predict which arrangement carries more line current:
+Predict which arrangement carries more line current when both loads receive about 4.9 W:
 
-1. A 10 V source connected directly through the line resistance.
+1. A direct source adjusted to about 19.8 V peak to overcome the line drop.
 2. Voltage stepped up before the line and stepped down near the load.
 
 Use `P = VI` and `P_loss = I²R` to explain the prediction.
 
 ## Build
 
-Build the direct low-voltage path first. Duplicate it, then add the transformer pair around the line resistance in the second path.
+Build both paths with 10 V peak sources first. Observe that this is not a same-power comparison: the direct path delivers about 1.25 W to its load, while the ideal transformer path delivers about 4.9 W.
+
+Then raise only the direct source to about 19.8 V peak. This makes its load power approximately match the transformer path, so line current and heating can be compared fairly.
 
 ## Measure
 
-Compare line current, line-resistor power, and load power. The transformer path should move comparable useful power with much lower current and much lower line heating.
+Confirm that both loads now receive about 4.9 W. The direct line carries about 0.70 A RMS and loses about 4.9 W across its two line resistors. The stepped-up line carries about 0.070 A RMS and loses about 0.049 W.
 
 Real transformers and lines have additional losses. This exercise isolates the current-squared relationship.
 
 ## Explain
 
-Explain why stepping voltage up does not create power, why the line current falls, and why the voltage must be stepped down again near the load.
+Explain why the direct source had to be raised to match delivered power, why stepping voltage up lowers line current, and why the voltage must be stepped down again near the load.
 
 ## Check your model
 
-Transformers trade voltage and current. For the same transmitted power, higher voltage allows lower current, and lower current greatly reduces resistive line loss.
-
+Transformers trade voltage and current. At the same delivered load power, 10 times less line current produces about 100 times less resistive line loss in this idealized comparison.
