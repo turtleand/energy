@@ -2,6 +2,63 @@ export const FALSTAD_PROGRESS_KEY = 'turtleand-energy:falstad-progress:v1';
 
 export const FALSTAD_PHASES = ['predict', 'build', 'measure', 'explain'] as const;
 
+export const FALSTAD_SECTIONS = [
+  {
+    id: 'components',
+    title: 'Components',
+    marker: 'Setup',
+    cue: 'See the parts and values before you start.',
+  },
+  {
+    id: 'predict',
+    title: 'Predict',
+    marker: '1',
+    cue: 'Commit to an expected result before running the circuit.',
+    answerId: 'predict-answer',
+    answerHeadingId: 'prediction-answer',
+    answerTitle: 'Prediction answer',
+    closedLabel: 'Reveal prediction',
+    openLabel: 'Hide prediction',
+    phase: 'predict',
+  },
+  {
+    id: 'build',
+    title: 'Build',
+    marker: '2',
+    cue: 'Wire the circuit yourself from a blank canvas.',
+    answerId: 'build-answer',
+    answerHeadingId: 'build-answer',
+    answerTitle: 'Build answer',
+    closedLabel: 'Show build check',
+    openLabel: 'Hide build check',
+    phase: 'build',
+  },
+  {
+    id: 'measure',
+    title: 'Measure',
+    marker: '3',
+    cue: 'See what to inspect, compare, and change.',
+    answerId: 'measure-answer',
+    answerHeadingId: 'measurement-answer',
+    answerTitle: 'Measurement answer',
+    closedLabel: 'Reveal expected result',
+    openLabel: 'Hide expected result',
+    phase: 'measure',
+  },
+  {
+    id: 'explain',
+    title: 'Explain',
+    marker: '4',
+    cue: 'Connect the observation back to your model.',
+    answerId: 'explain-answer',
+    answerHeadingId: 'explanation-answer',
+    answerTitle: 'Explanation answer',
+    closedLabel: 'Reveal explanation',
+    openLabel: 'Hide explanation',
+    phase: 'explain',
+  },
+] as const;
+
 export const FALSTAD_MODULES = [
   {
     id: 'see-the-loop',
@@ -25,6 +82,22 @@ export const FALSTAD_MODULES = [
 
 export type FalstadPhase = (typeof FALSTAD_PHASES)[number];
 export type FalstadModuleId = (typeof FALSTAD_MODULES)[number]['id'];
+export type FalstadSectionId = (typeof FALSTAD_SECTIONS)[number]['id'];
+
+export interface FalstadExerciseSection {
+  id: FalstadSectionId;
+  title: string;
+  marker: string;
+  cue: string;
+  answerId?: string;
+  answerHeadingId?: string;
+  answerTitle?: string;
+  closedLabel?: string;
+  openLabel?: string;
+  phase?: FalstadPhase;
+  promptHtml: string;
+  answerHtml?: string;
+}
 
 export interface ExerciseProgress {
   predict: boolean;
@@ -83,30 +156,119 @@ export function serializeFalstadProgress(progress: FalstadProgress): string {
   return JSON.stringify(progress);
 }
 
-export function setExercisePhase(
+export function markExercisePhaseExplored(
   progress: FalstadProgress,
   exerciseId: string,
   phase: FalstadPhase,
-  checked: boolean,
   updatedAt = new Date().toISOString(),
 ): FalstadProgress {
   const previous = progress[exerciseId] ?? emptyExerciseProgress();
+  if (previous[phase]) return progress;
+
   return {
     ...progress,
     [exerciseId]: {
       ...previous,
-      [phase]: checked,
+      [phase]: true,
       updatedAt,
     },
   };
 }
 
-export function isExerciseComplete(progress: ExerciseProgress | undefined): boolean {
+export function areAllPhasesExplored(progress: ExerciseProgress | undefined): boolean {
   return Boolean(progress && FALSTAD_PHASES.every((phase) => progress[phase]));
 }
 
-export function countCompletedExercises(progress: FalstadProgress, exerciseIds: string[]): number {
-  return exerciseIds.filter((id) => isExerciseComplete(progress[id])).length;
+export function countFullyExploredExercises(
+  progress: FalstadProgress,
+  exerciseIds: string[],
+): number {
+  return exerciseIds.filter((id) => areAllPhasesExplored(progress[id])).length;
+}
+
+export function splitFalstadExerciseSections(
+  renderedHtml: string,
+  exerciseId = 'Falstad exercise',
+): FalstadExerciseSection[] {
+  const headingPattern = /<h2 id="([^"]+)">([^<]+)<\/h2>/g;
+  const headings = Array.from(renderedHtml.matchAll(headingPattern));
+  const actualSections = headings.map((heading) => ({
+    id: heading[1],
+    title: heading[2],
+  }));
+  const expectedSections = FALSTAD_SECTIONS.map(({ id, title }) => ({ id, title }));
+
+  if (JSON.stringify(actualSections) !== JSON.stringify(expectedSections)) {
+    const expected = expectedSections.map(({ title }) => title).join(', ');
+    const actual = actualSections.map(({ title }) => title).join(', ') || 'none';
+    throw new Error(
+      `${exerciseId}: expected Falstad sections in this order: ${expected}. Received: ${actual}.`,
+    );
+  }
+
+  const leadingContent = renderedHtml.slice(0, headings[0].index).trim();
+  if (leadingContent) {
+    throw new Error(`${exerciseId}: content must begin with the Components section.`);
+  }
+
+  return FALSTAD_SECTIONS.map((section, index) => {
+    const heading = headings[index];
+    const bodyStart = (heading.index ?? 0) + heading[0].length;
+    const bodyEnd = headings[index + 1]?.index ?? renderedHtml.length;
+    const html = renderedHtml.slice(bodyStart, bodyEnd).trim();
+
+    if (!html) {
+      throw new Error(`${exerciseId}: the ${section.title} section cannot be empty.`);
+    }
+
+    const answerHeadings = Array.from(
+      html.matchAll(/<h3 id="([^"]+)">([^<]+)<\/h3>/g),
+    );
+
+    if (!('phase' in section)) {
+      if (answerHeadings.length > 0) {
+        throw new Error(`${exerciseId}: the Components section cannot contain an answer heading.`);
+      }
+
+      return {
+        ...section,
+        promptHtml: html,
+      };
+    }
+
+    const actualAnswers = answerHeadings.map((answerHeading) => ({
+      id: answerHeading[1],
+      title: answerHeading[2],
+    }));
+    const expectedAnswer = [{ id: section.answerHeadingId, title: section.answerTitle }];
+
+    if (JSON.stringify(actualAnswers) !== JSON.stringify(expectedAnswer)) {
+      const actual = actualAnswers.map(({ title }) => title).join(', ') || 'none';
+      throw new Error(
+        `${exerciseId}: the ${section.title} section must contain one "${section.answerTitle}" heading after its visible task. Received: ${actual}.`,
+      );
+    }
+
+    const answerHeading = answerHeadings[0];
+    const promptHtml = html.slice(0, answerHeading.index).trim();
+    const answerHtml = html
+      .slice((answerHeading.index ?? 0) + answerHeading[0].length)
+      .trim();
+
+    if (!promptHtml) {
+      throw new Error(`${exerciseId}: the ${section.title} visible task cannot be empty.`);
+    }
+
+    if (!answerHtml) {
+      throw new Error(`${exerciseId}: the ${section.answerTitle} cannot be empty.`);
+    }
+
+    return {
+      ...section,
+      promptHtml,
+      answerHtml,
+    };
+  });
 }
 
 export function buildFalstadUrl(circuitText: string): string {

@@ -1,7 +1,11 @@
 import { access, readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { validateFalstadExercises, type FalstadExerciseIndexItem } from './falstad';
+import {
+  FALSTAD_SECTIONS,
+  validateFalstadExercises,
+  type FalstadExerciseIndexItem,
+} from './falstad';
 
 const root = process.cwd();
 const exercisesDir = path.join(root, 'src/content/falstad-exercises');
@@ -63,6 +67,16 @@ describe('Falstad exercise files', () => {
 
     for (const exerciseFile of exerciseFiles) {
       const source = await readFile(path.join(exercisesDir, exerciseFile), 'utf8');
+      const sectionTitles = Array.from(source.matchAll(/^## (.+)$/gm), (match) => match[1]);
+      const answerTitles = Array.from(source.matchAll(/^### (.+)$/gm), (match) => match[1]);
+      const headingContract = Array.from(
+        source.matchAll(/^(#{2,3}) (.+)$/gm),
+        (match) => `${match[1]} ${match[2]}`,
+      );
+      const expectedHeadingContract = FALSTAD_SECTIONS.flatMap((section) => [
+        `## ${section.title}`,
+        ...('answerTitle' in section ? [`### ${section.answerTitle}`] : []),
+      ]);
       const referenceCircuit = scalar(source, 'referenceCircuit');
       const schematicPath = scalar(source, 'schematicPath');
       const circuitText = await readFile(
@@ -72,6 +86,18 @@ describe('Falstad exercise files', () => {
       const schematicFile = path.join(schematicsDir, path.basename(schematicPath));
 
       await access(schematicFile);
+      expect(sectionTitles, `${exerciseFile} should use the disclosure section contract`).toEqual(
+        FALSTAD_SECTIONS.map(({ title }) => title),
+      );
+      expect(answerTitles, `${exerciseFile} should provide one answer for each phase`).toEqual(
+        FALSTAD_SECTIONS.flatMap((section) =>
+          'answerTitle' in section ? [section.answerTitle] : [],
+        ),
+      );
+      expect(
+        headingContract,
+        `${exerciseFile} should place every answer directly inside its phase`,
+      ).toEqual(expectedHeadingContract);
       expect(circuitText.startsWith('$ '), `${referenceCircuit} should be CircuitJS export text`).toBe(
         true,
       );

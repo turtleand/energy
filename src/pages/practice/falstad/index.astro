@@ -44,11 +44,13 @@ const exerciseSlug = (id: string) => id.replace(/^\d+-/, '');
     <div class="container">
       <div class="falstad-progress-panel">
         <div class="falstad-progress-heading">
-          <p data-falstad-progress-text>0 of {exercises.length} circuits complete</p>
-          <button class="falstad-button" type="button" data-falstad-reset>Reset progress</button>
+          <p data-falstad-progress-text>0 of {exercises.length} circuits explored</p>
+          <button class="falstad-button" type="button" data-falstad-reset>
+            Reset explored stages
+          </button>
         </div>
         <progress data-falstad-progress max={exercises.length} value="0">
-          0 of {exercises.length} circuits complete
+          0 of {exercises.length} circuits explored
         </progress>
         <p class="falstad-reset-status" data-falstad-reset-status aria-live="polite"></p>
       </div>
@@ -90,7 +92,7 @@ const exerciseSlug = (id: string) => id.replace(/^\d+-/, '');
                     class="falstad-card"
                     href={`/practice/falstad/${slug}/`}
                     data-falstad-exercise={slug}
-                    data-complete="false"
+                    data-explored="false"
                   >
                     <div class="falstad-card-visual">
                       <span class="falstad-rung" aria-label={`Rung ${exercise.data.order}`}>
@@ -113,7 +115,7 @@ const exerciseSlug = (id: string) => id.replace(/^\d+-/, '');
                         <p>{exercise.data.summary}</p>
                       </div>
                       <div class="falstad-card-footer">
-                        <span data-falstad-card-status>0 of 4 steps</span>
+                        <span data-falstad-card-status>0 of 4 stages explored</span>
                         <span>{prerequisiteTitles.length} article{prerequisiteTitles.length === 1 ? '' : 's'}</span>
                       </div>
                     </div>

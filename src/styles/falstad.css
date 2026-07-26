@@ -48,7 +48,8 @@
 .falstad-button:focus-visible,
 .falstad-card:focus-visible,
 .falstad-prerequisites a:focus-visible,
-.falstad-check:focus-within {
+.falstad-answer > summary:focus-visible,
+.falstad-reference > summary:focus-visible {
   outline: 3px solid rgba(56, 189, 248, 0.75);
   outline-offset: 4px;
 }
@@ -58,7 +59,6 @@
 }
 
 .falstad-progress-panel,
-.falstad-workflow,
 .falstad-schematic,
 .falstad-prerequisite-panel,
 .falstad-reference,
@@ -202,7 +202,7 @@
   transform: translateY(-2px);
 }
 
-.falstad-card[data-complete="true"] {
+.falstad-card[data-explored="true"] {
   border-color: rgba(20, 108, 83, 0.52);
 }
 
@@ -268,7 +268,7 @@
   font-weight: 850;
 }
 
-.falstad-card[data-complete="true"] [data-falstad-card-status] {
+.falstad-card[data-explored="true"] [data-falstad-card-status] {
   color: var(--green);
 }
 
@@ -339,15 +339,8 @@
   text-decoration: none;
 }
 
-.falstad-workspace {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(270px, 0.65fr);
-  gap: 1rem;
-  align-items: start;
-  margin-top: 2rem;
-}
-
 .falstad-lesson-body {
+  margin-top: 2rem;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 26px;
@@ -355,89 +348,315 @@
   box-shadow: var(--shadow);
 }
 
-.falstad-lesson-body .prose {
+.falstad-ladder-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.7fr);
+  gap: 1rem 2rem;
+  align-items: end;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border-bottom: 1px solid var(--line);
+}
+
+.falstad-ladder-intro .eyebrow {
+  margin-bottom: 0.45rem;
+}
+
+.falstad-ladder-intro h2 {
   margin: 0;
-  padding: clamp(1.2rem, 3vw, 2rem);
+  font-size: clamp(1.65rem, 4vw, 2.5rem);
 }
 
-.falstad-lesson-body .prose h2 {
-  padding-top: 1rem;
-  border-top: 1px solid var(--line);
-}
-
-.falstad-workflow {
-  position: sticky;
-  top: 1rem;
-  padding: 1.2rem;
-  box-shadow: none;
-}
-
-.falstad-workflow h2 {
-  margin-bottom: 0.4rem;
-  font-size: 1.35rem;
-  letter-spacing: -0.03em;
-}
-
-.falstad-workflow > p {
+.falstad-ladder-intro > p {
+  max-width: 430px;
+  margin: 0;
   color: var(--muted);
-  font-size: 0.9rem;
-  line-height: 1.5;
+  font-size: 0.92rem;
+  line-height: 1.55;
 }
 
-.falstad-checks {
+.falstad-disclosures {
+  position: relative;
   display: grid;
-  gap: 0.7rem;
-  margin: 1rem 0 0;
-  padding: 0;
-  border: 0;
+  min-width: 0;
+  padding: 0.35rem clamp(1.1rem, 3vw, 2rem) 0.6rem;
 }
 
-.falstad-check {
+.falstad-disclosures::before {
+  position: absolute;
+  top: 2.2rem;
+  bottom: 2.2rem;
+  left: calc(clamp(1.1rem, 3vw, 2rem) + 1.55rem);
+  width: 2px;
+  content: "";
+  background: linear-gradient(
+    to bottom,
+    rgba(20, 108, 83, 0.08),
+    rgba(20, 108, 83, 0.28) 18%,
+    rgba(20, 108, 83, 0.28) 82%,
+    rgba(20, 108, 83, 0.08)
+  );
+}
+
+.falstad-stage {
+  position: relative;
+  min-width: 0;
+  border-bottom: 1px solid var(--line);
+  scroll-margin-top: 6rem;
+}
+
+.falstad-stage:last-child {
+  border-bottom: 0;
+}
+
+.falstad-stage-header {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.75rem;
-  align-items: start;
-  padding: 0.85rem;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  cursor: pointer;
+  grid-template-columns: 3.1rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: center;
+  min-width: 0;
+  min-height: 76px;
+  padding: 1rem 0 0.55rem;
 }
 
-.falstad-check input {
-  width: 1.2rem;
-  height: 1.2rem;
-  margin: 0.12rem 0 0;
-  accent-color: var(--green);
+.falstad-answer > summary::-webkit-details-marker,
+.falstad-reference > summary::-webkit-details-marker {
+  display: none;
 }
 
-.falstad-check strong,
-.falstad-check span {
+.falstad-answer > summary::marker,
+.falstad-reference > summary::marker {
+  content: "";
+}
+
+.falstad-reference > summary:hover .falstad-reference-summary-copy strong {
+  color: var(--green);
+}
+
+.falstad-disclosure-marker {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 3.1rem;
+  min-height: 2.25rem;
+  padding: 0.25rem;
+  border: 1px solid rgba(20, 108, 83, 0.28);
+  border-radius: 999px;
+  color: var(--green-dark);
+  background: var(--panel);
+  font-size: 0.68rem;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.falstad-stage-support .falstad-disclosure-marker {
+  border-color: rgba(245, 158, 11, 0.36);
+  background: #fff3d5;
+}
+
+.falstad-stage[data-explored="true"] .falstad-disclosure-marker {
+  color: #fffaf0;
+  border-color: var(--green);
+  background: var(--green);
+}
+
+.falstad-disclosure-copy,
+.falstad-disclosure-copy strong,
+.falstad-disclosure-copy span,
+.falstad-reference-summary-copy,
+.falstad-reference-summary-copy > span {
   display: block;
+  min-width: 0;
 }
 
-.falstad-check span {
+.falstad-disclosure-copy strong {
+  color: var(--ink);
+  font-size: 1.12rem;
+  letter-spacing: -0.015em;
+  transition: color 160ms ease;
+}
+
+.falstad-disclosure-copy > span {
   margin-top: 0.2rem;
   color: var(--muted);
-  font-size: 0.82rem;
-  line-height: 1.4;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.falstad-stage-prompt.prose {
+  max-width: 790px;
+  min-width: 0;
+  margin: 0 0 0 4.1rem;
+  padding: 0 0 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.falstad-stage-prompt.prose > :first-child {
+  margin-top: 0;
+}
+
+.falstad-stage-prompt.prose > :last-child {
+  margin-bottom: 0;
+}
+
+.falstad-answer {
+  max-width: 790px;
+  min-width: 0;
+  margin: 0 0 1.25rem 4.1rem;
+  border-top: 1px solid rgba(20, 108, 83, 0.2);
+  scroll-margin-top: 6rem;
+}
+
+.falstad-answer > summary {
+  display: flex;
+  gap: 0.7rem;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  border-radius: 10px;
+  color: var(--green);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+}
+
+.falstad-answer > summary:hover {
+  color: var(--green-dark);
+}
+
+.falstad-answer-body {
+  margin-top: 0.25rem;
+  padding: 0.9rem 1rem 1rem;
+  border-left: 3px solid var(--green);
+  border-radius: 0 14px 14px 0;
+  background: rgba(20, 108, 83, 0.06);
+}
+
+.falstad-answer-body .prose {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.falstad-answer-body .prose > :first-child {
+  margin-top: 0;
+}
+
+.falstad-answer-body .prose > :last-child {
+  margin-bottom: 0;
+}
+
+.falstad-disclosure-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--green);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.falstad-disclosure-action-open {
+  display: none;
+}
+
+details[open] > summary .falstad-disclosure-action-closed {
+  display: none;
+}
+
+details[open] > summary .falstad-disclosure-action-open {
+  display: inline;
+}
+
+.falstad-disclosure-chevron {
+  width: 0.62rem;
+  height: 0.62rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-0.12rem) rotate(45deg);
+  transition: transform 160ms ease;
+}
+
+details[open] > summary .falstad-disclosure-chevron {
+  transform: translateY(0.12rem) rotate(225deg);
 }
 
 .falstad-reference,
 .falstad-safety {
   margin-top: 1rem;
-  padding: clamp(1.2rem, 3vw, 1.6rem);
   box-shadow: none;
 }
 
-.falstad-reference h2,
+.falstad-safety {
+  padding: clamp(1.2rem, 3vw, 1.6rem);
+}
+
 .falstad-safety h2 {
   margin-bottom: 0.55rem;
   font-size: 1.55rem;
 }
 
-.falstad-reference > p,
 .falstad-safety p {
   max-width: 740px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.falstad-reference > summary {
+  display: grid;
+  grid-template-columns: 3.1rem minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  min-height: 82px;
+  padding: 1rem clamp(1.2rem, 3vw, 1.6rem);
+  cursor: pointer;
+  list-style: none;
+}
+
+.falstad-reference-icon {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  color: #fffaf0;
+  background: var(--green-dark);
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.falstad-reference-summary-copy .eyebrow {
+  margin-bottom: 0.25rem;
+}
+
+.falstad-reference-summary-copy strong {
+  color: var(--ink);
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+  transition: color 160ms ease;
+}
+
+.falstad-reference-summary-copy > span:last-child {
+  margin-top: 0.25rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.falstad-reference-body {
+  padding: 1.25rem clamp(1.2rem, 3vw, 1.6rem) clamp(1.2rem, 3vw, 1.6rem);
+  border-top: 1px solid var(--line);
+}
+
+.falstad-reference-body > p {
+  max-width: 740px;
+  margin-bottom: 0;
   color: var(--muted);
   line-height: 1.55;
 }
@@ -502,12 +721,12 @@
   }
 
   .falstad-exercise-header,
-  .falstad-workspace {
+  .falstad-ladder-intro {
     grid-template-columns: 1fr;
   }
 
-  .falstad-workflow {
-    position: static;
+  .falstad-ladder-intro {
+    align-items: start;
   }
 }
 
@@ -529,6 +748,64 @@
     min-height: 180px;
   }
 
+  .falstad-lesson-body {
+    border-radius: 22px;
+  }
+
+  .falstad-ladder-intro {
+    padding: 1.15rem;
+  }
+
+  .falstad-disclosures {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+
+  .falstad-disclosures::before {
+    left: 2.35rem;
+  }
+
+  .falstad-stage-header,
+  .falstad-reference > summary {
+    grid-template-columns: 2.7rem minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: start;
+  }
+
+  .falstad-disclosure-marker {
+    width: 2.7rem;
+    min-height: 2rem;
+    margin-top: 0.1rem;
+    font-size: 0.62rem;
+  }
+
+  .falstad-reference .falstad-disclosure-action {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .falstad-stage-prompt.prose,
+  .falstad-answer {
+    margin-left: 0;
+  }
+
+  .falstad-stage-prompt.prose {
+    padding-top: 0.35rem;
+  }
+
+  .falstad-reference > summary {
+    padding: 1rem;
+  }
+
+  .falstad-reference-icon {
+    width: 2.7rem;
+    height: 2.7rem;
+  }
+
+  .falstad-reference-body {
+    padding: 1.1rem 1rem;
+  }
+
   .falstad-frame {
     min-height: 560px;
   }
@@ -543,7 +820,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .falstad-card {
+  .falstad-card,
+  .falstad-disclosure-marker,
+  .falstad-reference-summary-copy strong,
+  .falstad-disclosure-chevron {
     transition: none;
   }
 }

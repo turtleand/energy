@@ -2,11 +2,11 @@
   import {
     FALSTAD_PHASES,
     FALSTAD_PROGRESS_KEY,
-    countCompletedExercises,
-    isExerciseComplete,
+    areAllPhasesExplored,
+    countFullyExploredExercises,
+    markExercisePhaseExplored,
     parseFalstadProgress,
     serializeFalstadProgress,
-    setExercisePhase,
     type FalstadPhase,
     type FalstadProgress,
   } from '../practice/falstad';
@@ -39,13 +39,13 @@
   const updateDisplay = (progress: FalstadProgress) => {
     for (const exerciseId of exerciseIds) {
       const exerciseProgress = progress[exerciseId];
-      const complete = isExerciseComplete(exerciseProgress);
+      const fullyExplored = areAllPhasesExplored(exerciseProgress);
       const phaseCount = FALSTAD_PHASES.filter((phase) => exerciseProgress?.[phase]).length;
 
       document
         .querySelectorAll<HTMLElement>(`[data-falstad-exercise="${exerciseId}"]`)
         .forEach((element) => {
-          element.dataset.complete = complete ? 'true' : 'false';
+          element.dataset.explored = fullyExplored ? 'true' : 'false';
         });
 
       document
@@ -53,35 +53,59 @@
           `[data-falstad-exercise="${exerciseId}"] [data-falstad-card-status]`,
         )
         .forEach((element) => {
-          element.textContent = complete ? 'Complete' : `${phaseCount} of 4 steps`;
+          element.textContent = fullyExplored
+            ? 'All stages explored'
+            : `${phaseCount} of 4 stages explored`;
         });
     }
 
-    document.querySelectorAll<HTMLInputElement>('[data-falstad-phase]').forEach((input) => {
-      const exerciseId = input.dataset.falstadExercise;
-      const phase = input.dataset.falstadPhase as FalstadPhase | undefined;
-      input.checked = Boolean(exerciseId && phase && progress[exerciseId]?.[phase]);
+    document.querySelectorAll<HTMLDetailsElement>('details[data-falstad-phase]').forEach((details) => {
+      const exerciseId = details.dataset.falstadExercise;
+      const phase = details.dataset.falstadPhase as FalstadPhase | undefined;
+      const explored =
+        exerciseId && phase && progress[exerciseId]?.[phase] ? 'true' : 'false';
+      details.dataset.explored = explored;
+
+      const stage = details.closest<HTMLElement>('.falstad-stage');
+      if (stage) stage.dataset.explored = explored;
     });
 
-    const completed = countCompletedExercises(progress, exerciseIds);
+    const fullyExplored = countFullyExploredExercises(progress, exerciseIds);
     document.querySelectorAll<HTMLProgressElement>('[data-falstad-progress]').forEach((meter) => {
       meter.max = exerciseIds.length;
-      meter.value = completed;
+      meter.value = fullyExplored;
     });
     document.querySelectorAll<HTMLElement>('[data-falstad-progress-text]').forEach((element) => {
-      element.textContent = `${completed} of ${exerciseIds.length} circuits complete`;
+      element.textContent = `${fullyExplored} of ${exerciseIds.length} circuits explored`;
     });
   };
 
   let progress = readProgress();
   updateDisplay(progress);
 
-  document.querySelectorAll<HTMLInputElement>('[data-falstad-phase]').forEach((input) => {
-    input.addEventListener('change', () => {
-      const exerciseId = input.dataset.falstadExercise;
-      const phase = input.dataset.falstadPhase as FalstadPhase | undefined;
+  document
+    .querySelectorAll<HTMLDetailsElement>('.falstad-answer, .falstad-reference')
+    .forEach((details) => {
+      const summary = details.querySelector<HTMLElement>(':scope > summary');
+      summary?.addEventListener('keydown', (event) => {
+        if (event.repeat || (event.key !== 'Enter' && event.key !== ' ')) return;
+        event.preventDefault();
+        details.open = !details.open;
+      });
+    });
+
+  document.querySelectorAll<HTMLDetailsElement>('details[data-falstad-phase]').forEach((details) => {
+    details.addEventListener('toggle', () => {
+      if (!details.open) return;
+
+      const exerciseId = details.dataset.falstadExercise;
+      const phase = details.dataset.falstadPhase as FalstadPhase | undefined;
       if (!exerciseId || !phase || !FALSTAD_PHASES.includes(phase)) return;
-      progress = setExercisePhase(progress, exerciseId, phase, input.checked);
+
+      const updatedProgress = markExercisePhaseExplored(progress, exerciseId, phase);
+      if (updatedProgress === progress) return;
+
+      progress = updatedProgress;
       writeProgress(progress);
       updateDisplay(progress);
     });
@@ -89,7 +113,7 @@
 
   document.querySelectorAll<HTMLButtonElement>('[data-falstad-reset]').forEach((button) => {
     button.addEventListener('click', () => {
-      if (!window.confirm('Reset all Falstad practice progress on this browser?')) return;
+      if (!window.confirm('Reset all explored Falstad stages on this browser?')) return;
       progress = {};
       try {
         localStorage.removeItem(FALSTAD_PROGRESS_KEY);
@@ -98,9 +122,28 @@
       }
       updateDisplay(progress);
       const status = document.querySelector<HTMLElement>('[data-falstad-reset-status]');
-      if (status) status.textContent = 'Progress reset.';
+      if (status) status.textContent = 'Explored stages reset.';
     });
   });
+
+  const openHashTarget = () => {
+    let hash = '';
+    try {
+      hash = decodeURIComponent(window.location.hash.slice(1));
+    } catch {
+      return;
+    }
+    if (!hash) return;
+
+    const target = document.getElementById(hash);
+    if (!(target instanceof HTMLDetailsElement)) return;
+
+    target.open = true;
+    requestAnimationFrame(() => target.scrollIntoView({ block: 'start' }));
+  };
+
+  openHashTarget();
+  window.addEventListener('hashchange', openHashTarget);
 
   document.querySelectorAll<HTMLButtonElement>('[data-falstad-load]').forEach((button) => {
     button.addEventListener('click', () => {

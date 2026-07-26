@@ -26,19 +26,40 @@ status: "ready"
 
 Predict whether inductor current can stop instantly when the switch opens. Decide what voltage the inductor must create if no continuing path exists.
 
+### Prediction answer
+
+Inductor current cannot stop instantly. Before opening, the long-term current approaches:
+
+```text
+I = 5 V / 100 Ω = 50 mA
+```
+
+When the switch opens without another path, the inductor reverses its terminal voltage and can create a large transient to keep current moving.
+
 ## Build
 
 Build and run the series RL loop first. Close the switch long enough for current to rise, then open it. Add a reverse-biased diode across the inductive branch for the second run.
 
+### Build answer
+
+The first path is a single series source, inductor, resistor, and switch loop. Place the diode across the inductive load path so it is reverse-biased while the source powers the loop and forward-biased only when the inductor reverses its terminal voltage.
+
 ## Measure
 
-Without the diode, observe a large switch-voltage transient. With the diode, current circulates through the added path and decays more gently.
+Compare inductor current and switch voltage when opening the switch without the diode and after adding it. Record the transient size and decay shape.
+
+### Measurement answer
+
+Without the diode, switch voltage shows a large, sharp transient. With the diode, current circulates through the added path and decays more gently from about 50 mA. The series time constant is approximately:
+
+```text
+τ = L / R = 0.1 H / 100 Ω = 1 ms
+```
 
 ## Explain
 
 Explain why the diode is normally off, why it conducts after the switch opens, and where the inductor's stored magnetic energy goes.
 
-## Check your model
+### Explanation answer
 
-An inductor resists abrupt current change. The flyback diode does not erase energy. It gives current a controlled path while resistance dissipates that energy.
-
+The source polarity reverse-biases the diode during normal operation. Opening the switch makes the inductor reverse its terminal voltage to preserve current, which forward-biases the diode. The flyback path does not erase energy. It lets current decay while resistance dissipates the stored magnetic-field energy as heat.

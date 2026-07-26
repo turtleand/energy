@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import {
   FALSTAD_PROGRESS_KEY,
+  FALSTAD_SECTIONS,
+  areAllPhasesExplored,
   buildBlankFalstadUrl,
   buildFalstadUrl,
-  countCompletedExercises,
-  isExerciseComplete,
+  countFullyExploredExercises,
+  markExercisePhaseExplored,
   parseFalstadProgress,
   serializeFalstadProgress,
-  setExercisePhase,
+  splitFalstadExerciseSections,
   validateFalstadExercises,
 } from './falstad';
 
@@ -44,13 +46,12 @@ describe('Falstad progress', () => {
     expect(parseFalstadProgress(serializeFalstadProgress(parsed))).toEqual(parsed);
   });
 
-  it('updates one phase without mutating prior progress', () => {
+  it('marks one phase explored without mutating prior progress', () => {
     const original = {};
-    const updated = setExercisePhase(
+    const updated = markExercisePhaseExplored(
       original,
       'close-the-loop',
       'predict',
-      true,
       '2026-07-26T13:00:00.000Z',
     );
 
@@ -64,7 +65,28 @@ describe('Falstad progress', () => {
     });
   });
 
-  it('marks an exercise complete only when all four phases are checked', () => {
+  it('does not rewrite progress when an explored phase is opened again', () => {
+    const progress = {
+      'close-the-loop': {
+        predict: true,
+        build: false,
+        measure: false,
+        explain: false,
+        updatedAt: '2026-07-26T13:00:00.000Z',
+      },
+    };
+
+    expect(
+      markExercisePhaseExplored(
+        progress,
+        'close-the-loop',
+        'predict',
+        '2026-07-26T14:00:00.000Z',
+      ),
+    ).toBe(progress);
+  });
+
+  it('marks an exercise fully explored only when all four phases were opened', () => {
     const progress = {
       'close-the-loop': {
         predict: true,
@@ -82,9 +104,145 @@ describe('Falstad progress', () => {
       },
     };
 
-    expect(isExerciseComplete(progress['close-the-loop'])).toBe(true);
-    expect(isExerciseComplete(progress['ohms-law-sweep'])).toBe(false);
-    expect(countCompletedExercises(progress, ['close-the-loop', 'ohms-law-sweep'])).toBe(1);
+    expect(areAllPhasesExplored(progress['close-the-loop'])).toBe(true);
+    expect(areAllPhasesExplored(progress['ohms-law-sweep'])).toBe(false);
+    expect(countFullyExploredExercises(progress, ['close-the-loop', 'ohms-law-sweep'])).toBe(1);
+  });
+});
+
+describe('Falstad disclosure sections', () => {
+  const renderedHtml = [
+    '<h2 id="components">Components</h2>',
+    '<ul><li>One resistor</li></ul>',
+    '<h2 id="predict">Predict</h2>',
+    '<p>Predict the current.</p>',
+    '<h3 id="prediction-answer">Prediction answer</h3>',
+    '<p>The current is 50 mA.</p>',
+    '<h2 id="build">Build</h2>',
+    '<p>Wire the loop.</p>',
+    '<h3 id="build-answer">Build answer</h3>',
+    '<ol><li>Source</li><li>Switch</li><li>Resistor</li></ol>',
+    '<h2 id="measure">Measure</h2>',
+    '<p>Read the current.</p>',
+    '<h3 id="measurement-answer">Measurement answer</h3>',
+    '<pre><code>I = V / R</code></pre>',
+    '<h2 id="explain">Explain</h2>',
+    '<p>Explain the result.</p>',
+    '<h3 id="explanation-answer">Explanation answer</h3>',
+    '<p>The loop must be closed.</p>',
+  ].join('\n');
+
+  it('splits five visible tasks from four hidden answers while preserving formatting', () => {
+    const sections = splitFalstadExerciseSections(renderedHtml, 'close-the-loop');
+
+    expect(sections.map(({ id }) => id)).toEqual(FALSTAD_SECTIONS.map(({ id }) => id));
+    expect(sections[0].promptHtml).toContain('<ul><li>One resistor</li></ul>');
+    expect(sections[0].answerHtml).toBeUndefined();
+    expect(sections[1].promptHtml).toBe('<p>Predict the current.</p>');
+    expect(sections[1].answerHtml).toBe('<p>The current is 50 mA.</p>');
+    expect(sections[2].answerHtml).toContain(
+      '<ol><li>Source</li><li>Switch</li><li>Resistor</li></ol>',
+    );
+    expect(sections[3].answerHtml).toContain('<pre><code>I = V / R</code></pre>');
+    expect(sections[1].phase).toBe('predict');
+    expect(sections[4].phase).toBe('explain');
+  });
+
+  it('rejects missing, duplicate, or out-of-order headings', () => {
+    expect(() =>
+      splitFalstadExerciseSections(
+        renderedHtml.replace('<h2 id="measure">Measure</h2>', ''),
+        'missing-measure',
+      ),
+    ).toThrow(/expected Falstad sections in this order/);
+
+    expect(() =>
+      splitFalstadExerciseSections(
+        renderedHtml.replace(
+          '<h2 id="build">Build</h2>',
+          '<h2 id="predict">Predict</h2><h2 id="build">Build</h2>',
+        ),
+        'duplicate-predict',
+      ),
+    ).toThrow(/expected Falstad sections in this order/);
+
+    expect(() =>
+      splitFalstadExerciseSections(
+        renderedHtml
+          .replace('<h2 id="predict">Predict</h2>', '<h2 id="temporary">Temporary</h2>')
+          .replace('<h2 id="build">Build</h2>', '<h2 id="predict">Predict</h2>')
+          .replace('<h2 id="temporary">Temporary</h2>', '<h2 id="build">Build</h2>'),
+        'out-of-order',
+      ),
+    ).toThrow(/expected Falstad sections in this order/);
+  });
+
+  it('rejects missing, duplicate, misplaced, or unexpected answer headings', () => {
+    expect(() =>
+      splitFalstadExerciseSections(
+        renderedHtml.replace('<h3 id="prediction-answer">Prediction answer</h3>', ''),
+        'missing-prediction-answer',
+      ),
+    ).toThrow(/Predict section must contain one "Prediction answer" heading/);
+
+    expect(() =>
+      splitFalstadExerciseSections(
+        renderedHtml.replace(
+          '<h3 id="build-answer">Build answer</h3>',
+          '<h3 id="build-answer">Build answer</h3><h3 id="build-answer">Build answer</h3>',
+        ),
+        'duplicate-build-answer',
+      ),
+    ).toThrow(/Build section must contain one "Build answer" heading/);
+
+    expect(() =>
+      splitFalstadExerciseSections(
+        renderedHtml
+          .replace('<h3 id="build-answer">Build answer</h3>', '')
+          .replace(
+            '<h3 id="measurement-answer">Measurement answer</h3>',
+            '<h3 id="build-answer">Build answer</h3><h3 id="measurement-answer">Measurement answer</h3>',
+          ),
+        'misplaced-build-answer',
+      ),
+    ).toThrow(/Build section must contain one "Build answer" heading/);
+
+    expect(() =>
+      splitFalstadExerciseSections(
+        renderedHtml.replace(
+          '<ul><li>One resistor</li></ul>',
+          '<ul><li>One resistor</li></ul><h3 id="parts-answer">Parts answer</h3><p>No.</p>',
+        ),
+        'components-answer',
+      ),
+    ).toThrow(/Components section cannot contain an answer heading/);
+  });
+
+  it('rejects leading content and empty sections, visible tasks, or answers', () => {
+    expect(() =>
+      splitFalstadExerciseSections(`<p>Lead-in</p>${renderedHtml}`, 'leading-content'),
+    ).toThrow(/must begin with the Components section/);
+
+    expect(() =>
+      splitFalstadExerciseSections(
+        renderedHtml.replace('<ul><li>One resistor</li></ul>', ''),
+        'empty-components',
+      ),
+    ).toThrow(/the Components section cannot be empty/);
+
+    expect(() =>
+      splitFalstadExerciseSections(
+        renderedHtml.replace('<p>Wire the loop.</p>', ''),
+        'empty-build-task',
+      ),
+    ).toThrow(/Build visible task cannot be empty/);
+
+    expect(() =>
+      splitFalstadExerciseSections(
+        renderedHtml.replace('<p>The loop must be closed.</p>', ''),
+        'empty-explanation-answer',
+      ),
+    ).toThrow(/Explanation answer cannot be empty/);
   });
 });
 

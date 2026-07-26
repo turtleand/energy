@@ -6,11 +6,11 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import '@styles/falstad.css';
 import {
   FALSTAD_MODULES,
-  FALSTAD_PHASES,
   buildBlankFalstadUrl,
   buildFalstadUrl,
+  splitFalstadExerciseSections,
 } from '../../../practice/falstad';
-import { getCollection, render } from 'astro:content';
+import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
   const exercises = (
@@ -60,16 +60,10 @@ export async function getStaticPaths() {
 }
 
 const { exercise, slug, circuitText, prerequisites, previousExercise, nextExercise } = Astro.props;
-const { Content } = await render(exercise);
 const module = FALSTAD_MODULES.find((candidate) => candidate.id === exercise.data.module);
 const referenceUrl = buildFalstadUrl(circuitText);
 const blankUrl = buildBlankFalstadUrl();
-const phaseDescriptions = {
-  predict: 'I wrote down a value, waveform, or behavior before running it.',
-  build: 'I placed and connected every component from a blank canvas.',
-  measure: 'I checked component readings or scopes and recorded what changed.',
-  explain: 'I can explain why the observation fits or corrects my prediction.',
-};
+const sections = splitFalstadExerciseSections(exercise.rendered?.html ?? '', exercise.id);
 ---
 
 <BaseLayout title={exercise.data.title} description={exercise.data.summary}>
@@ -89,7 +83,7 @@ const phaseDescriptions = {
           <div class="falstad-meta">
             <span>{exercise.data.difficulty}</span>
             <span>{exercise.data.estimatedMinutes} minutes</span>
-            <span data-falstad-card-status>0 of 4 steps</span>
+            <span data-falstad-card-status aria-live="polite">0 of 4 stages explored</span>
           </div>
           <div class="falstad-actions">
             <a class="falstad-button falstad-button-primary" href={blankUrl} target="_blank" rel="noreferrer">
@@ -119,69 +113,104 @@ const phaseDescriptions = {
         </div>
       </section>
 
-      <div class="falstad-workspace">
-        <section class="falstad-lesson-body" aria-label="Exercise instructions">
-          <div class="prose">
-            <Content />
+      <section class="falstad-lesson-body" aria-labelledby="practice-loop-title">
+        <header class="falstad-ladder-intro">
+          <div>
+            <p class="eyebrow">Practice loop</p>
+            <h2 id="practice-loop-title">Try each step before revealing its answer.</h2>
           </div>
-        </section>
+          <p>
+            The task stays visible. Revealing a numbered answer remembers that stage as explored
+            in this browser. It is not a grade.
+          </p>
+        </header>
 
-        <aside class="falstad-workflow" aria-labelledby="self-check-title">
-          <p class="eyebrow">Manual self-check</p>
-          <h2 id="self-check-title">Mark what you actually did.</h2>
-          <p>Your checks stay in this browser. Nothing inside the remote simulator is graded.</p>
-          <fieldset class="falstad-checks">
-            <legend class="sr-only">Exercise phases</legend>
-            {FALSTAD_PHASES.map((phase) => (
-              <label class="falstad-check">
-                <input
-                  type="checkbox"
-                  data-falstad-exercise={slug}
-                  data-falstad-phase={phase}
-                />
-                <span>
-                  <strong>{phase[0].toUpperCase() + phase.slice(1)}</strong>
-                  <span>{phaseDescriptions[phase]}</span>
+        <div class="falstad-disclosures">
+          {sections.map((section) => (
+            <section
+              class:list={[
+                'falstad-stage',
+                !section.phase && 'falstad-stage-support',
+              ]}
+              id={section.id}
+            >
+              <header class="falstad-stage-header">
+                <span class="falstad-disclosure-marker" aria-hidden="true">{section.marker}</span>
+                <span class="falstad-disclosure-copy">
+                  <strong>{section.title}</strong>
+                  <span>{section.cue}</span>
                 </span>
-              </label>
-            ))}
-          </fieldset>
-        </aside>
-      </div>
-
-      <section class="falstad-reference" id="reference" aria-labelledby="reference-title">
-        <p class="eyebrow">Optional reference</p>
-        <h2 id="reference-title">Compare only after you build.</h2>
-        <p>
-          The reference is editable and uses the same export text as the external link. Loading it
-          contacts falstad.com. The written exercise and schematic remain useful if Falstad is
-          unavailable.
-        </p>
-        <div class="falstad-actions">
-          <button
-            class="falstad-button falstad-button-primary"
-            type="button"
-            data-falstad-load
-            aria-controls={`falstad-reference-${slug}`}
-            aria-expanded="false"
-          >
-            Load reference
-          </button>
-          <a class="falstad-button" href={referenceUrl} target="_blank" rel="noreferrer">
-            Open in Falstad
-          </a>
-        </div>
-        <div class="falstad-frame-wrap" id={`falstad-reference-${slug}`} hidden>
-          <iframe
-            class="falstad-frame"
-            title={`Editable Falstad reference for ${exercise.data.title}`}
-            data-falstad-frame
-            data-src={referenceUrl}
-            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-            loading="lazy"
-          ></iframe>
+              </header>
+              <div class="prose falstad-stage-prompt" set:html={section.promptHtml} />
+              {section.phase && section.answerHtml ? (
+                <details
+                  class="falstad-answer"
+                  id={section.answerId}
+                  data-falstad-exercise={slug}
+                  data-falstad-phase={section.phase}
+                  data-explored="false"
+                >
+                  <summary>
+                    <span class="falstad-disclosure-action-closed">{section.closedLabel}</span>
+                    <span class="falstad-disclosure-action-open">{section.openLabel}</span>
+                    <span class="falstad-disclosure-chevron" aria-hidden="true"></span>
+                  </summary>
+                  <div class="falstad-answer-body">
+                    <div class="prose" set:html={section.answerHtml} />
+                  </div>
+                </details>
+              ) : null}
+            </section>
+          ))}
         </div>
       </section>
+
+      <details class="falstad-reference" id="reference">
+        <summary>
+          <span class="falstad-reference-icon" aria-hidden="true">↗</span>
+          <span class="falstad-reference-summary-copy">
+            <span class="eyebrow">Optional reference</span>
+            <strong>Reveal reference circuit</strong>
+            <span>Compare only after you build. Opening this panel does not contact Falstad.</span>
+          </span>
+          <span class="falstad-disclosure-action" aria-hidden="true">
+            <span class="falstad-disclosure-action-closed">Reveal</span>
+            <span class="falstad-disclosure-action-open">Hide</span>
+            <span class="falstad-disclosure-chevron"></span>
+          </span>
+        </summary>
+        <div class="falstad-reference-body">
+          <p>
+            The reference is editable and uses the same export text as the external link. Loading
+            it contacts falstad.com. The written exercise and schematic remain useful if Falstad is
+            unavailable.
+          </p>
+          <div class="falstad-actions">
+            <button
+              class="falstad-button falstad-button-primary"
+              type="button"
+              data-falstad-load
+              aria-controls={`falstad-reference-${slug}`}
+              aria-expanded="false"
+            >
+              Load reference
+            </button>
+            <a class="falstad-button" href={referenceUrl} target="_blank" rel="noreferrer">
+              Open in Falstad
+            </a>
+          </div>
+          <div class="falstad-frame-wrap" id={`falstad-reference-${slug}`} hidden>
+            <iframe
+              class="falstad-frame"
+              title={`Editable Falstad reference for ${exercise.data.title}`}
+              data-falstad-frame
+              data-src={referenceUrl}
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+              loading="lazy"
+            ></iframe>
+          </div>
+        </div>
+      </details>
 
       <section class="falstad-safety" aria-labelledby="exercise-safety-title">
         <p class="eyebrow">Safety boundary</p>
