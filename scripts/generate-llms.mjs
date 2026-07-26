@@ -7,6 +7,7 @@ const lessonsDir = path.join(root, 'src/content/lessons');
 const labsDir = path.join(root, 'src/content/labs');
 const gamesDir = path.join(root, 'src/content/games');
 const falstadExercisesDir = path.join(root, 'src/content/falstad-exercises');
+const curriculaPath = path.join(root, 'src/data/curricula.json');
 
 function parseFrontmatter(source) {
   const match = source.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
@@ -56,6 +57,9 @@ const falstadExercises = (await readCollection(falstadExercisesDir, '/practice/f
     url: `/practice/falstad/${exercise.slug.replace(/^\d+-/, '')}/`,
   }),
 );
+const curricula = JSON.parse(await readFile(curriculaPath, 'utf8'))
+  .filter((curriculum) => curriculum.status === 'published')
+  .sort((a, b) => a.order - b.order);
 const labsBySlug = new Map(labs.map((item) => [item.slug, item]));
 
 function embeddedSimulationSummary(lesson) {
@@ -67,6 +71,12 @@ const compact = [
   '# Turtleand Energy',
   '',
   'Turtleand Energy is a public learning surface for energy, electricity, circuits, and physical systems.',
+  '',
+  '## Curricula',
+  ...curricula.map(
+    (curriculum) =>
+      `- [${curriculum.title}](https://energy.turtleand.com/curricula/${curriculum.slug}/): ${curriculum.summary}`,
+  ),
   '',
   '## Articles',
   ...lessons.flatMap((item) => [
@@ -88,6 +98,19 @@ const compact = [
 
 const full = [
   compact,
+  '## Curriculum details',
+  ...curricula.flatMap((curriculum) => [
+    `### ${curriculum.title}`,
+    '',
+    curriculum.outcome,
+    '',
+    ...curriculum.modules.flatMap((module, index) => [
+      `${index + 1}. **${module.title}**`,
+      `   ${module.description}`,
+      `   Topics: ${module.topics.join(' / ')}`,
+      '',
+    ]),
+  ]),
   '## Article details',
   ...lessons.flatMap((item) => {
     const lab = item.labSlug ? labsBySlug.get(item.labSlug) : undefined;
@@ -116,5 +139,5 @@ await writeFile(path.join(publicDir, 'llms.txt'), compact, 'utf8');
 await writeFile(path.join(publicDir, 'llms-full.txt'), full, 'utf8');
 
 console.log(
-  `Generated llms.txt with ${lessons.length} article(s), ${games.length} game(s), ${falstadExercises.length} Falstad exercise(s), and embedded simulation metadata.`,
+  `Generated llms.txt with ${curricula.length} curriculum, ${lessons.length} article(s), ${games.length} game(s), ${falstadExercises.length} Falstad exercise(s), and embedded simulation metadata.`,
 );

@@ -1,4 +1,5 @@
 ---
+import curricula from '@data/curricula.json';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
@@ -11,6 +12,9 @@ const games = (await getCollection('games', ({ data }) => data.status === 'ready
 const falstadExercises = (
   await getCollection('falstadExercises', ({ data }) => data.status === 'ready')
 ).sort((a, b) => a.data.order - b.data.order);
+const publishedCurricula = curricula
+  .filter((curriculum) => curriculum.status === 'published')
+  .sort((a, b) => a.order - b.order);
 ---
 
 <BaseLayout>
@@ -23,6 +27,40 @@ const falstadExercises = (
       </p>
     </div>
   </section>
+
+  {publishedCurricula.length > 0 && (
+    <section class="section curriculum-index" aria-labelledby="curriculum-index-title">
+      <div class="container">
+        <div class="index-heading">
+          <p class="eyebrow">Curricula</p>
+          <h2 id="curriculum-index-title">Structured paths for going deeper.</h2>
+        </div>
+
+        <div class="curriculum-list">
+          {publishedCurricula.map((curriculum) => (
+            <a
+              class="curriculum-entry"
+              href={`/curricula/${curriculum.slug}/`}
+              aria-label={`View ${curriculum.title}`}
+            >
+              <span class="curriculum-entry-number">
+                {String(curriculum.order).padStart(2, '0')}
+              </span>
+              <span class="curriculum-entry-copy">
+                <span class="card-kicker">Curriculum reference</span>
+                <strong>{curriculum.title}</strong>
+                <span>{curriculum.summary}</span>
+              </span>
+              <span class="curriculum-entry-meta">
+                <span>{curriculum.modules.length} modules</span>
+                <b>View curriculum</b>
+              </span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
 
   {games.length > 0 && (
     <section class="game-entry-section" aria-labelledby="game-entry-title">
