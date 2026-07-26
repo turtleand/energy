@@ -2,6 +2,9 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
+const learningPaths = (await getCollection('learningPaths', ({ data }) => data.status === 'ready')).sort(
+  (a, b) => a.data.order - b.data.order
+);
 const lessons = (await getCollection('lessons', ({ data }) => data.status === 'ready')).sort(
   (a, b) => a.data.order - b.data.order
 );
@@ -59,6 +62,37 @@ const games = (await getCollection('games', ({ data }) => data.status === 'ready
               </a>
             );
           })}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {learningPaths.length > 0 && (
+    <section class="section article-index" aria-labelledby="learning-path-index-title">
+      <div class="container">
+        <div class="index-heading">
+          <p class="eyebrow">Learning paths</p>
+          <h2 id="learning-path-index-title">Start with the map.</h2>
+        </div>
+
+        <div class="content-cards">
+          {learningPaths.map((learningPath) => (
+            <a
+              class="content-card article-card"
+              href={`/learning-paths/${learningPath.id}/`}
+              aria-label={`Open ${learningPath.data.title}`}
+            >
+              <div>
+                <p class="card-kicker">Path {learningPath.data.order.toString().padStart(2, '0')}</p>
+                <h3>{learningPath.data.title}</h3>
+                <p>{learningPath.data.summary}</p>
+              </div>
+              <div class="card-footer">
+                <span class="card-link">Open path</span>
+                <span>Beginner ladder</span>
+              </div>
+            </a>
+          ))}
         </div>
       </div>
     </section>
