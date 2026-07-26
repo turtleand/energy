@@ -1,0 +1,549 @@
+.falstad-hero {
+  padding: clamp(2.2rem, 6vw, 5rem) 0 1.5rem;
+}
+
+.falstad-hero h1 {
+  max-width: 11ch;
+}
+
+.falstad-hero .lede {
+  max-width: 760px;
+}
+
+.falstad-actions,
+.falstad-meta,
+.falstad-prerequisites,
+.falstad-card-footer,
+.falstad-progress-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem 1rem;
+}
+
+.falstad-actions {
+  margin-top: 1.5rem;
+}
+
+.falstad-button {
+  appearance: none;
+  min-height: 46px;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(13, 70, 55, 0.28);
+  border-radius: 999px;
+  color: var(--green-dark);
+  background: rgba(255, 250, 240, 0.9);
+  font: inherit;
+  font-weight: 850;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.falstad-button-primary {
+  color: #fffaf0;
+  background: var(--green-dark);
+  box-shadow: 0 14px 28px rgba(13, 70, 55, 0.2);
+}
+
+.falstad-button:focus-visible,
+.falstad-card:focus-visible,
+.falstad-prerequisites a:focus-visible,
+.falstad-check:focus-within {
+  outline: 3px solid rgba(56, 189, 248, 0.75);
+  outline-offset: 4px;
+}
+
+.falstad-overview {
+  padding: 1rem 0 clamp(2.6rem, 6vw, 5rem);
+}
+
+.falstad-progress-panel,
+.falstad-workflow,
+.falstad-schematic,
+.falstad-prerequisite-panel,
+.falstad-reference,
+.falstad-safety {
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  background: rgba(255, 250, 240, 0.82);
+  box-shadow: var(--shadow);
+}
+
+.falstad-progress-panel {
+  display: grid;
+  gap: 0.8rem;
+  padding: 1.25rem;
+}
+
+.falstad-progress-heading {
+  justify-content: space-between;
+}
+
+.falstad-progress-heading p {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.falstad-progress-panel progress {
+  width: 100%;
+  height: 0.85rem;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(20, 108, 83, 0.12);
+}
+
+.falstad-progress-panel progress::-webkit-progress-bar {
+  background: rgba(20, 108, 83, 0.12);
+}
+
+.falstad-progress-panel progress::-webkit-progress-value {
+  background: var(--green);
+}
+
+.falstad-progress-panel progress::-moz-progress-bar {
+  background: var(--green);
+}
+
+.falstad-reset-status {
+  min-height: 1.2em;
+  margin: 0;
+  color: var(--green);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.falstad-principles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.falstad-principles li {
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: rgba(255, 250, 240, 0.6);
+}
+
+.falstad-principles strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--green-dark);
+}
+
+.falstad-principles span {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.falstad-module {
+  padding: 0 0 clamp(3rem, 6vw, 5rem);
+}
+
+.falstad-module-heading {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+  margin-bottom: 1rem;
+}
+
+.falstad-module-number {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 50%;
+  color: #fffaf0;
+  background: var(--green-dark);
+  font-weight: 900;
+}
+
+.falstad-module-heading h2 {
+  margin-bottom: 0.35rem;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+}
+
+.falstad-module-heading p {
+  max-width: 680px;
+  margin: 0;
+  color: var(--muted);
+}
+
+.falstad-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.falstad-card {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  color: var(--ink);
+  background: rgba(255, 250, 240, 0.86);
+  box-shadow: 0 18px 54px rgba(13, 70, 55, 0.11);
+  text-decoration: none;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.falstad-card:hover,
+.falstad-card:focus-visible {
+  border-color: rgba(20, 108, 83, 0.48);
+  box-shadow: 0 24px 66px rgba(13, 70, 55, 0.17);
+  transform: translateY(-2px);
+}
+
+.falstad-card[data-complete="true"] {
+  border-color: rgba(20, 108, 83, 0.52);
+}
+
+.falstad-card-visual {
+  position: relative;
+  padding: 0.65rem;
+  background: #102a27;
+}
+
+.falstad-card-visual img {
+  display: block;
+  width: 100%;
+  height: 170px;
+  object-fit: contain;
+}
+
+.falstad-rung {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  color: var(--green-dark);
+  background: #ffd47a;
+  font-weight: 950;
+}
+
+.falstad-card-copy {
+  display: grid;
+  align-content: space-between;
+  gap: 1.25rem;
+  padding: 1.25rem;
+}
+
+.falstad-card h3 {
+  margin-bottom: 0.5rem;
+}
+
+.falstad-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.falstad-meta {
+  margin-bottom: 0.75rem;
+  color: var(--green);
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.falstad-card-footer {
+  justify-content: space-between;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.falstad-card[data-complete="true"] [data-falstad-card-status] {
+  color: var(--green);
+}
+
+.falstad-exercise {
+  padding: clamp(1.5rem, 5vw, 4rem) 0 5rem;
+}
+
+.falstad-breadcrumb {
+  margin-bottom: 1.2rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.falstad-breadcrumb a {
+  font-weight: 800;
+}
+
+.falstad-exercise-header {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
+  gap: clamp(1.5rem, 5vw, 4rem);
+  align-items: center;
+}
+
+.falstad-exercise-header h1 {
+  max-width: 12ch;
+}
+
+.falstad-schematic {
+  overflow: hidden;
+  background: #102a27;
+}
+
+.falstad-schematic img {
+  display: block;
+  width: 100%;
+  min-height: 230px;
+  object-fit: contain;
+}
+
+.falstad-schematic figcaption {
+  padding: 1rem;
+  color: #dbece4;
+  border-top: 1px solid rgba(219, 236, 228, 0.15);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.falstad-prerequisite-panel {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  box-shadow: none;
+}
+
+.falstad-prerequisite-panel h2 {
+  margin-bottom: 0.65rem;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+
+.falstad-prerequisites a {
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.falstad-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(270px, 0.65fr);
+  gap: 1rem;
+  align-items: start;
+  margin-top: 2rem;
+}
+
+.falstad-lesson-body {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  background: rgba(255, 250, 240, 0.76);
+  box-shadow: var(--shadow);
+}
+
+.falstad-lesson-body .prose {
+  margin: 0;
+  padding: clamp(1.2rem, 3vw, 2rem);
+}
+
+.falstad-lesson-body .prose h2 {
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.falstad-workflow {
+  position: sticky;
+  top: 1rem;
+  padding: 1.2rem;
+  box-shadow: none;
+}
+
+.falstad-workflow h2 {
+  margin-bottom: 0.4rem;
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+}
+
+.falstad-workflow > p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.falstad-checks {
+  display: grid;
+  gap: 0.7rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.falstad-check {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.falstad-check input {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin: 0.12rem 0 0;
+  accent-color: var(--green);
+}
+
+.falstad-check strong,
+.falstad-check span {
+  display: block;
+}
+
+.falstad-check span {
+  margin-top: 0.2rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.falstad-reference,
+.falstad-safety {
+  margin-top: 1rem;
+  padding: clamp(1.2rem, 3vw, 1.6rem);
+  box-shadow: none;
+}
+
+.falstad-reference h2,
+.falstad-safety h2 {
+  margin-bottom: 0.55rem;
+  font-size: 1.55rem;
+}
+
+.falstad-reference > p,
+.falstad-safety p {
+  max-width: 740px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.falstad-frame-wrap {
+  margin-top: 1rem;
+}
+
+.falstad-frame {
+  width: 100%;
+  min-height: 660px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #fff;
+}
+
+.falstad-exercise-nav {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.falstad-exercise-nav a {
+  display: grid;
+  gap: 0.3rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  color: var(--ink);
+  background: rgba(255, 250, 240, 0.72);
+  text-decoration: none;
+}
+
+.falstad-exercise-nav a:last-child {
+  text-align: right;
+}
+
+.falstad-exercise-nav span {
+  color: var(--green);
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.falstad-exercise-nav a:hover strong,
+.falstad-exercise-nav a:focus-visible strong {
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+}
+
+.falstad-exercise-nav a:focus-visible {
+  outline: 3px solid rgba(56, 189, 248, 0.75);
+  outline-offset: 4px;
+}
+
+@media (max-width: 820px) {
+  .falstad-principles,
+  .falstad-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .falstad-exercise-header,
+  .falstad-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .falstad-workflow {
+    position: static;
+  }
+}
+
+@media (max-width: 540px) {
+  .falstad-principles,
+  .falstad-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .falstad-module-heading {
+    grid-template-columns: 1fr;
+  }
+
+  .falstad-exercise-header {
+    gap: 1rem;
+  }
+
+  .falstad-schematic img {
+    min-height: 180px;
+  }
+
+  .falstad-frame {
+    min-height: 560px;
+  }
+
+  .falstad-exercise-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .falstad-exercise-nav a:last-child {
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .falstad-card {
+    transition: none;
+  }
+}

@@ -1,0 +1,135 @@
+---
+import FalstadProgress from '@components/FalstadProgress.astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import '@styles/falstad.css';
+import { FALSTAD_MODULES } from '../../../practice/falstad';
+import { getCollection } from 'astro:content';
+
+const exercises = (
+  await getCollection('falstadExercises', ({ data }) => data.status === 'ready')
+).sort((a, b) => a.data.order - b.data.order);
+
+const lessonEntries = await getCollection('lessons', ({ data }) => data.status === 'ready');
+const lessons = new Map(lessonEntries.map((lesson) => [lesson.id, lesson]));
+const exerciseSlug = (id: string) => id.replace(/^\d+-/, '');
+---
+
+<BaseLayout
+  title="Guided Falstad circuit practice"
+  description="Ten build-from-blank circuit exercises that connect Turtleand Energy articles to editable CircuitJS simulations."
+>
+  <section class="falstad-hero">
+    <div class="container">
+      <p class="eyebrow">Circuit practice · zero to intermediate</p>
+      <h1>Make the circuit tell you what is true.</h1>
+      <p class="lede">
+        Build ten low-voltage circuits from a blank Falstad canvas. Predict first, measure what
+        happens, then explain the difference between your model and the result.
+      </p>
+      <div class="falstad-actions">
+        <a class="falstad-button falstad-button-primary" href={`/practice/falstad/${exerciseSlug(exercises[0].id)}/`}>
+          Start rung 1
+        </a>
+        <a class="falstad-button" href="#ladder">See the full ladder</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="falstad-overview" aria-labelledby="workflow-title">
+    <div class="container">
+      <div class="falstad-progress-panel">
+        <div class="falstad-progress-heading">
+          <p data-falstad-progress-text>0 of {exercises.length} circuits complete</p>
+          <button class="falstad-button" type="button" data-falstad-reset>Reset progress</button>
+        </div>
+        <progress data-falstad-progress max={exercises.length} value="0">
+          0 of {exercises.length} circuits complete
+        </progress>
+        <p class="falstad-reset-status" data-falstad-reset-status aria-live="polite"></p>
+      </div>
+
+      <ol class="falstad-principles" aria-labelledby="workflow-title">
+        <li><strong id="workflow-title">1. Predict</strong><span>Commit to an expected value, shape, or behavior.</span></li>
+        <li><strong>2. Build</strong><span>Start from a blank canvas and place every component yourself.</span></li>
+        <li><strong>3. Measure</strong><span>Use component readings and scopes to test the prediction.</span></li>
+        <li><strong>4. Explain</strong><span>Say why the result fits or corrects your mental model.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <div id="ladder">
+    {FALSTAD_MODULES.map((module) => {
+      const moduleExercises = exercises.filter((exercise) => exercise.data.module === module.id);
+
+      return (
+        <section class="falstad-module" aria-labelledby={`module-${module.order}`}>
+          <div class="container">
+            <header class="falstad-module-heading">
+              <span class="falstad-module-number" aria-hidden="true">{module.order}</span>
+              <div>
+                <p class="eyebrow">Module {module.order}</p>
+                <h2 id={`module-${module.order}`}>{module.title}</h2>
+                <p>{module.summary}</p>
+              </div>
+            </header>
+
+            <div class="falstad-cards">
+              {moduleExercises.map((exercise) => {
+                const slug = exerciseSlug(exercise.id);
+                const prerequisiteTitles = exercise.data.prerequisiteLessonSlugs
+                  .map((lessonSlug) => lessons.get(lessonSlug)?.data.title)
+                  .filter(Boolean);
+
+                return (
+                  <a
+                    class="falstad-card"
+                    href={`/practice/falstad/${slug}/`}
+                    data-falstad-exercise={slug}
+                    data-complete="false"
+                  >
+                    <div class="falstad-card-visual">
+                      <span class="falstad-rung" aria-label={`Rung ${exercise.data.order}`}>
+                        {exercise.data.order}
+                      </span>
+                      <img
+                        src={exercise.data.schematicPath}
+                        alt={exercise.data.schematicAlt}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                    <div class="falstad-card-copy">
+                      <div>
+                        <div class="falstad-meta">
+                          <span>{exercise.data.difficulty}</span>
+                          <span>{exercise.data.estimatedMinutes} min</span>
+                        </div>
+                        <h3>{exercise.data.title}</h3>
+                        <p>{exercise.data.summary}</p>
+                      </div>
+                      <div class="falstad-card-footer">
+                        <span data-falstad-card-status>0 of 4 steps</span>
+                        <span>{prerequisiteTitles.length} article{prerequisiteTitles.length === 1 ? '' : 's'}</span>
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      );
+    })}
+  </div>
+
+  <section class="container falstad-safety" aria-labelledby="practice-safety-title">
+    <p class="eyebrow">Safety boundary</p>
+    <h2 id="practice-safety-title">Keep this practice inside the simulator.</h2>
+    <p>
+      These are simplified, educational low-voltage models. They are not instructions for mains
+      construction, household wiring, battery-pack work, or selecting real protection settings.
+    </p>
+  </section>
+
+  <FalstadProgress />
+</BaseLayout>

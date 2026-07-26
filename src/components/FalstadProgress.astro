@@ -1,0 +1,119 @@
+<script>
+  import {
+    FALSTAD_PHASES,
+    FALSTAD_PROGRESS_KEY,
+    countCompletedExercises,
+    isExerciseComplete,
+    parseFalstadProgress,
+    serializeFalstadProgress,
+    setExercisePhase,
+    type FalstadPhase,
+    type FalstadProgress,
+  } from '../practice/falstad';
+
+  const readProgress = (): FalstadProgress => {
+    try {
+      return parseFalstadProgress(localStorage.getItem(FALSTAD_PROGRESS_KEY));
+    } catch {
+      return {};
+    }
+  };
+
+  const writeProgress = (progress: FalstadProgress) => {
+    try {
+      localStorage.setItem(FALSTAD_PROGRESS_KEY, serializeFalstadProgress(progress));
+    } catch {
+      // The practice remains usable when browser storage is unavailable.
+    }
+  };
+
+  const exerciseIds = Array.from(
+    new Set(
+      Array.from(
+        document.querySelectorAll<HTMLElement>('[data-falstad-exercise]'),
+        (element) => element.dataset.falstadExercise,
+      ).filter((id): id is string => Boolean(id)),
+    ),
+  );
+
+  const updateDisplay = (progress: FalstadProgress) => {
+    for (const exerciseId of exerciseIds) {
+      const exerciseProgress = progress[exerciseId];
+      const complete = isExerciseComplete(exerciseProgress);
+      const phaseCount = FALSTAD_PHASES.filter((phase) => exerciseProgress?.[phase]).length;
+
+      document
+        .querySelectorAll<HTMLElement>(`[data-falstad-exercise="${exerciseId}"]`)
+        .forEach((element) => {
+          element.dataset.complete = complete ? 'true' : 'false';
+        });
+
+      document
+        .querySelectorAll<HTMLElement>(
+          `[data-falstad-exercise="${exerciseId}"] [data-falstad-card-status]`,
+        )
+        .forEach((element) => {
+          element.textContent = complete ? 'Complete' : `${phaseCount} of 4 steps`;
+        });
+    }
+
+    document.querySelectorAll<HTMLInputElement>('[data-falstad-phase]').forEach((input) => {
+      const exerciseId = input.dataset.falstadExercise;
+      const phase = input.dataset.falstadPhase as FalstadPhase | undefined;
+      input.checked = Boolean(exerciseId && phase && progress[exerciseId]?.[phase]);
+    });
+
+    const completed = countCompletedExercises(progress, exerciseIds);
+    document.querySelectorAll<HTMLProgressElement>('[data-falstad-progress]').forEach((meter) => {
+      meter.max = exerciseIds.length;
+      meter.value = completed;
+    });
+    document.querySelectorAll<HTMLElement>('[data-falstad-progress-text]').forEach((element) => {
+      element.textContent = `${completed} of ${exerciseIds.length} circuits complete`;
+    });
+  };
+
+  let progress = readProgress();
+  updateDisplay(progress);
+
+  document.querySelectorAll<HTMLInputElement>('[data-falstad-phase]').forEach((input) => {
+    input.addEventListener('change', () => {
+      const exerciseId = input.dataset.falstadExercise;
+      const phase = input.dataset.falstadPhase as FalstadPhase | undefined;
+      if (!exerciseId || !phase || !FALSTAD_PHASES.includes(phase)) return;
+      progress = setExercisePhase(progress, exerciseId, phase, input.checked);
+      writeProgress(progress);
+      updateDisplay(progress);
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('[data-falstad-reset]').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (!window.confirm('Reset all Falstad practice progress on this browser?')) return;
+      progress = {};
+      try {
+        localStorage.removeItem(FALSTAD_PROGRESS_KEY);
+      } catch {
+        // The visual reset still works when browser storage is unavailable.
+      }
+      updateDisplay(progress);
+      const status = document.querySelector<HTMLElement>('[data-falstad-reset-status]');
+      if (status) status.textContent = 'Progress reset.';
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('[data-falstad-load]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const regionId = button.getAttribute('aria-controls');
+      const region = regionId ? document.getElementById(regionId) : null;
+      const frame = region?.querySelector<HTMLIFrameElement>('[data-falstad-frame]');
+      if (!region || !frame || !frame.dataset.src) return;
+
+      if (!frame.hasAttribute('src')) frame.src = frame.dataset.src;
+      region.hidden = false;
+      button.setAttribute('aria-expanded', 'true');
+      button.textContent = 'Reference loaded';
+      frame.focus();
+    });
+  });
+</script>

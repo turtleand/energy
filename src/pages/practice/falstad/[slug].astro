@@ -1,0 +1,223 @@
+---
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
+import FalstadProgress from '@components/FalstadProgress.astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import '@styles/falstad.css';
+import {
+  FALSTAD_MODULES,
+  FALSTAD_PHASES,
+  buildBlankFalstadUrl,
+  buildFalstadUrl,
+} from '../../../practice/falstad';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const exercises = (
+    await getCollection('falstadExercises', ({ data }) => data.status === 'ready')
+  ).sort((a, b) => a.data.order - b.data.order);
+  const lessons = await getCollection('lessons', ({ data }) => data.status === 'ready');
+
+  return Promise.all(
+    exercises.map(async (exercise, index) => {
+      const slug = exercise.id.replace(/^\d+-/, '');
+      const circuitPath = path.join(
+        process.cwd(),
+        'public/falstad/circuits',
+        `${exercise.data.referenceCircuit}.txt`,
+      );
+      const circuitText = await readFile(circuitPath, 'utf8');
+
+      return {
+        params: { slug },
+        props: {
+          exercise,
+          slug,
+          circuitText,
+          prerequisites: exercise.data.prerequisiteLessonSlugs.map((lessonSlug) =>
+            lessons.find((lesson) => lesson.id === lessonSlug),
+          ),
+          previousExercise:
+            index > 0
+              ? {
+                  slug: exercises[index - 1].id.replace(/^\d+-/, ''),
+                  title: exercises[index - 1].data.title,
+                  order: exercises[index - 1].data.order,
+                }
+              : undefined,
+          nextExercise:
+            index < exercises.length - 1
+              ? {
+                  slug: exercises[index + 1].id.replace(/^\d+-/, ''),
+                  title: exercises[index + 1].data.title,
+                  order: exercises[index + 1].data.order,
+                }
+              : undefined,
+        },
+      };
+    }),
+  );
+}
+
+const { exercise, slug, circuitText, prerequisites, previousExercise, nextExercise } = Astro.props;
+const { Content } = await render(exercise);
+const module = FALSTAD_MODULES.find((candidate) => candidate.id === exercise.data.module);
+const referenceUrl = buildFalstadUrl(circuitText);
+const blankUrl = buildBlankFalstadUrl();
+const phaseDescriptions = {
+  predict: 'I wrote down a value, waveform, or behavior before running it.',
+  build: 'I placed and connected every component from a blank canvas.',
+  measure: 'I checked component readings or scopes and recorded what changed.',
+  explain: 'I can explain why the observation fits or corrects my prediction.',
+};
+---
+
+<BaseLayout title={exercise.data.title} description={exercise.data.summary}>
+  <article class="falstad-exercise" data-falstad-exercise={slug}>
+    <div class="container">
+      <nav class="falstad-breadcrumb" aria-label="Breadcrumb">
+        <a href="/practice/falstad/">Falstad practice</a>
+        <span aria-hidden="true"> / </span>
+        <span>Rung {exercise.data.order}</span>
+      </nav>
+
+      <header class="falstad-exercise-header">
+        <div>
+          <p class="eyebrow">Rung {exercise.data.order} · {module?.title}</p>
+          <h1>{exercise.data.title}</h1>
+          <p class="lede">{exercise.data.summary}</p>
+          <div class="falstad-meta">
+            <span>{exercise.data.difficulty}</span>
+            <span>{exercise.data.estimatedMinutes} minutes</span>
+            <span data-falstad-card-status>0 of 4 steps</span>
+          </div>
+          <div class="falstad-actions">
+            <a class="falstad-button falstad-button-primary" href={blankUrl} target="_blank" rel="noreferrer">
+              Open blank Falstad
+            </a>
+            <a class="falstad-button" href="#reference">Reference options</a>
+          </div>
+        </div>
+
+        <figure class="falstad-schematic">
+          <img
+            src={exercise.data.schematicPath}
+            alt={exercise.data.schematicAlt}
+            loading="eager"
+            decoding="async"
+          />
+          <figcaption>{exercise.data.schematicText}</figcaption>
+        </figure>
+      </header>
+
+      <section class="falstad-prerequisite-panel" aria-labelledby="prerequisite-title">
+        <h2 id="prerequisite-title">Knowledge this exercise builds on</h2>
+        <div class="falstad-prerequisites">
+          {prerequisites.map((lesson) =>
+            lesson ? <a href={`/lessons/${lesson.id}/`}>{lesson.data.title}</a> : null
+          )}
+        </div>
+      </section>
+
+      <div class="falstad-workspace">
+        <section class="falstad-lesson-body" aria-label="Exercise instructions">
+          <div class="prose">
+            <Content />
+          </div>
+        </section>
+
+        <aside class="falstad-workflow" aria-labelledby="self-check-title">
+          <p class="eyebrow">Manual self-check</p>
+          <h2 id="self-check-title">Mark what you actually did.</h2>
+          <p>Your checks stay in this browser. Nothing inside the remote simulator is graded.</p>
+          <fieldset class="falstad-checks">
+            <legend class="sr-only">Exercise phases</legend>
+            {FALSTAD_PHASES.map((phase) => (
+              <label class="falstad-check">
+                <input
+                  type="checkbox"
+                  data-falstad-exercise={slug}
+                  data-falstad-phase={phase}
+                />
+                <span>
+                  <strong>{phase[0].toUpperCase() + phase.slice(1)}</strong>
+                  <span>{phaseDescriptions[phase]}</span>
+                </span>
+              </label>
+            ))}
+          </fieldset>
+        </aside>
+      </div>
+
+      <section class="falstad-reference" id="reference" aria-labelledby="reference-title">
+        <p class="eyebrow">Optional reference</p>
+        <h2 id="reference-title">Compare only after you build.</h2>
+        <p>
+          The reference is editable and uses the same export text as the external link. Loading it
+          contacts falstad.com. The written exercise and schematic remain useful if Falstad is
+          unavailable.
+        </p>
+        <div class="falstad-actions">
+          <button
+            class="falstad-button falstad-button-primary"
+            type="button"
+            data-falstad-load
+            aria-controls={`falstad-reference-${slug}`}
+            aria-expanded="false"
+          >
+            Load reference
+          </button>
+          <a class="falstad-button" href={referenceUrl} target="_blank" rel="noreferrer">
+            Open in Falstad
+          </a>
+        </div>
+        <div class="falstad-frame-wrap" id={`falstad-reference-${slug}`} hidden>
+          <iframe
+            class="falstad-frame"
+            title={`Editable Falstad reference for ${exercise.data.title}`}
+            data-falstad-frame
+            data-src={referenceUrl}
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+            loading="lazy"
+          ></iframe>
+        </div>
+      </section>
+
+      <section class="falstad-safety" aria-labelledby="exercise-safety-title">
+        <p class="eyebrow">Safety boundary</p>
+        <h2 id="exercise-safety-title">This is a low-voltage educational model.</h2>
+        <p>
+          Do not translate it into mains construction, household wiring, battery-pack work, or
+          real protection settings. Real electrical systems need rated components, proper
+          protection, test equipment, and qualified safety judgment.
+        </p>
+      </section>
+
+      <nav class="falstad-exercise-nav" aria-label="Circuit ladder">
+        {previousExercise ? (
+          <a href={`/practice/falstad/${previousExercise.slug}/`}>
+            <span>Previous · rung {previousExercise.order}</span>
+            <strong>{previousExercise.title}</strong>
+          </a>
+        ) : (
+          <a href="/practice/falstad/">
+            <span>Back to</span>
+            <strong>Full practice ladder</strong>
+          </a>
+        )}
+        {nextExercise ? (
+          <a href={`/practice/falstad/${nextExercise.slug}/`}>
+            <span>Next · rung {nextExercise.order}</span>
+            <strong>{nextExercise.title}</strong>
+          </a>
+        ) : (
+          <a href="/practice/falstad/">
+            <span>Return to</span>
+            <strong>Full practice ladder</strong>
+          </a>
+        )}
+      </nav>
+    </div>
+  </article>
+  <FalstadProgress />
+</BaseLayout>
