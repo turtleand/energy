@@ -6,6 +6,7 @@ const publicDir = path.join(root, 'public');
 const lessonsDir = path.join(root, 'src/content/lessons');
 const labsDir = path.join(root, 'src/content/labs');
 const gamesDir = path.join(root, 'src/content/games');
+const falstadExercisesDir = path.join(root, 'src/content/falstad-exercises');
 
 function parseFrontmatter(source) {
   const match = source.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
@@ -48,6 +49,13 @@ const games = (await readCollection(gamesDir, '/play')).map((game) => ({
   ...game,
   url: `/play/${game.slug}/`,
 }));
+const falstadExercises = (await readCollection(falstadExercisesDir, '/practice/falstad')).map(
+  (exercise) => ({
+    ...exercise,
+    slug: exercise.slug.replace(/^\d+-/, ''),
+    url: `/practice/falstad/${exercise.slug.replace(/^\d+-/, '')}/`,
+  }),
+);
 const labsBySlug = new Map(labs.map((item) => [item.slug, item]));
 
 function embeddedSimulationSummary(lesson) {
@@ -70,6 +78,12 @@ const compact = [
     `- [${item.title}](https://energy.turtleand.com${item.url}): ${item.summary}`,
   ]),
   '',
+  '## Circuit practice',
+  '- [Guided Falstad circuit practice](https://energy.turtleand.com/practice/falstad/): Ten build-from-blank exercises across complete loops, changing signals, fields, resonance, transformers, and line loss.',
+  ...falstadExercises.flatMap((item) => [
+    `- [Rung ${item.order}: ${item.title}](https://energy.turtleand.com${item.url}): ${item.summary}`,
+  ]),
+  '',
 ].join('\n');
 
 const full = [
@@ -85,6 +99,16 @@ const full = [
       ...(lab ? ['Embedded simulation:', '', lab.summary, ''] : []),
     ];
   }),
+  '## Falstad practice details',
+  '',
+  'Each exercise follows the same manual workflow: predict, build from blank, measure, and explain. Reference simulations are optional and editable.',
+  '',
+  ...falstadExercises.flatMap((item) => [
+    `### Rung ${item.order}: ${item.title}`,
+    '',
+    item.body,
+    '',
+  ]),
 ].join('\n');
 
 await mkdir(publicDir, { recursive: true });
@@ -92,5 +116,5 @@ await writeFile(path.join(publicDir, 'llms.txt'), compact, 'utf8');
 await writeFile(path.join(publicDir, 'llms-full.txt'), full, 'utf8');
 
 console.log(
-  `Generated llms.txt with ${lessons.length} article(s), ${games.length} game(s), and embedded simulation metadata.`,
+  `Generated llms.txt with ${lessons.length} article(s), ${games.length} game(s), ${falstadExercises.length} Falstad exercise(s), and embedded simulation metadata.`,
 );

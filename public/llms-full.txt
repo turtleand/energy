@@ -23,6 +23,19 @@ Turtleand Energy is a public learning surface for energy, electricity, circuits,
 - [Circuit Riders: Loop Patrol](https://energy.turtleand.com/play/circuit-riders/): Ride a maintenance drone through one connected electrical city, restore 12 systems, and make every loop pulse.
 - [Gridkeeper: Light the Island](https://energy.turtleand.com/play/gridkeeper/): Restore six connected districts and make electricity visible through a living island grid.
 
+## Circuit practice
+- [Guided Falstad circuit practice](https://energy.turtleand.com/practice/falstad/): Ten build-from-blank exercises across complete loops, changing signals, fields, resonance, transformers, and line loss.
+- [Rung 1: Close the loop](https://energy.turtleand.com/practice/falstad/close-the-loop/): Build one source, one switch, and one load so open and closed paths become visible.
+- [Rung 2: Sweep Ohm's Law](https://energy.turtleand.com/practice/falstad/ohms-law-sweep/): Rebuild the article's 6 V and 12 Ω example, then change one variable at a time.
+- [Rung 3: Divide voltage in series](https://energy.turtleand.com/practice/falstad/series-voltage-divider/): Use two series resistors to see shared current and proportional voltage drops.
+- [Rung 4: Split current in parallel](https://energy.turtleand.com/practice/falstad/parallel-current-split/): Give two branches the same voltage and watch their currents add at the source.
+- [Rung 5: Watch an RC circuit remember](https://energy.turtleand.com/practice/falstad/rc-charge-discharge/): Charge and discharge a capacitor through a resistor while following voltage and current over time.
+- [Rung 6: Let one AC half-cycle through](https://energy.turtleand.com/practice/falstad/half-wave-rectifier/): Use one diode to turn a reversing AC waveform into pulsing one-direction output.
+- [Rung 7: Rectify and smooth AC](https://energy.turtleand.com/practice/falstad/bridge-and-smoothing/): Build a bridge rectifier, then use a capacitor to reduce the valleys in its output.
+- [Rung 8: Give inductor current a safe path](https://energy.turtleand.com/practice/falstad/inductor-and-flyback/): Watch an inductor oppose sudden current changes, then add a flyback diode.
+- [Rung 9: Find series resonance](https://energy.turtleand.com/practice/falstad/series-rlc-resonance/): Sweep an RLC circuit around 50 Hz and watch current peak when energy exchange lines up.
+- [Rung 10: Move power with less line loss](https://energy.turtleand.com/practice/falstad/transformer-line-loss/): Use step-up and step-down transformers to lower line current for the same useful load.
+
 ## Article details
 ### Lesson 1: Electricity from first principles
 
@@ -1557,3 +1570,365 @@ Countries build different electricity mixes because resources, history, goals, a
 Embedded simulation:
 
 Compare three fictional electricity systems across changing conditions, then see how installed capacity, actual output, complementary generation, demand, and storage action differ.
+
+## Falstad practice details
+
+Each exercise follows the same manual workflow: predict, build from blank, measure, and explain. Reference simulations are optional and editable.
+
+### Rung 1: Close the loop
+
+## Components
+
+- One 5 V DC voltage source
+- One switch
+- One 100 Ω resistor
+- Wires and one ground reference
+
+## Predict
+
+Before running the circuit, predict the current with the switch open and with it closed. Decide whether the source still maintains voltage while the path is open.
+
+## Build
+
+Start from a blank Falstad circuit. Draw one complete series loop, then place the switch between the source and resistor. Keep the switch open for the first observation.
+
+## Measure
+
+Open the resistor in a scope and compare the two switch states. A closed 5 V loop with 100 Ω should carry:
+
+```text
+I = V / R = 5 V / 100 Ω = 0.05 A
+```
+
+Check that current is zero while the path is open and about 50 mA after it closes.
+
+## Explain
+
+Explain why the source can still maintain a voltage while the open switch prevents sustained current. Name the source, controlled path, load, and return path.
+
+## Check your model
+
+The switch controls the path. It does not create the electrical push. Closing it completes the loop, allowing the source to transfer energy through the resistor.
+
+### Rung 2: Sweep Ohm's Law
+
+## Components
+
+- One adjustable DC voltage source, starting at 6 V
+- One adjustable resistor, starting at 12 Ω
+- Wires and one ground reference
+
+## Predict
+
+Predict the current for three cases:
+
+```text
+6 V and 12 Ω
+12 V and 12 Ω
+6 V and 24 Ω
+```
+
+## Build
+
+Create the 6 V and 12 Ω loop. Edit only one value between observations so cause and effect stay clear.
+
+## Measure
+
+The expected currents are:
+
+```text
+6 V / 12 Ω  = 0.50 A
+12 V / 12 Ω = 1.00 A
+6 V / 24 Ω  = 0.25 A
+```
+
+Use the resistor information panel or a scope to verify each result.
+
+## Explain
+
+Explain why doubling voltage doubles current when resistance stays fixed, while doubling resistance halves current when voltage stays fixed.
+
+## Check your model
+
+Ohm's Law describes one relationship, not three separate rules. Current rises with voltage and falls with resistance:
+
+```text
+I = V / R
+```
+
+### Rung 3: Divide voltage in series
+
+## Components
+
+- One 9 V DC voltage source
+- One 1 kΩ resistor
+- One 2 kΩ resistor
+- One midpoint probe and one ground reference
+
+## Predict
+
+Predict the total resistance, loop current, voltage across each resistor, and midpoint voltage relative to ground.
+
+## Build
+
+Connect the 1 kΩ resistor above the midpoint and the 2 kΩ resistor between the midpoint and ground.
+
+## Measure
+
+The total resistance is 3 kΩ, so the series current should be 3 mA. The voltage drops should be:
+
+```text
+1 kΩ resistor -> 3 V
+2 kΩ resistor -> 6 V
+```
+
+The drops add to the 9 V supplied by the source.
+
+## Explain
+
+Explain why both resistors carry the same current but do not receive the same voltage drop.
+
+## Check your model
+
+Series components share one current path. Their voltage drops divide in proportion to their resistance.
+
+### Rung 4: Split current in parallel
+
+## Components
+
+- One 6 V DC voltage source
+- One 1 kΩ resistor
+- One 2 kΩ resistor
+- Wires and one ground reference
+
+## Predict
+
+Predict the voltage across each branch, each branch current, and the current supplied by the source.
+
+## Build
+
+Create two branches between the same top and bottom nodes. Place one resistor in each branch.
+
+## Measure
+
+Each resistor should have the full 6 V across it:
+
+```text
+1 kΩ branch -> 6 mA
+2 kΩ branch -> 3 mA
+source total -> 9 mA
+```
+
+The equivalent resistance is about 667 Ω.
+
+## Explain
+
+Explain why current divides while voltage remains equal across the branches. Then explain why adding a branch lowers total resistance.
+
+## Check your model
+
+Parallel branches share two nodes, so they share voltage. The source current is the sum of the branch currents.
+
+### Rung 5: Watch an RC circuit remember
+
+## Components
+
+- One 5 V DC voltage source
+- One two-position switch
+- One 10 kΩ resistor
+- One 100 µF capacitor
+- Two scopes, for capacitor voltage and resistor current
+
+## Predict
+
+Predict whether capacitor voltage and current jump instantly when charging begins. Calculate the time constant:
+
+```text
+τ = R × C = 10,000 Ω × 0.0001 F = 1 second
+```
+
+## Build
+
+Use the switch to connect the resistor either to 5 V for charging or to ground for discharging. Keep the capacitor connected to ground.
+
+## Measure
+
+At one time constant, capacitor voltage should reach roughly 63 percent of its final charging value. Current starts high and then falls. During discharge, voltage and current decay rather than disappearing instantly.
+
+## Explain
+
+Explain what the capacitor stores, why the resistor limits the initial current, and why the waveform changes fastest at the beginning.
+
+## Check your model
+
+The capacitor resists an instantaneous change in its voltage. The resistor and capacitor together set how quickly the circuit responds.
+
+### Rung 6: Let one AC half-cycle through
+
+## Components
+
+- One 10 V peak, 50 Hz AC voltage source
+- One diode
+- One 1 kΩ load resistor
+- Input and output scopes
+
+## Predict
+
+Draw the expected source waveform and load waveform. Decide what happens during the half-cycle that reverse-biases the diode.
+
+## Build
+
+Place the diode in series between the AC source and load. Keep the diode orientation unchanged for the first run.
+
+## Measure
+
+Compare the source and load scopes. The load should receive one polarity of the AC cycle, with a small reduction caused by the diode's forward voltage.
+
+Reverse the diode and confirm that the opposite half-cycle passes.
+
+## Explain
+
+Explain why this output is pulsing DC rather than steady DC.
+
+## Check your model
+
+The diode is a direction-sensitive path. It blocks one half-cycle and conducts during the other, so the load current no longer reverses.
+
+### Rung 7: Rectify and smooth AC
+
+## Components
+
+- One 12 V peak, 50 Hz AC voltage source
+- Four diodes
+- One 1 kΩ load resistor
+- One 100 µF capacitor
+- Input and output scopes
+
+## Predict
+
+Predict how a bridge uses both AC half-cycles. Then predict what the capacitor does near each waveform peak and valley.
+
+## Build
+
+Build the bridge first without the capacitor. Confirm full-wave pulsing output, then place the capacitor in parallel with the load.
+
+## Measure
+
+The bridge output should pulse at twice the source frequency. Compare 47 µF, 100 µF, and 470 µF. Larger capacitance should reduce ripple.
+
+Lower the load resistance and observe that heavier current demand increases ripple.
+
+## Explain
+
+Explain why the capacitor charges near peaks, supplies part of the load between peaks, and cannot produce perfectly flat DC by itself.
+
+## Check your model
+
+Rectification controls direction. Smoothing shifts stored energy through the short gaps between rectified peaks. Regulation would be a later stage.
+
+### Rung 8: Give inductor current a safe path
+
+## Components
+
+- One 5 V DC voltage source
+- One switch
+- One 100 mH inductor
+- One 100 Ω resistor
+- One diode for the second run
+- Current and switch-voltage scopes
+
+## Predict
+
+Predict whether inductor current can stop instantly when the switch opens. Decide what voltage the inductor must create if no continuing path exists.
+
+## Build
+
+Build and run the series RL loop first. Close the switch long enough for current to rise, then open it. Add a reverse-biased diode across the inductive branch for the second run.
+
+## Measure
+
+Without the diode, observe a large switch-voltage transient. With the diode, current circulates through the added path and decays more gently.
+
+## Explain
+
+Explain why the diode is normally off, why it conducts after the switch opens, and where the inductor's stored magnetic energy goes.
+
+## Check your model
+
+An inductor resists abrupt current change. The flyback diode does not erase energy. It gives current a controlled path while resistance dissipates that energy.
+
+### Rung 9: Find series resonance
+
+## Components
+
+- One adjustable 5 V peak AC voltage source
+- One 100 Ω resistor
+- One 100 mH inductor
+- One 100 µF capacitor
+- Voltage and current scopes
+
+## Predict
+
+Estimate the resonant frequency:
+
+```text
+f₀ = 1 / (2π√LC) ≈ 50 Hz
+```
+
+Predict how current at 20 Hz and 100 Hz will compare with current near 50 Hz.
+
+## Build
+
+Place the resistor, inductor, and capacitor in one series loop. Start the source at 20 Hz, then test 50 Hz and 100 Hz.
+
+## Measure
+
+Near resonance, the inductor and capacitor reactances oppose each other, so series current reaches a maximum limited mainly by resistance.
+
+Compare the timing of source voltage and current at all three frequencies.
+
+## Explain
+
+Explain how the capacitor's electric field and inductor's magnetic field exchange energy, and how the resistor damps that exchange.
+
+## Check your model
+
+Resonance is frequency-selective behavior. It is not free energy. The source replaces energy dissipated by resistance.
+
+### Rung 10: Move power with less line loss
+
+## Components
+
+- One 10 V peak, 50 Hz AC voltage source
+- One 1:10 step-up transformer
+- Two 5 Ω line resistors
+- One 10:1 step-down transformer
+- One 10 Ω load resistor
+- Power and current scopes
+
+## Predict
+
+Predict which arrangement carries more line current:
+
+1. A 10 V source connected directly through the line resistance.
+2. Voltage stepped up before the line and stepped down near the load.
+
+Use `P = VI` and `P_loss = I²R` to explain the prediction.
+
+## Build
+
+Build the direct low-voltage path first. Duplicate it, then add the transformer pair around the line resistance in the second path.
+
+## Measure
+
+Compare line current, line-resistor power, and load power. The transformer path should move comparable useful power with much lower current and much lower line heating.
+
+Real transformers and lines have additional losses. This exercise isolates the current-squared relationship.
+
+## Explain
+
+Explain why stepping voltage up does not create power, why the line current falls, and why the voltage must be stepped down again near the load.
+
+## Check your model
+
+Transformers trade voltage and current. For the same transmitted power, higher voltage allows lower current, and lower current greatly reduces resistive line loss.
