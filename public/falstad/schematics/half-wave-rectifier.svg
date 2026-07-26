@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 230" role="img">
+  <title>Half-wave rectifier schematic</title>
+  <desc>A ten volt peak alternating source feeding one diode and a one kilohm load.</desc>
+  <rect width="720" height="230" rx="18" fill="#102a27"/>
+  <g fill="none" stroke="#dbece4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M100 50H250M340 50H465M600 50H640V180H100V50"/>
+    <path d="M250 25l72 25-72 25zM330 22v56"/>
+    <path d="M465 50l18-16 28 32 28-32 28 32 28-32 25 16"/>
+    <circle cx="100" cy="115" r="30"/><path d="M75 115c12-25 38 25 50 0"/>
+  </g>
+  <g fill="#ffd47a" font-family="system-ui,sans-serif" font-size="20" text-anchor="middle">
+    <text x="100" y="170">10 Vpk AC</text><text x="295" y="110">diode</text><text x="535" y="112">1 kΩ load</text>
+  </g>
+</svg>

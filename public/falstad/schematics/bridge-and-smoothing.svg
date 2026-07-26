@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 260" role="img">
+  <title>Bridge rectifier and smoothing schematic</title>
+  <desc>A twelve volt peak alternating source feeding a four-diode bridge, capacitor, and one kilohm load.</desc>
+  <rect width="720" height="260" rx="18" fill="#102a27"/>
+  <g fill="none" stroke="#dbece4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="90" cy="130" r="30"/><path d="M65 130c12-25 38 25 50 0M120 130H195"/>
+    <path d="M195 130l95-72 95 72-95 72zM385 130H630M290 58V35H90V100M290 202v23H90V160"/>
+    <path d="M455 70v120M430 112h50M430 132h50"/>
+    <path d="M545 72V95l-14 12 28 18-28 18 28 18-14 12v17"/>
+  </g>
+  <g fill="#ffd47a" font-family="system-ui,sans-serif" font-size="19" text-anchor="middle">
+    <text x="90" y="205">12 Vpk AC</text><text x="290" y="132">bridge</text><text x="455" y="220">100 µF</text><text x="560" y="220">1 kΩ</text>
+  </g>
+</svg>

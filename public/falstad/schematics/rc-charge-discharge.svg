@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 250" role="img">
+  <title>RC charge and discharge schematic</title>
+  <desc>A five volt source and changeover switch feeding a ten kilohm resistor and one hundred microfarad capacitor.</desc>
+  <rect width="720" height="250" rx="18" fill="#102a27"/>
+  <g fill="none" stroke="#dbece4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M95 45H230M315 45H470V75M470 175V205H95V45"/>
+    <path d="M238 45l62-30"/>
+    <path d="M470 75l-16 14 32 22-32 22 16 14V172"/>
+    <path d="M435 177h70M435 197h70"/>
+    <path d="M77 86h36M85 105h20"/>
+  </g>
+  <g fill="#ffd47a" font-family="system-ui,sans-serif" font-size="20" text-anchor="middle">
+    <text x="105" y="145">5 V</text><text x="270" y="100">switch</text><text x="555" y="120">10 kΩ</text><text x="565" y="196">100 µF</text><text x="330" y="235">τ = RC = 1 s</text>
+  </g>
+</svg>

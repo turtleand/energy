@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 250" role="img">
+  <title>Inductor and flyback schematic</title>
+  <desc>A five volt source, switch, one hundred millihenry inductor, and one hundred ohm resistor, with a flyback diode across the load path.</desc>
+  <rect width="720" height="250" rx="18" fill="#102a27"/>
+  <g fill="none" stroke="#dbece4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M90 55H230M310 55H355M475 55H520M650 55V200H90V55"/>
+    <path d="M237 55l58-32"/>
+    <path d="M355 55c0-35 30-35 30 0 0-35 30-35 30 0 0-35 30-35 30 0 0-35 30-35 30 0"/>
+    <path d="M520 55l18-16 28 32 28-32 28 32 28-16"/>
+    <path d="M355 100H475M355 100l70 40zM435 105v70"/>
+    <path d="M72 94h36M80 112h20"/>
+  </g>
+  <g fill="#ffd47a" font-family="system-ui,sans-serif" font-size="18" text-anchor="middle">
+    <text x="95" y="160">5 V</text><text x="270" y="110">switch</text><text x="415" y="92">100 mH</text><text x="585" y="110">100 Ω</text><text x="415" y="195">flyback diode</text>
+  </g>
+</svg>
