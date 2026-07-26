@@ -1,29 +1,48 @@
 ---
 import LabSimulation from '@components/LabSimulation.astro';
+import { FOUNDATION_MODULES, getFoundationModule } from '@data/foundations';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
   const lessons = await getCollection('lessons', ({ data }) => data.status === 'ready');
   const labs = await getCollection('labs', ({ data }) => data.status === 'ready');
+  const sortedLessons = lessons.sort((a, b) => a.data.order - b.data.order);
 
-  return lessons.map((lesson) => ({
+  return sortedLessons.map((lesson, index) => ({
     params: { slug: lesson.id },
     props: {
       lesson,
       lab: lesson.data.labSlug ? labs.find((candidate) => candidate.id === lesson.data.labSlug) : undefined,
+      position: index + 1,
+      lessonCount: sortedLessons.length,
+      previousLesson: sortedLessons[index - 1],
+      nextLesson: sortedLessons[index + 1],
     },
   }));
 }
 
-const { lesson, lab } = Astro.props;
+const { lesson, lab, position, lessonCount, previousLesson, nextLesson } = Astro.props;
 const { Content } = await render(lesson);
+const module = getFoundationModule(lesson.data.module);
+const lessonNumber = lesson.data.numberLabel ?? lesson.data.order.toString().padStart(2, '0');
 ---
 
 <BaseLayout title={lesson.data.title} description={lesson.data.summary}>
   <article class="article-shell">
     <div class="container article-container">
-      <p class="eyebrow">{lesson.data.module}</p>
+      <nav class="learning-breadcrumb" aria-label="Breadcrumb">
+        <a href="/learn/">Learn</a>
+        <span aria-hidden="true">/</span>
+        {module ? <a href={`/learn/#${module.id}`}>{module.title}</a> : <span>Foundations</span>}
+      </nav>
+      <p class="eyebrow">
+        {module ? `Module ${module.order} of ${FOUNDATION_MODULES.length}` : 'Foundations'}
+        {' · '}
+        Lesson {lessonNumber}
+        {' · '}
+        {position} of {lessonCount}
+      </p>
       <h1>{lesson.data.title}</h1>
       <p class="lede">{lesson.data.summary}</p>
       <div class="prose">
@@ -40,5 +59,30 @@ const { Content } = await render(lesson);
     )}
 
     {lab && <LabSimulation labSlug={lab.id} />}
+
+    <nav class="container lesson-sequence" aria-label="Foundation lesson sequence">
+      {previousLesson ? (
+        <a href={`/lessons/${previousLesson.id}/`}>
+          <span>Previous lesson</span>
+          <strong>{previousLesson.data.title}</strong>
+        </a>
+      ) : (
+        <a href="/learn/">
+          <span>Back to</span>
+          <strong>Foundation path</strong>
+        </a>
+      )}
+      {nextLesson ? (
+        <a href={`/lessons/${nextLesson.id}/`}>
+          <span>Next lesson</span>
+          <strong>{nextLesson.data.title}</strong>
+        </a>
+      ) : (
+        <a href="/learn/">
+          <span>Return to</span>
+          <strong>Foundation path</strong>
+        </a>
+      )}
+    </nav>
   </article>
 </BaseLayout>

@@ -37,6 +37,7 @@ async function readCollection(dir, routePrefix) {
       slug,
       labSlug: data.labSlug,
       lessonSlug: data.lessonSlug,
+      module: data.module,
       order: Number(data.order) || 0,
       body,
     });
@@ -61,6 +62,22 @@ const curricula = JSON.parse(await readFile(curriculaPath, 'utf8'))
   .filter((curriculum) => curriculum.status === 'published')
   .sort((a, b) => a.order - b.order);
 const labsBySlug = new Map(labs.map((item) => [item.slug, item]));
+const foundationModules = [
+  { id: 'core-electricity', title: 'Core electricity' },
+  { id: 'everyday-electricity', title: 'Everyday electricity' },
+  { id: 'generate-store-move', title: 'Generate, store, and move electricity' },
+  { id: 'buildings-to-grids', title: 'From buildings to grids' },
+];
+const foundationModuleIds = new Set(foundationModules.map((module) => module.id));
+const ungroupedLessons = lessons.filter((lesson) => !foundationModuleIds.has(lesson.module));
+
+if (ungroupedLessons.length > 0) {
+  throw new Error(
+    `Cannot generate discovery files: ungrouped lessons ${ungroupedLessons
+      .map((lesson) => lesson.slug)
+      .join(', ')}`,
+  );
+}
 
 function embeddedSimulationSummary(lesson) {
   const lab = lesson.labSlug ? labsBySlug.get(lesson.labSlug) : undefined;
@@ -72,46 +89,42 @@ const compact = [
   '',
   'Turtleand Energy is a public learning surface for energy, electricity, circuits, and physical systems.',
   '',
-  '## Curricula',
-  ...curricula.map(
-    (curriculum) =>
-      `- [${curriculum.title}](https://energy.turtleand.com/curricula/${curriculum.slug}/): ${curriculum.summary}`,
-  ),
+  '## Learn: electricity foundations',
+  '- [Follow the foundation path](https://energy.turtleand.com/learn/): Fifteen connected lessons from first electricity intuition to buildings, grids, and generation mixes.',
   '',
-  '## Articles',
-  ...lessons.flatMap((item) => [
-    `- [${item.title}](https://energy.turtleand.com${item.url}): ${item.summary}${embeddedSimulationSummary(item)}`,
+  ...foundationModules.flatMap((module) => [
+    `### ${module.title}`,
+    ...lessons
+      .filter((item) => item.module === module.id)
+      .map(
+        (item) =>
+          `- [${item.title}](https://energy.turtleand.com${item.url}): ${item.summary}${embeddedSimulationSummary(item)}`,
+      ),
+    '',
   ]),
-  '',
-  '## Games',
-  ...games.flatMap((item) => [
-    `- [${item.title}](https://energy.turtleand.com${item.url}): ${item.summary}`,
-  ]),
-  '',
-  '## Circuit practice',
+  '## Practice',
   '- [Guided Falstad circuit practice](https://energy.turtleand.com/practice/falstad/): Ten build-from-blank exercises across complete loops, changing signals, fields, resonance, transformers, and line loss.',
   ...falstadExercises.flatMap((item) => [
     `- [Rung ${item.order}: ${item.title}](https://energy.turtleand.com${item.url}): ${item.summary}`,
   ]),
   '',
+  '## Play',
+  '- [Choose an Energy game](https://energy.turtleand.com/play/): Compare the guided Circuit Riders campaign with the open Gridkeeper island restoration.',
+  ...games.flatMap((item) => [
+    `- [${item.title}](https://energy.turtleand.com${item.url}): ${item.summary}`,
+  ]),
+  '',
+  '## Go deeper',
+  ...curricula.map(
+    (curriculum) =>
+      `- [${curriculum.title}](https://energy.turtleand.com/curricula/${curriculum.slug}/): ${curriculum.summary}`,
+  ),
+  '',
 ].join('\n');
 
 const full = [
   compact,
-  '## Curriculum details',
-  ...curricula.flatMap((curriculum) => [
-    `### ${curriculum.title}`,
-    '',
-    curriculum.outcome,
-    '',
-    ...curriculum.modules.flatMap((module, index) => [
-      `${index + 1}. **${module.title}**`,
-      `   ${module.description}`,
-      `   Topics: ${module.topics.join(' / ')}`,
-      '',
-    ]),
-  ]),
-  '## Article details',
+  '## Foundation article details',
   ...lessons.flatMap((item) => {
     const lab = item.labSlug ? labsBySlug.get(item.labSlug) : undefined;
     return [
@@ -131,6 +144,19 @@ const full = [
     '',
     item.body,
     '',
+  ]),
+  '## Deeper curriculum details',
+  ...curricula.flatMap((curriculum) => [
+    `### ${curriculum.title}`,
+    '',
+    curriculum.outcome,
+    '',
+    ...curriculum.modules.flatMap((module, index) => [
+      `${index + 1}. **${module.title}**`,
+      `   ${module.description}`,
+      `   Topics: ${module.topics.join(' / ')}`,
+      '',
+    ]),
   ]),
 ].join('\n');
 

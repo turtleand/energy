@@ -1,7 +1,7 @@
 ---
 title: "Lesson 4: Ohm's Law without formula fear"
 summary: "Learn voltage, current, and resistance as one visible relationship before treating Ohm's Law as algebra."
-module: "Foundations"
+module: "core-electricity"
 order: 4
 status: ready
 labSlug: "lesson-4-ohms-law-without-formula-fear"

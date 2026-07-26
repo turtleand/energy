@@ -1,0 +1,84 @@
+---
+import { FOUNDATION_MODULES } from '@data/foundations';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const lessons = (await getCollection('lessons', ({ data }) => data.status === 'ready')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const labCount = lessons.filter((lesson) => lesson.data.labSlug).length;
+const lessonNumber = (lesson: (typeof lessons)[number]) =>
+  lesson.data.numberLabel ?? lesson.data.order.toString().padStart(2, '0');
+const displayTitle = (title: string) => title.replace(/^Lesson\s+\d+(?:\s+bis)?:\s*/i, '');
+---
+
+<BaseLayout
+  title="Electricity foundations"
+  description="A 15-lesson path from first electricity intuition to buildings, grids, and generation mixes."
+>
+  <section class="path-hero" aria-labelledby="path-title">
+    <div class="container">
+      <nav class="learning-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <span>Learn</span>
+      </nav>
+      <p class="eyebrow">The foundation path</p>
+      <h1 id="path-title">Learn electricity as one connected system.</h1>
+      <p class="lede">
+        Move from charge and complete circuits to power, protection, generation, and the grid.
+        Each lesson keeps the explanation and its interactive model together.
+      </p>
+      <div class="path-summary" aria-label="Path summary">
+        <span><strong>{lessons.length}</strong> lessons</span>
+        <span><strong>{FOUNDATION_MODULES.length}</strong> modules</span>
+        <span><strong>{labCount}</strong> simulations</span>
+      </div>
+      <nav class="module-jumps" aria-label="Foundation modules">
+        {FOUNDATION_MODULES.map((module) => (
+          <a href={`#${module.id}`}>
+            <span>{String(module.order).padStart(2, '0')}</span>
+            {module.title}
+          </a>
+        ))}
+      </nav>
+    </div>
+  </section>
+
+  <div class="foundation-modules">
+    {FOUNDATION_MODULES.map((module) => {
+      const moduleLessons = lessons.filter((lesson) => lesson.data.module === module.id);
+
+      return (
+        <section class="foundation-module" id={module.id} aria-labelledby={`${module.id}-title`}>
+          <div class="container module-layout">
+            <header class="module-heading">
+              <span class="module-number" aria-hidden="true">
+                {String(module.order).padStart(2, '0')}
+              </span>
+              <p class="eyebrow">Module {module.order}</p>
+              <h2 id={`${module.id}-title`}>{module.title}</h2>
+              <p>{module.summary}</p>
+            </header>
+
+            <ol class="lesson-list">
+              {moduleLessons.map((lesson) => (
+                <li>
+                  <a class="lesson-row" href={`/lessons/${lesson.id}/`}>
+                    <span class="lesson-row-number">Lesson {lessonNumber(lesson)}</span>
+                    <span class="lesson-row-copy">
+                      <strong>{displayTitle(lesson.data.title)}</strong>
+                      <span>{lesson.data.summary}</span>
+                    </span>
+                    {lesson.data.labSlug && <span class="lesson-row-lab">Simulation inside</span>}
+                    <span class="lesson-row-arrow" aria-hidden="true">→</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+      );
+    })}
+  </div>
+</BaseLayout>

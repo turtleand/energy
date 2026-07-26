@@ -1,7 +1,7 @@
 ---
 title: "Lesson 1: Electricity from first principles"
 summary: "Start with source, push, flow, resistance, load, power, and energy before memorizing equations."
-module: "Foundations"
+module: "core-electricity"
 order: 1
 status: ready
 labSlug: "lesson-1-energy-flow"

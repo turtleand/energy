@@ -1,7 +1,7 @@
 ---
 title: "Lesson 8: Conductors, Insulators, Grounding, and Safety"
 summary: "Learn how conductors guide current, how insulators resist unwanted paths, and how grounding gives fault current a safer route."
-module: "Foundations"
+module: "everyday-electricity"
 order: 8
 status: ready
 labSlug: "lesson-8-conductors-insulators-grounding-safety"

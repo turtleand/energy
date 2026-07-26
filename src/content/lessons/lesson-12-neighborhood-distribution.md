@@ -1,7 +1,7 @@
 ---
 title: "Lesson 12: Neighborhood Distribution"
 summary: "Learn how power moves from transmission into neighborhood feeders, local transformers, and home service connections, and why higher distribution voltage lowers feeder current and heat loss."
-module: "Foundations"
+module: "buildings-to-grids"
 order: 12
 status: ready
 labSlug: "lesson-12-neighborhood-distribution"

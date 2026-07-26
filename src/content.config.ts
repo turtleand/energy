@@ -1,7 +1,9 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { FOUNDATION_MODULE_IDS } from './data/foundations';
 
 const lessonStatus = z.enum(['ready', 'planned']);
+const foundationModule = z.enum(FOUNDATION_MODULE_IDS);
 const falstadModule = z.enum([
   'see-the-loop',
   'see-change-over-time',
@@ -14,7 +16,7 @@ const lessons = defineCollection({
   schema: z.object({
     title: z.string(),
     summary: z.string(),
-    module: z.string(),
+    module: foundationModule,
     order: z.number(),
     numberLabel: z.string().optional(),
     status: lessonStatus,

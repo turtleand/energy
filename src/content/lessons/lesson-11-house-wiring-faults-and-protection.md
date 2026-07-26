@@ -1,7 +1,7 @@
 ---
 title: "Lesson 11: House Wiring Faults and Protection"
 summary: "Use one simple mental model: live and neutral form the normal loop, breakers/fuses watch too much current, and GFCI/RCD devices watch leakage."
-module: "Foundations"
+module: "buildings-to-grids"
 order: 11
 status: ready
 labSlug: "lesson-11-house-wiring-faults-and-protection"

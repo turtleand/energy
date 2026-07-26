@@ -4,159 +4,96 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
 const lessons = (await getCollection('lessons', ({ data }) => data.status === 'ready')).sort(
-  (a, b) => a.data.order - b.data.order
+  (a, b) => a.data.order - b.data.order,
 );
 const games = (await getCollection('games', ({ data }) => data.status === 'ready')).sort(
-  (a, b) => a.data.order - b.data.order
+  (a, b) => a.data.order - b.data.order,
 );
 const falstadExercises = (
   await getCollection('falstadExercises', ({ data }) => data.status === 'ready')
 ).sort((a, b) => a.data.order - b.data.order);
-const publishedCurricula = curricula
-  .filter((curriculum) => curriculum.status === 'published')
-  .sort((a, b) => a.order - b.order);
+const curriculum = curricula
+  .filter((candidate) => candidate.status === 'published')
+  .sort((a, b) => a.order - b.order)[0];
+const firstLesson = lessons[0];
 ---
 
 <BaseLayout>
-  <section class="hero" aria-labelledby="hero-title">
+  <section class="hero home-hero" aria-labelledby="hero-title">
     <div class="container hero-copy">
       <p class="eyebrow">Energy, from first principles</p>
-      <h1 id="hero-title">Learn how energy moves through real systems.</h1>
+      <h1 id="hero-title">See how electricity becomes a working system.</h1>
       <p class="lede">
-        Turtleand Energy starts small: clear articles first, with simulations inside the lesson when a model needs to become visible.
+        Start with one clear lesson path. Then build circuits, reinforce the ideas through play,
+        or use the deeper curriculum to choose what to study next.
       </p>
+      {firstLesson && (
+        <div class="hero-actions">
+          <a class="button button-primary" href={`/lessons/${firstLesson.id}/`}>Start lesson 1</a>
+        </div>
+      )}
     </div>
   </section>
 
-  {publishedCurricula.length > 0 && (
-    <section class="section curriculum-index" aria-labelledby="curriculum-index-title">
-      <div class="container">
-        <div class="index-heading">
-          <p class="eyebrow">Curricula</p>
-          <h2 id="curriculum-index-title">Structured paths for going deeper.</h2>
-        </div>
+  <section class="learning-map-section" aria-labelledby="learning-map-title">
+    <div class="container">
+      <header class="section-heading">
+        <p class="eyebrow">Choose your route</p>
+        <h2 id="learning-map-title">One foundation. Three ways to continue.</h2>
+        <p>Learn in order first. Practice, play, and deeper study become useful once the basic model is in place.</p>
+      </header>
 
-        <div class="curriculum-list">
-          {publishedCurricula.map((curriculum) => (
-            <a
-              class="curriculum-entry"
-              href={`/curricula/${curriculum.slug}/`}
-              aria-label={`View ${curriculum.title}`}
-            >
-              <span class="curriculum-entry-number">
-                {String(curriculum.order).padStart(2, '0')}
-              </span>
-              <span class="curriculum-entry-copy">
-                <span class="card-kicker">Curriculum reference</span>
-                <strong>{curriculum.title}</strong>
-                <span>{curriculum.summary}</span>
-              </span>
-              <span class="curriculum-entry-meta">
-                <span>{curriculum.modules.length} modules</span>
-                <b>View curriculum</b>
-              </span>
-            </a>
-          ))}
-        </div>
-      </div>
-    </section>
-  )}
-
-  {games.length > 0 && (
-    <section class="game-entry-section" aria-labelledby="game-entry-title">
-      <div class="container">
-        <div class="game-entry-heading">
-          <p class="eyebrow">Playable campaigns</p>
-          <h2 id="game-entry-title">Choose your restoration run.</h2>
-        </div>
-
-        <div class="game-entry-list">
-          {games.map((game) => {
-            const chapterCount = game.data.campaignActs?.length ?? game.data.districts?.length ?? 0;
-            const chapterLabel = game.data.campaignActs ? 'acts' : 'districts';
-            const missionCount = game.data.missions?.length ?? game.data.coveredLessonSlugs.length;
-            const missionLabel = game.data.missions ? 'missions' : 'lessons';
-
-            return (
-              <a
-                class="game-entry"
-                data-game={game.data.slug}
-                href={`/play/${game.data.slug}/`}
-                aria-label={`Play ${game.data.title}`}
-              >
-                <span class="game-entry-signal" aria-hidden="true">
-                  <i></i><i></i><i></i><i></i><i></i><i></i>
-                </span>
-                <span class="game-entry-copy">
-                  <span class="eyebrow">Playable campaign</span>
-                  <strong>{game.data.title}</strong>
-                  <span>{game.data.summary}</span>
-                </span>
-                <span class="game-entry-meta">
-                  <span>{chapterCount} {chapterLabel}</span>
-                  <span>{missionCount} {missionLabel}</span>
-                  <b>Play game</b>
-                </span>
-              </a>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  )}
-
-  {falstadExercises.length > 0 && (
-    <section class="practice-entry-section" aria-labelledby="practice-entry-title">
-      <div class="container">
-        <a class="practice-entry" href="/practice/falstad/" aria-label="Open guided Falstad circuit practice">
-          <span class="practice-entry-diagram" aria-hidden="true">
-            <i></i><i></i><i></i><i></i>
-          </span>
-          <span class="practice-entry-copy">
-            <span class="eyebrow">Interactive circuit practice</span>
-            <strong id="practice-entry-title">Build from zero to intermediate.</strong>
+      <div class="learning-map">
+        <a class="learning-route learning-route-primary" href="/learn/">
+          <span class="route-node" aria-hidden="true">01</span>
+          <span class="route-copy">
+            <span class="route-kicker">Start here</span>
+            <strong>Learn the foundations</strong>
             <span>
-              Ten Falstad circuits in three modules, each connected to the articles you have
-              already read.
+              {lessons.length} connected lessons, each with a simulation that makes the model visible.
             </span>
           </span>
-          <span class="practice-entry-meta">
-            <span>10 circuits</span>
-            <span>3 modules</span>
-            <b>Open practice ladder</b>
-          </span>
+          <span class="route-action">Follow the lesson path</span>
         </a>
-      </div>
-    </section>
-  )}
 
-  <section class="section article-index" aria-labelledby="article-index-title">
-    <div class="container">
-      <div class="index-heading">
-        <p class="eyebrow">Articles</p>
-        <h2 id="article-index-title">Current articles.</h2>
-      </div>
+        <span class="route-branch" aria-hidden="true"><i></i><i></i><i></i></span>
 
-      <div class="content-cards article-cards">
-        {lessons.map((lesson) => (
-          <a
-            class="content-card article-card"
-            href={`/lessons/${lesson.id}/`}
-            aria-label={`Read ${lesson.data.title}`}
-          >
-            <div>
-              <p class="card-kicker">
-                Lesson {lesson.data.numberLabel ?? lesson.data.order.toString().padStart(2, '0')}
-              </p>
-              <h3>{lesson.data.title}</h3>
-              <p>{lesson.data.summary}</p>
-            </div>
-            <div class="card-footer">
-              <span class="card-link">Read article</span>
-              {lesson.data.labSlug && <span>Simulation inside</span>}
-            </div>
+        <div class="learning-branches">
+          <a class="learning-route" href="/practice/falstad/">
+            <span class="route-node" aria-hidden="true">02</span>
+            <span class="route-copy">
+              <span class="route-kicker">Practice</span>
+              <strong>Build the circuits yourself</strong>
+              <span>{falstadExercises.length} guided Falstad exercises from complete loops to transformers.</span>
+            </span>
+            <span class="route-action">Open circuit practice</span>
           </a>
-        ))}
+
+          <a class="learning-route" href="/play/">
+            <span class="route-node" aria-hidden="true">03</span>
+            <span class="route-copy">
+              <span class="route-kicker">Play</span>
+              <strong>Restore a working grid</strong>
+              <span>{games.length} games that turn the foundation lessons into connected missions.</span>
+            </span>
+            <span class="route-action">Choose a game</span>
+          </a>
+
+          {curriculum && (
+            <a class="learning-route" href={`/curricula/${curriculum.slug}/`}>
+              <span class="route-node" aria-hidden="true">04</span>
+              <span class="route-copy">
+                <span class="route-kicker">Go deeper</span>
+                <strong>Plan the next layer</strong>
+                <span>
+                  A {curriculum.modules.length}-module reference outline for circuits, electronics,
+                  measurement, and control.
+                </span>
+              </span>
+              <span class="route-action">View the curriculum outline</span>
+            </a>
+          )}
+        </div>
       </div>
     </div>
   </section>

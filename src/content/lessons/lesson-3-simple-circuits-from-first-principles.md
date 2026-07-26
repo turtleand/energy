@@ -1,7 +1,7 @@
 ---
 title: "Lesson 3: Simple circuits from first principles"
 summary: "Understand source, path, load, switch, and return path before adding circuit formulas."
-module: "Foundations"
+module: "core-electricity"
 order: 3
 status: ready
 labSlug: "lesson-3-simple-circuit-switch"

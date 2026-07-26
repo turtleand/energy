@@ -1,7 +1,7 @@
 ---
 title: "Lesson 6: How to Read a Power Adapter Label Without Burning Your Device"
 summary: "Learn the label checks that matter before plugging an adapter into a device: voltage, type, current, connector, polarity, and USB-C negotiation."
-module: "Foundations"
+module: "everyday-electricity"
 order: 6
 status: ready
 labSlug: "lesson-6-power-adapter-labels"

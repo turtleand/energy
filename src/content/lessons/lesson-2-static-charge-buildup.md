@@ -1,7 +1,7 @@
 ---
 title: "Lesson 2: Static charge buildup"
 summary: "See how charge imbalance accumulates, reaches a critical point, and releases suddenly as a spark."
-module: "Foundations"
+module: "core-electricity"
 order: 2
 status: ready
 labSlug: "lesson-2-static-charge-buildup"

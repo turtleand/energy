@@ -1,4 +1,5 @@
 import rss from '@astrojs/rss';
+import { getFoundationModule } from '@data/foundations';
 import { getCollection } from 'astro:content';
 import { site } from '@data/site';
 
@@ -22,14 +23,22 @@ export async function GET() {
       `<lastBuildDate>${new Date().toUTCString()}</lastBuildDate>`,
       `<atom:link href="${feedUrl}" rel="self" type="application/rss+xml" />`,
     ].join(''),
-    items: lessons.map((lesson) => ({
-      title: lesson.data.title,
-      description: lesson.data.labSlug
-        ? `${lesson.data.summary} Includes an interactive simulation.`
-        : lesson.data.summary,
-      link: `lessons/${lesson.id}/`,
-      categories: [lesson.data.module, lesson.data.status, lesson.data.labSlug ? 'simulation-available' : 'lesson'].filter(Boolean),
-      customData: '<dc:creator>Turtleand</dc:creator>',
-    })),
+    items: lessons.map((lesson) => {
+      const module = getFoundationModule(lesson.data.module);
+
+      return {
+        title: lesson.data.title,
+        description: lesson.data.labSlug
+          ? `${lesson.data.summary} Includes an interactive simulation.`
+          : lesson.data.summary,
+        link: `lessons/${lesson.id}/`,
+        categories: [
+          'Electricity foundations',
+          module?.title ?? lesson.data.module,
+          lesson.data.labSlug ? 'simulation-available' : 'lesson',
+        ].filter(Boolean),
+        customData: '<dc:creator>Turtleand</dc:creator>',
+      };
+    }),
   });
 }
