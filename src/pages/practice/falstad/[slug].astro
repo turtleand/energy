@@ -117,39 +117,50 @@ const sections = splitFalstadExerciseSections(exercise.rendered?.html ?? '', exe
         <header class="falstad-ladder-intro">
           <div>
             <p class="eyebrow">Practice loop</p>
-            <h2 id="practice-loop-title">Open the stage you need.</h2>
+            <h2 id="practice-loop-title">Try each step before revealing its answer.</h2>
           </div>
           <p>
-            Opening a numbered stage remembers it as explored in this browser. It is not a grade.
+            The task stays visible. Revealing a numbered answer remembers that stage as explored
+            in this browser. It is not a grade.
           </p>
         </header>
 
         <div class="falstad-disclosures">
           {sections.map((section) => (
-            <details
+            <section
               class:list={[
-                'falstad-disclosure',
-                !section.phase && 'falstad-disclosure-support',
+                'falstad-stage',
+                !section.phase && 'falstad-stage-support',
               ]}
               id={section.id}
-              data-falstad-exercise={section.phase ? slug : undefined}
-              data-falstad-phase={section.phase}
-              data-explored="false"
             >
-              <summary>
+              <header class="falstad-stage-header">
                 <span class="falstad-disclosure-marker" aria-hidden="true">{section.marker}</span>
                 <span class="falstad-disclosure-copy">
                   <strong>{section.title}</strong>
                   <span>{section.cue}</span>
                 </span>
-                <span class="falstad-disclosure-action" aria-hidden="true">
-                  <span class="falstad-disclosure-action-closed">{section.closedLabel}</span>
-                  <span class="falstad-disclosure-action-open">{section.openLabel}</span>
-                  <span class="falstad-disclosure-chevron"></span>
-                </span>
-              </summary>
-              <div class="prose falstad-disclosure-body" set:html={section.html} />
-            </details>
+              </header>
+              <div class="prose falstad-stage-prompt" set:html={section.promptHtml} />
+              {section.phase && section.answerHtml ? (
+                <details
+                  class="falstad-answer"
+                  id={section.answerId}
+                  data-falstad-exercise={slug}
+                  data-falstad-phase={section.phase}
+                  data-explored="false"
+                >
+                  <summary>
+                    <span class="falstad-disclosure-action-closed">{section.closedLabel}</span>
+                    <span class="falstad-disclosure-action-open">{section.openLabel}</span>
+                    <span class="falstad-disclosure-chevron" aria-hidden="true"></span>
+                  </summary>
+                  <div class="falstad-answer-body">
+                    <div class="prose" set:html={section.answerHtml} />
+                  </div>
+                </details>
+              ) : null}
+            </section>
           ))}
         </div>
       </section>

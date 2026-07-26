@@ -1601,27 +1601,45 @@ Each exercise follows the same manual workflow: predict, build from blank, measu
 
 Before running the circuit, predict the current with the switch open and with it closed. Decide whether the source still maintains voltage while the path is open.
 
-## Build
+### Prediction answer
 
-Start from a blank Falstad circuit. Draw one complete series loop, then place the switch between the source and resistor. Keep the switch open for the first observation.
-
-## Measure
-
-Open the resistor in a scope and compare the two switch states. A closed 5 V loop with 100 Ω should carry:
+With the switch open, the current is 0 A. The source still maintains 5 V across its terminals, but the broken path prevents sustained current. With the switch closed:
 
 ```text
 I = V / R = 5 V / 100 Ω = 0.05 A
 ```
 
-Check that current is zero while the path is open and about 50 mA after it closes.
+The closed-loop current is 50 mA.
+
+## Build
+
+Start from a blank Falstad circuit. Draw one complete series loop, then place the switch between the source and resistor. Keep the switch open for the first observation.
+
+### Build answer
+
+The only path should be:
+
+```text
+5 V source -> switch -> 100 Ω resistor -> source return
+```
+
+Place the ground reference at the source return. The open switch should be the only intentional break in the loop.
+
+## Measure
+
+Open the resistor in a scope and record its current and voltage with the switch open and closed. Compare the two readings before revealing the expected result.
+
+### Measurement answer
+
+The resistor current is 0 A while the switch is open and about 50 mA after it closes. The closed resistor drop is about 5 V.
 
 ## Explain
 
 Explain why the source can still maintain a voltage while the open switch prevents sustained current. Name the source, controlled path, load, and return path.
 
-## Check your model
+### Explanation answer
 
-The switch controls the path. It does not create the electrical push. Closing it completes the loop, allowing the source to transfer energy through the resistor.
+Voltage can exist across an open path, but sustained current needs a complete loop. The voltage source provides the electrical push, the switch controls the path, the resistor is the load, and the wire back to the source is the return. Closing the switch completes the loop and allows the source to transfer energy through the resistor.
 
 ### Rung 2: Sweep Ohm's Law
 
@@ -1641,13 +1659,7 @@ Predict the current for three cases:
 6 V and 24 Ω
 ```
 
-## Build
-
-Create the 6 V and 12 Ω loop. Edit only one value between observations so cause and effect stay clear.
-
-## Measure
-
-The expected currents are:
+### Prediction answer
 
 ```text
 6 V / 12 Ω  = 0.50 A
@@ -1655,13 +1667,41 @@ The expected currents are:
 6 V / 24 Ω  = 0.25 A
 ```
 
-Use the resistor information panel or a scope to verify each result.
+Doubling voltage doubles current when resistance stays fixed. Doubling resistance halves current when voltage stays fixed.
+
+## Build
+
+Create the 6 V and 12 Ω loop. Edit only one value between observations so cause and effect stay clear.
+
+### Build answer
+
+Use one closed series loop:
+
+```text
+adjustable source -> adjustable resistor -> source return
+```
+
+Keep the ground reference at the return. Restore the starting values before each comparison, then change only voltage or resistance.
+
+## Measure
+
+Use the resistor information panel or a scope to record the current in all three cases. Compare the measured ratios before revealing the expected values.
+
+### Measurement answer
+
+```text
+6 V / 12 Ω  = 0.50 A
+12 V / 12 Ω = 1.00 A
+6 V / 24 Ω  = 0.25 A
+```
+
+The 12 V case carries twice the starting current. The 24 Ω case carries half the starting current.
 
 ## Explain
 
 Explain why doubling voltage doubles current when resistance stays fixed, while doubling resistance halves current when voltage stays fixed.
 
-## Check your model
+### Explanation answer
 
 Ohm's Law describes one relationship, not three separate rules. Current rises with voltage and falls with resistance:
 
@@ -1682,17 +1722,35 @@ I = V / R
 
 Predict the total resistance, loop current, voltage across each resistor, and midpoint voltage relative to ground.
 
+### Prediction answer
+
+The series resistance is 3 kΩ, so the loop current is 3 mA. The 1 kΩ resistor drops 3 V, the 2 kΩ resistor drops 6 V, and the midpoint is 6 V above ground.
+
 ## Build
 
 Connect the 1 kΩ resistor above the midpoint and the 2 kΩ resistor between the midpoint and ground.
 
-## Measure
+### Build answer
 
-The total resistance is 3 kΩ, so the series current should be 3 mA. The voltage drops should be:
+The path should be:
 
 ```text
+9 V source -> 1 kΩ -> midpoint -> 2 kΩ -> ground
+```
+
+Both resistors must share the same single current path. Place the midpoint probe at their connection.
+
+## Measure
+
+Measure the loop current, each resistor drop, and the midpoint voltage relative to ground. Check whether the two drops add back to the source voltage.
+
+### Measurement answer
+
+```text
+loop current  -> 3 mA
 1 kΩ resistor -> 3 V
 2 kΩ resistor -> 6 V
+midpoint      -> 6 V above ground
 ```
 
 The drops add to the 9 V supplied by the source.
@@ -1701,9 +1759,9 @@ The drops add to the 9 V supplied by the source.
 
 Explain why both resistors carry the same current but do not receive the same voltage drop.
 
-## Check your model
+### Explanation answer
 
-Series components share one current path. Their voltage drops divide in proportion to their resistance.
+Series components share one current path, so both resistors carry 3 mA. Each drop is `V = IR`, so the 2 kΩ resistor drops twice as much voltage as the 1 kΩ resistor.
 
 ### Rung 4: Split current in parallel
 
@@ -1718,15 +1776,26 @@ Series components share one current path. Their voltage drops divide in proporti
 
 Predict the voltage across each branch, each branch current, and the current supplied by the source.
 
+### Prediction answer
+
+Each branch has 6 V across it. The 1 kΩ branch carries 6 mA, the 2 kΩ branch carries 3 mA, and the source supplies 9 mA total. The equivalent resistance is about 667 Ω.
+
 ## Build
 
 Create two branches between the same top and bottom nodes. Place one resistor in each branch.
 
+### Build answer
+
+Connect both resistor tops to the source node and both resistor bottoms to the return node. If the branches do not share both nodes, they are not in parallel.
+
 ## Measure
 
-Each resistor should have the full 6 V across it:
+Record the voltage and current for each branch, then measure the source current. Check whether the branch currents add to the source reading.
+
+### Measurement answer
 
 ```text
+both branches -> 6 V
 1 kΩ branch -> 6 mA
 2 kΩ branch -> 3 mA
 source total -> 9 mA
@@ -1738,9 +1807,9 @@ The equivalent resistance is about 667 Ω.
 
 Explain why current divides while voltage remains equal across the branches. Then explain why adding a branch lowers total resistance.
 
-## Check your model
+### Explanation answer
 
-Parallel branches share two nodes, so they share voltage. The source current is the sum of the branch currents.
+Parallel branches share the same two nodes, so they share voltage. Current divides according to branch resistance, and the source current is the sum of the branch currents. Adding another path lets more current flow at the same voltage, which lowers equivalent resistance.
 
 ### Rung 5: Watch an RC circuit remember
 
@@ -1754,27 +1823,51 @@ Parallel branches share two nodes, so they share voltage. The source current is 
 
 ## Predict
 
-Predict whether capacitor voltage and current jump instantly when charging begins. Calculate the time constant:
+Predict whether capacitor voltage and current jump instantly when charging begins. Calculate the time constant with:
 
 ```text
-τ = R × C = 10,000 Ω × 0.0001 F = 1 second
+τ = R × C
 ```
+
+### Prediction answer
+
+The time constant is:
+
+```text
+τ = 10,000 Ω × 0.0001 F = 1 second
+```
+
+Capacitor voltage cannot jump instantly. Charging current can jump to `5 V / 10 kΩ = 0.5 mA`, then falls as the capacitor charges.
 
 ## Build
 
 Use the switch to connect the resistor either to 5 V for charging or to ground for discharging. Keep the capacitor connected to ground.
 
+### Build answer
+
+The resistor and capacitor stay in series, with the capacitor bottom connected to ground. The two-position switch should connect the resistor top to 5 V for charging or to ground for discharging.
+
 ## Measure
 
-At one time constant, capacitor voltage should reach roughly 63 percent of its final charging value. Current starts high and then falls. During discharge, voltage and current decay rather than disappearing instantly.
+Record capacitor voltage and resistor current at the start, after 1 second, and after several seconds. Switch to discharge and compare the shape and direction of the two traces.
+
+### Measurement answer
+
+After one time constant, capacitor voltage reaches about 63 percent of 5 V:
+
+```text
+V₍C₎ ≈ 3.15 V after 1 second
+```
+
+Current starts near 0.5 mA and falls toward zero. During discharge, capacitor voltage decays smoothly and current reverses direction before also falling toward zero.
 
 ## Explain
 
 Explain what the capacitor stores, why the resistor limits the initial current, and why the waveform changes fastest at the beginning.
 
-## Check your model
+### Explanation answer
 
-The capacitor resists an instantaneous change in its voltage. The resistor and capacitor together set how quickly the circuit responds.
+The capacitor stores energy in an electric field and resists an instantaneous voltage change. The resistor limits current. The voltage difference across the resistor is largest at the beginning, so current and capacitor voltage change fastest then. Together, resistance and capacitance set the response time.
 
 ### Rung 6: Let one AC half-cycle through
 
@@ -1789,23 +1882,41 @@ The capacitor resists an instantaneous change in its voltage. The resistor and c
 
 Draw the expected source waveform and load waveform. Decide what happens during the half-cycle that reverse-biases the diode.
 
+### Prediction answer
+
+The diode conducts during one half-cycle and blocks the other. The load sees pulses of one polarity, reduced slightly by the diode's forward voltage. During the blocked half-cycle, load current is approximately zero.
+
 ## Build
 
 Place the diode in series between the AC source and load. Keep the diode orientation unchanged for the first run.
 
+### Build answer
+
+Use one series path:
+
+```text
+AC source -> diode -> 1 kΩ load -> source return
+```
+
+Place one scope across the source and another across the load. Reversing only the diode should reverse which half-cycle reaches the load.
+
 ## Measure
 
-Compare the source and load scopes. The load should receive one polarity of the AC cycle, with a small reduction caused by the diode's forward voltage.
+Compare the source and load scopes. Record the output during both source polarities, then reverse the diode and repeat.
 
-Reverse the diode and confirm that the opposite half-cycle passes.
+### Measurement answer
+
+With the first orientation, one half-cycle appears across the load and the reverse half-cycle stays near zero. Reversing the diode passes the opposite half-cycle. The conducting pulse is slightly smaller than the source because of the diode's forward drop.
 
 ## Explain
 
 Explain why this output is pulsing DC rather than steady DC.
 
-## Check your model
+### Explanation answer
 
 The diode is a direction-sensitive path. It blocks one half-cycle and conducts during the other, so the load current no longer reverses.
+
+The direction is fixed, which makes the output DC, but its magnitude still rises and falls to zero, which makes it pulsing rather than steady.
 
 ### Rung 7: Rectify and smooth AC
 
@@ -1821,23 +1932,35 @@ The diode is a direction-sensitive path. It blocks one half-cycle and conducts d
 
 Predict how a bridge uses both AC half-cycles. Then predict what the capacitor does near each waveform peak and valley.
 
+### Prediction answer
+
+The bridge redirects both AC half-cycles so load current keeps one direction. A 50 Hz source therefore produces 100 Hz rectified pulses. The capacitor charges near each peak and supplies part of the load as the rectified voltage falls between peaks.
+
 ## Build
 
 Build the bridge first without the capacitor. Confirm full-wave pulsing output, then place the capacitor in parallel with the load.
 
+### Build answer
+
+Orient the four diodes so either source polarity drives current through the load in the same direction. Connect the 100 µF capacitor directly across the load, with its positive side on the bridge's positive output.
+
 ## Measure
 
-The bridge output should pulse at twice the source frequency. Compare 47 µF, 100 µF, and 470 µF. Larger capacitance should reduce ripple.
+Measure output frequency without the capacitor. Then compare output ripple with 47 µF, 100 µF, and 470 µF. Lower the load resistance and record what changes.
 
-Lower the load resistance and observe that heavier current demand increases ripple.
+### Measurement answer
+
+The unsmoothed bridge output pulses at 100 Hz. Increasing capacitance from 47 µF to 470 µF reduces the fall between peaks, so ripple becomes smaller. Lowering load resistance draws more current and discharges the capacitor faster, so ripple increases.
 
 ## Explain
 
 Explain why the capacitor charges near peaks, supplies part of the load between peaks, and cannot produce perfectly flat DC by itself.
 
-## Check your model
+### Explanation answer
 
 Rectification controls direction. Smoothing shifts stored energy through the short gaps between rectified peaks. Regulation would be a later stage.
+
+The capacitor charges only when bridge voltage rises above capacitor voltage. Between peaks, it releases stored electric-field energy into the load, so its voltage must fall somewhat. That repeating fall is ripple.
 
 ### Rung 8: Give inductor current a safe path
 
@@ -1854,21 +1977,43 @@ Rectification controls direction. Smoothing shifts stored energy through the sho
 
 Predict whether inductor current can stop instantly when the switch opens. Decide what voltage the inductor must create if no continuing path exists.
 
+### Prediction answer
+
+Inductor current cannot stop instantly. Before opening, the long-term current approaches:
+
+```text
+I = 5 V / 100 Ω = 50 mA
+```
+
+When the switch opens without another path, the inductor reverses its terminal voltage and can create a large transient to keep current moving.
+
 ## Build
 
 Build and run the series RL loop first. Close the switch long enough for current to rise, then open it. Add a reverse-biased diode across the inductive branch for the second run.
 
+### Build answer
+
+The first path is a single series source, inductor, resistor, and switch loop. Place the diode across the inductive load path so it is reverse-biased while the source powers the loop and forward-biased only when the inductor reverses its terminal voltage.
+
 ## Measure
 
-Without the diode, observe a large switch-voltage transient. With the diode, current circulates through the added path and decays more gently.
+Compare inductor current and switch voltage when opening the switch without the diode and after adding it. Record the transient size and decay shape.
+
+### Measurement answer
+
+Without the diode, switch voltage shows a large, sharp transient. With the diode, current circulates through the added path and decays more gently from about 50 mA. The series time constant is approximately:
+
+```text
+τ = L / R = 0.1 H / 100 Ω = 1 ms
+```
 
 ## Explain
 
 Explain why the diode is normally off, why it conducts after the switch opens, and where the inductor's stored magnetic energy goes.
 
-## Check your model
+### Explanation answer
 
-An inductor resists abrupt current change. The flyback diode does not erase energy. It gives current a controlled path while resistance dissipates that energy.
+The source polarity reverse-biases the diode during normal operation. Opening the switch makes the inductor reverse its terminal voltage to preserve current, which forward-biases the diode. The flyback path does not erase energy. It lets current decay while resistance dissipates the stored magnetic-field energy as heat.
 
 ### Rung 9: Find series resonance
 
@@ -1882,31 +2027,53 @@ An inductor resists abrupt current change. The flyback diode does not erase ener
 
 ## Predict
 
-Estimate the resonant frequency:
+Estimate the resonant frequency with:
 
 ```text
-f₀ = 1 / (2π√LC) ≈ 50 Hz
+f₀ = 1 / (2π√LC)
 ```
 
 Predict how current at 20 Hz and 100 Hz will compare with current near 50 Hz.
+
+### Prediction answer
+
+For 100 mH and 100 µF:
+
+```text
+f₀ ≈ 50.3 Hz
+```
+
+Current should be highest near 50 Hz and lower at 20 Hz and 100 Hz. Below resonance, current leads source voltage. Above resonance, current lags it.
 
 ## Build
 
 Place the resistor, inductor, and capacitor in one series loop. Start the source at 20 Hz, then test 50 Hz and 100 Hz.
 
+### Build answer
+
+Use one unbranched path:
+
+```text
+AC source -> 100 Ω -> 100 mH -> 100 µF -> source return
+```
+
+Keep component values fixed and change only source frequency. Scope source voltage and loop current.
+
 ## Measure
 
-Near resonance, the inductor and capacitor reactances oppose each other, so series current reaches a maximum limited mainly by resistance.
+Measure current amplitude and its timing relative to source voltage at 20 Hz, 50 Hz, and 100 Hz.
 
-Compare the timing of source voltage and current at all three frequencies.
+### Measurement answer
+
+Current reaches its maximum near 50 Hz, where the inductor and capacitor reactances nearly cancel. At 20 Hz the circuit is net capacitive, so current leads source voltage. At 100 Hz it is net inductive, so current lags. Resistance limits the resonance peak.
 
 ## Explain
 
 Explain how the capacitor's electric field and inductor's magnetic field exchange energy, and how the resistor damps that exchange.
 
-## Check your model
+### Explanation answer
 
-Resonance is frequency-selective behavior. It is not free energy. The source replaces energy dissipated by resistance.
+Near resonance, energy moves back and forth between the capacitor's electric field and the inductor's magnetic field. The resistor converts some of that energy to heat every cycle, which damps the exchange. Resonance is frequency-selective behavior, not free energy. The source replaces the energy dissipated by resistance.
 
 ### Rung 10: Move power with less line loss
 
@@ -1929,15 +2096,40 @@ Predict which arrangement carries more line current when both loads receive abou
 
 Use `P = VI` and `P_loss = I²R` to explain the prediction.
 
+### Prediction answer
+
+The direct path carries more line current. At matched load power, stepping voltage up by 10 reduces ideal line current by about 10. Because resistive loss depends on current squared, the stepped path should lose about 100 times less power in the line.
+
 ## Build
 
 Build both paths with 10 V peak sources first. Observe that this is not a same-power comparison: the direct path delivers about 1.25 W to its load, while the ideal transformer path delivers about 4.9 W.
 
 Then raise only the direct source to about 19.8 V peak. This makes its load power approximately match the transformer path, so line current and heating can be compared fairly.
 
+### Build answer
+
+Build two separate paths with identical 10 Ω loads and 10 Ω total line resistance. The transformer path should be:
+
+```text
+10 V peak source -> 1:10 step-up -> line resistance -> 10:1 step-down -> 10 Ω load
+```
+
+Keep both transformer ratios and loads fixed. Adjust only the direct source to about 19.8 V peak for the matched-power comparison.
+
 ## Measure
 
-Confirm that both loads now receive about 4.9 W. The direct line carries about 0.70 A RMS and loses about 4.9 W across its two line resistors. The stepped-up line carries about 0.070 A RMS and loses about 0.049 W.
+Record load power, line current, and total line-resistor loss for both paths after matching load power.
+
+### Measurement answer
+
+Both loads receive about 4.9 W. The expected comparison is:
+
+```text
+direct line current      -> about 0.70 A RMS
+direct line loss         -> about 4.9 W
+stepped-up line current  -> about 0.070 A RMS
+stepped-up line loss     -> about 0.049 W
+```
 
 Real transformers and lines have additional losses. This exercise isolates the current-squared relationship.
 
@@ -1945,9 +2137,11 @@ Real transformers and lines have additional losses. This exercise isolates the c
 
 Explain why the direct source had to be raised to match delivered power, why stepping voltage up lowers line current, and why the voltage must be stepped down again near the load.
 
-## Check your model
+### Explanation answer
 
 Transformers trade voltage and current. At the same delivered load power, 10 times less line current produces about 100 times less resistive line loss in this idealized comparison.
+
+The direct source must be raised because its larger line current creates a larger voltage drop before the load. The transformer path carries the same power at higher line voltage and lower line current, then steps voltage back down so the load receives the intended level.
 
 ## Deeper curriculum details
 ### Electricity Depth: Circuits and Electronics

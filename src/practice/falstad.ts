@@ -8,16 +8,17 @@ export const FALSTAD_SECTIONS = [
     title: 'Components',
     marker: 'Setup',
     cue: 'See the parts and values before you start.',
-    closedLabel: 'See what you need',
-    openLabel: 'Hide components',
   },
   {
     id: 'predict',
     title: 'Predict',
     marker: '1',
     cue: 'Commit to an expected result before running the circuit.',
-    closedLabel: 'Show step',
-    openLabel: 'Hide step',
+    answerId: 'predict-answer',
+    answerHeadingId: 'prediction-answer',
+    answerTitle: 'Prediction answer',
+    closedLabel: 'Reveal prediction',
+    openLabel: 'Hide prediction',
     phase: 'predict',
   },
   {
@@ -25,8 +26,11 @@ export const FALSTAD_SECTIONS = [
     title: 'Build',
     marker: '2',
     cue: 'Wire the circuit yourself from a blank canvas.',
-    closedLabel: 'Show step',
-    openLabel: 'Hide step',
+    answerId: 'build-answer',
+    answerHeadingId: 'build-answer',
+    answerTitle: 'Build answer',
+    closedLabel: 'Show build check',
+    openLabel: 'Hide build check',
     phase: 'build',
   },
   {
@@ -34,8 +38,11 @@ export const FALSTAD_SECTIONS = [
     title: 'Measure',
     marker: '3',
     cue: 'See what to inspect, compare, and change.',
-    closedLabel: 'Show step',
-    openLabel: 'Hide step',
+    answerId: 'measure-answer',
+    answerHeadingId: 'measurement-answer',
+    answerTitle: 'Measurement answer',
+    closedLabel: 'Reveal expected result',
+    openLabel: 'Hide expected result',
     phase: 'measure',
   },
   {
@@ -43,17 +50,12 @@ export const FALSTAD_SECTIONS = [
     title: 'Explain',
     marker: '4',
     cue: 'Connect the observation back to your model.',
-    closedLabel: 'Show step',
-    openLabel: 'Hide step',
+    answerId: 'explain-answer',
+    answerHeadingId: 'explanation-answer',
+    answerTitle: 'Explanation answer',
+    closedLabel: 'Reveal explanation',
+    openLabel: 'Hide explanation',
     phase: 'explain',
-  },
-  {
-    id: 'check-your-model',
-    title: 'Check your model',
-    marker: 'Help',
-    cue: 'Compare your reasoning when you are ready.',
-    closedLabel: 'Reveal answer',
-    openLabel: 'Hide answer',
   },
 ] as const;
 
@@ -87,10 +89,14 @@ export interface FalstadExerciseSection {
   title: string;
   marker: string;
   cue: string;
-  closedLabel: string;
-  openLabel: string;
+  answerId?: string;
+  answerHeadingId?: string;
+  answerTitle?: string;
+  closedLabel?: string;
+  openLabel?: string;
   phase?: FalstadPhase;
-  html: string;
+  promptHtml: string;
+  answerHtml?: string;
 }
 
 export interface ExerciseProgress {
@@ -215,10 +221,52 @@ export function splitFalstadExerciseSections(
       throw new Error(`${exerciseId}: the ${section.title} section cannot be empty.`);
     }
 
+    const answerHeadings = Array.from(
+      html.matchAll(/<h3 id="([^"]+)">([^<]+)<\/h3>/g),
+    );
+
+    if (!('phase' in section)) {
+      if (answerHeadings.length > 0) {
+        throw new Error(`${exerciseId}: the Components section cannot contain an answer heading.`);
+      }
+
+      return {
+        ...section,
+        promptHtml: html,
+      };
+    }
+
+    const actualAnswers = answerHeadings.map((answerHeading) => ({
+      id: answerHeading[1],
+      title: answerHeading[2],
+    }));
+    const expectedAnswer = [{ id: section.answerHeadingId, title: section.answerTitle }];
+
+    if (JSON.stringify(actualAnswers) !== JSON.stringify(expectedAnswer)) {
+      const actual = actualAnswers.map(({ title }) => title).join(', ') || 'none';
+      throw new Error(
+        `${exerciseId}: the ${section.title} section must contain one "${section.answerTitle}" heading after its visible task. Received: ${actual}.`,
+      );
+    }
+
+    const answerHeading = answerHeadings[0];
+    const promptHtml = html.slice(0, answerHeading.index).trim();
+    const answerHtml = html
+      .slice((answerHeading.index ?? 0) + answerHeading[0].length)
+      .trim();
+
+    if (!promptHtml) {
+      throw new Error(`${exerciseId}: the ${section.title} visible task cannot be empty.`);
+    }
+
+    if (!answerHtml) {
+      throw new Error(`${exerciseId}: the ${section.answerTitle} cannot be empty.`);
+    }
+
     return {
       ...section,
-      phase: 'phase' in section ? section.phase : undefined,
-      html,
+      promptHtml,
+      answerHtml,
     };
   });
 }

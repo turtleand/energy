@@ -48,7 +48,7 @@
 .falstad-button:focus-visible,
 .falstad-card:focus-visible,
 .falstad-prerequisites a:focus-visible,
-.falstad-disclosure > summary:focus-visible,
+.falstad-answer > summary:focus-visible,
 .falstad-reference > summary:focus-visible {
   outline: 3px solid rgba(56, 189, 248, 0.75);
   outline-offset: 4px;
@@ -397,44 +397,37 @@
   );
 }
 
-.falstad-disclosure {
+.falstad-stage {
   position: relative;
   min-width: 0;
   border-bottom: 1px solid var(--line);
+  scroll-margin-top: 6rem;
 }
 
-.falstad-disclosure:last-child {
+.falstad-stage:last-child {
   border-bottom: 0;
 }
 
-.falstad-disclosure > summary,
-.falstad-reference > summary {
+.falstad-stage-header {
   display: grid;
-  grid-template-columns: 3.1rem minmax(0, 1fr) auto;
+  grid-template-columns: 3.1rem minmax(0, 1fr);
   gap: 1rem;
   align-items: center;
-  min-height: 82px;
-  cursor: pointer;
-  list-style: none;
-}
-
-.falstad-disclosure > summary {
   min-width: 0;
-  padding: 0.9rem 0;
-  border-radius: 16px;
+  min-height: 76px;
+  padding: 1rem 0 0.55rem;
 }
 
-.falstad-disclosure > summary::-webkit-details-marker,
+.falstad-answer > summary::-webkit-details-marker,
 .falstad-reference > summary::-webkit-details-marker {
   display: none;
 }
 
-.falstad-disclosure > summary::marker,
+.falstad-answer > summary::marker,
 .falstad-reference > summary::marker {
   content: "";
 }
 
-.falstad-disclosure > summary:hover .falstad-disclosure-copy strong,
 .falstad-reference > summary:hover .falstad-reference-summary-copy strong {
   color: var(--green);
 }
@@ -458,12 +451,12 @@
   transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
 }
 
-.falstad-disclosure-support .falstad-disclosure-marker {
+.falstad-stage-support .falstad-disclosure-marker {
   border-color: rgba(245, 158, 11, 0.36);
   background: #fff3d5;
 }
 
-.falstad-disclosure[data-explored="true"] .falstad-disclosure-marker {
+.falstad-stage[data-explored="true"] .falstad-disclosure-marker {
   color: #fffaf0;
   border-color: var(--green);
   background: var(--green);
@@ -490,6 +483,72 @@
   color: var(--muted);
   font-size: 0.9rem;
   line-height: 1.45;
+}
+
+.falstad-stage-prompt.prose {
+  max-width: 790px;
+  min-width: 0;
+  margin: 0 0 0 4.1rem;
+  padding: 0 0 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.falstad-stage-prompt.prose > :first-child {
+  margin-top: 0;
+}
+
+.falstad-stage-prompt.prose > :last-child {
+  margin-bottom: 0;
+}
+
+.falstad-answer {
+  max-width: 790px;
+  min-width: 0;
+  margin: 0 0 1.25rem 4.1rem;
+  border-top: 1px solid rgba(20, 108, 83, 0.2);
+  scroll-margin-top: 6rem;
+}
+
+.falstad-answer > summary {
+  display: flex;
+  gap: 0.7rem;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  border-radius: 10px;
+  color: var(--green);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+}
+
+.falstad-answer > summary:hover {
+  color: var(--green-dark);
+}
+
+.falstad-answer-body {
+  margin-top: 0.25rem;
+  padding: 0.9rem 1rem 1rem;
+  border-left: 3px solid var(--green);
+  border-radius: 0 14px 14px 0;
+  background: rgba(20, 108, 83, 0.06);
+}
+
+.falstad-answer-body .prose {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.falstad-answer-body .prose > :first-child {
+  margin-top: 0;
+}
+
+.falstad-answer-body .prose > :last-child {
+  margin-bottom: 0;
 }
 
 .falstad-disclosure-action {
@@ -528,18 +587,6 @@ details[open] > summary .falstad-disclosure-chevron {
   transform: translateY(0.12rem) rotate(225deg);
 }
 
-.falstad-disclosure-body.prose {
-  max-width: 790px;
-  min-width: 0;
-  margin: 0 0 0 4.1rem;
-  padding: 0.25rem 0 1.5rem;
-  overflow-wrap: anywhere;
-}
-
-.falstad-disclosure-body.prose > :last-child {
-  margin-bottom: 0;
-}
-
 .falstad-reference,
 .falstad-safety {
   margin-top: 1rem;
@@ -562,7 +609,14 @@ details[open] > summary .falstad-disclosure-chevron {
 }
 
 .falstad-reference > summary {
+  display: grid;
+  grid-template-columns: 3.1rem minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  min-height: 82px;
   padding: 1rem clamp(1.2rem, 3vw, 1.6rem);
+  cursor: pointer;
+  list-style: none;
 }
 
 .falstad-reference-icon {
@@ -711,7 +765,7 @@ details[open] > summary .falstad-disclosure-chevron {
     left: 2.35rem;
   }
 
-  .falstad-disclosure > summary,
+  .falstad-stage-header,
   .falstad-reference > summary {
     grid-template-columns: 2.7rem minmax(0, 1fr);
     gap: 0.75rem;
@@ -725,14 +779,18 @@ details[open] > summary .falstad-disclosure-chevron {
     font-size: 0.62rem;
   }
 
-  .falstad-disclosure-action {
+  .falstad-reference .falstad-disclosure-action {
     grid-column: 2;
     justify-self: start;
   }
 
-  .falstad-disclosure-body.prose {
+  .falstad-stage-prompt.prose,
+  .falstad-answer {
     margin-left: 0;
-    padding-top: 0.5rem;
+  }
+
+  .falstad-stage-prompt.prose {
+    padding-top: 0.35rem;
   }
 
   .falstad-reference > summary {
@@ -764,7 +822,6 @@ details[open] > summary .falstad-disclosure-chevron {
 @media (prefers-reduced-motion: reduce) {
   .falstad-card,
   .falstad-disclosure-marker,
-  .falstad-disclosure-copy strong,
   .falstad-reference-summary-copy strong,
   .falstad-disclosure-chevron {
     transition: none;

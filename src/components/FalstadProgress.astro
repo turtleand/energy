@@ -62,8 +62,12 @@
     document.querySelectorAll<HTMLDetailsElement>('details[data-falstad-phase]').forEach((details) => {
       const exerciseId = details.dataset.falstadExercise;
       const phase = details.dataset.falstadPhase as FalstadPhase | undefined;
-      details.dataset.explored =
+      const explored =
         exerciseId && phase && progress[exerciseId]?.[phase] ? 'true' : 'false';
+      details.dataset.explored = explored;
+
+      const stage = details.closest<HTMLElement>('.falstad-stage');
+      if (stage) stage.dataset.explored = explored;
     });
 
     const fullyExplored = countFullyExploredExercises(progress, exerciseIds);
@@ -78,6 +82,17 @@
 
   let progress = readProgress();
   updateDisplay(progress);
+
+  document
+    .querySelectorAll<HTMLDetailsElement>('.falstad-answer, .falstad-reference')
+    .forEach((details) => {
+      const summary = details.querySelector<HTMLElement>(':scope > summary');
+      summary?.addEventListener('keydown', (event) => {
+        if (event.repeat || (event.key !== 'Enter' && event.key !== ' ')) return;
+        event.preventDefault();
+        details.open = !details.open;
+      });
+    });
 
   document.querySelectorAll<HTMLDetailsElement>('details[data-falstad-phase]').forEach((details) => {
     details.addEventListener('toggle', () => {
