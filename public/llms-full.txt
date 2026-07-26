@@ -2,6 +2,9 @@
 
 Turtleand Energy is a public learning surface for energy, electricity, circuits, and physical systems.
 
+## Curricula
+- [Electricity Depth: Circuits and Electronics](https://energy.turtleand.com/curricula/electricity-depth-circuits-and-electronics/): A six-part path from circuit structure and measurement to electronic components, motors, and controlled power.
+
 ## Articles
 - [Lesson 1: Electricity from first principles](https://energy.turtleand.com/lessons/lesson-1-electricity-from-first-principles/): Start with source, push, flow, resistance, load, power, and energy before memorizing equations. Includes embedded simulation: Adjust voltage, resistance, time, and loop state to see current, power, and transferred energy change together.
 - [Lesson 2: Static charge buildup](https://energy.turtleand.com/lessons/lesson-2-static-charge-buildup/): See how charge imbalance accumulates, reaches a critical point, and releases suddenly as a spark. Includes embedded simulation: Watch imbalance rise automatically until the spark discharges and the buildup starts again.
@@ -22,6 +25,35 @@ Turtleand Energy is a public learning surface for energy, electricity, circuits,
 ## Games
 - [Circuit Riders: Loop Patrol](https://energy.turtleand.com/play/circuit-riders/): Ride a maintenance drone through one connected electrical city, restore 12 systems, and make every loop pulse.
 - [Gridkeeper: Light the Island](https://energy.turtleand.com/play/gridkeeper/): Restore six connected districts and make electricity visible through a living island grid.
+
+## Curriculum details
+### Electricity Depth: Circuits and Electronics
+
+Build the circuit intuition and measurement discipline needed to reason about practical electronics without treating diagrams or formulas as magic.
+
+1. **Series and parallel circuits**
+   Learn how current paths, voltage drops, and equivalent resistance change when components share one path or branch across several paths.
+   Topics: single-path and branching circuits / current and voltage distribution / equivalent resistance / open and short circuit behavior
+
+2. **Circuit measurement**
+   Measure voltage, current, resistance, and continuity while understanding reference points, meter placement, uncertainty, and safe limits.
+   Topics: multimeter modes / series and parallel meter placement / reference points and polarity / measurement limits and uncertainty
+
+3. **Kirchhoff’s laws**
+   Use conservation of charge and energy to analyze circuits with multiple nodes, branches, sources, and loops.
+   Topics: Kirchhoff’s current law / Kirchhoff’s voltage law / node and loop equations / sign conventions and solution checks
+
+4. **Capacitors and inductors**
+   See how electric and magnetic fields store energy, oppose sudden change, and shape circuit behavior over time.
+   Topics: charge and magnetic energy storage / transients and time constants / RC and RL behavior / filtering and switching effects
+
+5. **Diodes and transistors**
+   Move from passive networks to components that steer, switch, and control electrical signals and power.
+   Topics: diode direction and voltage drop / rectification and protection / transistors as switches / amplification and biasing intuition
+
+6. **Motors and power electronics**
+   Connect electromagnetic force to motion, then learn how switching circuits regulate motors, voltage, current, and heat.
+   Topics: motor torque and back EMF / PWM motor control / power switching and conversion / protection, efficiency, and thermal limits
 
 ## Article details
 ### Lesson 1: Electricity from first principles

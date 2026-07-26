@@ -1,0 +1,72 @@
+[
+  {
+    "slug": "electricity-depth-circuits-and-electronics",
+    "title": "Electricity Depth: Circuits and Electronics",
+    "summary": "A six-part path from circuit structure and measurement to electronic components, motors, and controlled power.",
+    "order": 1,
+    "status": "ready",
+    "outcome": "Build the circuit intuition and measurement discipline needed to reason about practical electronics without treating diagrams or formulas as magic.",
+    "modules": [
+      {
+        "title": "Series and parallel circuits",
+        "description": "Learn how current paths, voltage drops, and equivalent resistance change when components share one path or branch across several paths.",
+        "topics": [
+          "single-path and branching circuits",
+          "current and voltage distribution",
+          "equivalent resistance",
+          "open and short circuit behavior"
+        ]
+      },
+      {
+        "title": "Circuit measurement",
+        "description": "Measure voltage, current, resistance, and continuity while understanding reference points, meter placement, uncertainty, and safe limits.",
+        "topics": [
+          "multimeter modes",
+          "series and parallel meter placement",
+          "reference points and polarity",
+          "measurement limits and uncertainty"
+        ]
+      },
+      {
+        "title": "Kirchhoff’s laws",
+        "description": "Use conservation of charge and energy to analyze circuits with multiple nodes, branches, sources, and loops.",
+        "topics": [
+          "Kirchhoff’s current law",
+          "Kirchhoff’s voltage law",
+          "node and loop equations",
+          "sign conventions and solution checks"
+        ]
+      },
+      {
+        "title": "Capacitors and inductors",
+        "description": "See how electric and magnetic fields store energy, oppose sudden change, and shape circuit behavior over time.",
+        "topics": [
+          "charge and magnetic energy storage",
+          "transients and time constants",
+          "RC and RL behavior",
+          "filtering and switching effects"
+        ]
+      },
+      {
+        "title": "Diodes and transistors",
+        "description": "Move from passive networks to components that steer, switch, and control electrical signals and power.",
+        "topics": [
+          "diode direction and voltage drop",
+          "rectification and protection",
+          "transistors as switches",
+          "amplification and biasing intuition"
+        ]
+      },
+      {
+        "title": "Motors and power electronics",
+        "description": "Connect electromagnetic force to motion, then learn how switching circuits regulate motors, voltage, current, and heat.",
+        "topics": [
+          "motor torque and back EMF",
+          "PWM motor control",
+          "power switching and conversion",
+          "protection, efficiency, and thermal limits"
+        ]
+      }
+    ]
+  }
+]
