@@ -2,6 +2,12 @@ import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
 const lessonStatus = z.enum(['ready', 'planned']);
+const falstadModule = z.enum([
+  'see-the-loop',
+  'see-change-over-time',
+  'see-fields-and-systems',
+]);
+const falstadDifficulty = z.enum(['starter', 'foundation', 'intermediate']);
 
 const lessons = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/lessons' }),
@@ -69,4 +75,22 @@ const games = defineCollection({
   }),
 });
 
-export const collections = { lessons, labs, games };
+const falstadExercises = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/falstad-exercises' }),
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+    order: z.number().int().positive(),
+    module: falstadModule,
+    difficulty: falstadDifficulty,
+    estimatedMinutes: z.number().int().positive(),
+    prerequisiteLessonSlugs: z.array(z.string()).min(1),
+    referenceCircuit: z.string().regex(/^[a-z0-9-]+$/),
+    schematicPath: z.string().startsWith('/falstad/schematics/'),
+    schematicText: z.string(),
+    schematicAlt: z.string(),
+    status: lessonStatus,
+  }),
+});
+
+export const collections = { lessons, labs, games, falstadExercises };

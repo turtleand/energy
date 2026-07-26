@@ -9,6 +9,9 @@ const lessons = (await getCollection('lessons', ({ data }) => data.status === 'r
 const games = (await getCollection('games', ({ data }) => data.status === 'ready')).sort(
   (a, b) => a.data.order - b.data.order
 );
+const falstadExercises = (
+  await getCollection('falstadExercises', ({ data }) => data.status === 'ready')
+).sort((a, b) => a.data.order - b.data.order);
 const publishedCurricula = curricula
   .filter((curriculum) => curriculum.status === 'published')
   .sort((a, b) => a.order - b.order);
@@ -98,6 +101,31 @@ const publishedCurricula = curricula
             );
           })}
         </div>
+      </div>
+    </section>
+  )}
+
+  {falstadExercises.length > 0 && (
+    <section class="practice-entry-section" aria-labelledby="practice-entry-title">
+      <div class="container">
+        <a class="practice-entry" href="/practice/falstad/" aria-label="Open guided Falstad circuit practice">
+          <span class="practice-entry-diagram" aria-hidden="true">
+            <i></i><i></i><i></i><i></i>
+          </span>
+          <span class="practice-entry-copy">
+            <span class="eyebrow">Interactive circuit practice</span>
+            <strong id="practice-entry-title">Build from zero to intermediate.</strong>
+            <span>
+              Ten Falstad circuits in three modules, each connected to the articles you have
+              already read.
+            </span>
+          </span>
+          <span class="practice-entry-meta">
+            <span>10 circuits</span>
+            <span>3 modules</span>
+            <b>Open practice ladder</b>
+          </span>
+        </a>
       </div>
     </section>
   )}

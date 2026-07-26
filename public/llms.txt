@@ -25,3 +25,16 @@ Turtleand Energy is a public learning surface for energy, electricity, circuits,
 ## Games
 - [Circuit Riders: Loop Patrol](https://energy.turtleand.com/play/circuit-riders/): Ride a maintenance drone through one connected electrical city, restore 12 systems, and make every loop pulse.
 - [Gridkeeper: Light the Island](https://energy.turtleand.com/play/gridkeeper/): Restore six connected districts and make electricity visible through a living island grid.
+
+## Circuit practice
+- [Guided Falstad circuit practice](https://energy.turtleand.com/practice/falstad/): Ten build-from-blank exercises across complete loops, changing signals, fields, resonance, transformers, and line loss.
+- [Rung 1: Close the loop](https://energy.turtleand.com/practice/falstad/close-the-loop/): Build one source, one switch, and one load so open and closed paths become visible.
+- [Rung 2: Sweep Ohm's Law](https://energy.turtleand.com/practice/falstad/ohms-law-sweep/): Rebuild the article's 6 V and 12 Ω example, then change one variable at a time.
+- [Rung 3: Divide voltage in series](https://energy.turtleand.com/practice/falstad/series-voltage-divider/): Use two series resistors to see shared current and proportional voltage drops.
+- [Rung 4: Split current in parallel](https://energy.turtleand.com/practice/falstad/parallel-current-split/): Give two branches the same voltage and watch their currents add at the source.
+- [Rung 5: Watch an RC circuit remember](https://energy.turtleand.com/practice/falstad/rc-charge-discharge/): Charge and discharge a capacitor through a resistor while following voltage and current over time.
+- [Rung 6: Let one AC half-cycle through](https://energy.turtleand.com/practice/falstad/half-wave-rectifier/): Use one diode to turn a reversing AC waveform into pulsing one-direction output.
+- [Rung 7: Rectify and smooth AC](https://energy.turtleand.com/practice/falstad/bridge-and-smoothing/): Build a bridge rectifier, then use a capacitor to reduce the valleys in its output.
+- [Rung 8: Give inductor current a safe path](https://energy.turtleand.com/practice/falstad/inductor-and-flyback/): Watch an inductor oppose sudden current changes, then add a flyback diode.
+- [Rung 9: Find series resonance](https://energy.turtleand.com/practice/falstad/series-rlc-resonance/): Sweep an RLC circuit around 50 Hz and watch current peak when energy exchange lines up.
+- [Rung 10: Move power with less line loss](https://energy.turtleand.com/practice/falstad/transformer-line-loss/): Compare direct and transformed transmission at the same delivered load power.

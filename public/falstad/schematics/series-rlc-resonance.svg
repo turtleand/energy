@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 230" role="img">
+  <title>Series RLC resonance schematic</title>
+  <desc>A five volt alternating source connected in series with one hundred ohms, one hundred millihenries, and one hundred microfarads.</desc>
+  <rect width="720" height="230" rx="18" fill="#102a27"/>
+  <g fill="none" stroke="#dbece4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="90" cy="115" r="30"/><path d="M65 115c12-25 38 25 50 0M90 85V45H210"/>
+    <path d="M210 45l16-14 26 28 26-28 26 28 26-14H360"/>
+    <path d="M360 45c0-32 28-32 28 0 0-32 28-32 28 0 0-32 28-32 28 0 0-32 28-32 28 0H510"/>
+    <path d="M510 18v54M535 18v54M535 45H640V185H90V145"/>
+  </g>
+  <g fill="#ffd47a" font-family="system-ui,sans-serif" font-size="18" text-anchor="middle">
+    <text x="90" y="182">5 V AC</text><text x="270" y="103">100 Ω</text><text x="420" y="103">100 mH</text><text x="522" y="103">100 µF</text><text x="365" y="212">resonance ≈ 50 Hz</text>
+  </g>
+</svg>

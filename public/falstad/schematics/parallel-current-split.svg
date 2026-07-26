@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 250" role="img">
+  <title>Parallel current split schematic</title>
+  <desc>A six volt source connected across one kilohm and two kilohm resistor branches.</desc>
+  <rect width="720" height="250" rx="18" fill="#102a27"/>
+  <g fill="none" stroke="#dbece4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M95 45H600V205H95V45M315 45V75M315 175V205M500 45V75M500 175V205"/>
+    <path d="M315 75l-16 14 32 22-32 22 32 22-16 20"/>
+    <path d="M500 75l-16 14 32 22-32 22 32 22-16 20"/>
+    <path d="M77 86h36M85 105h20"/>
+  </g>
+  <g fill="#ffd47a" font-family="system-ui,sans-serif" font-size="20" text-anchor="middle">
+    <text x="105" y="150">6 V DC</text><text x="315" y="228">1 kΩ · 6 mA</text><text x="500" y="228">2 kΩ · 3 mA</text>
+  </g>
+</svg>

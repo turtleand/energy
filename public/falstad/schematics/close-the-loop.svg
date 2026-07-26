@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 220" role="img">
+  <title>Close the loop schematic</title>
+  <desc>A five volt source, open switch, and one hundred ohm resistor in a single loop.</desc>
+  <rect width="720" height="220" rx="18" fill="#102a27"/>
+  <g fill="none" stroke="#dbece4" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M90 55H275M355 55H455M610 55H650V175H90V55"/>
+    <path d="M455 55l18-16 28 32 28-32 28 32 28-32 25 16"/>
+    <path d="M282 55l58-32"/>
+    <path d="M72 94h36M80 112h20"/>
+  </g>
+  <g fill="#ffd47a" font-family="system-ui,sans-serif" font-size="20" text-anchor="middle">
+    <text x="90" y="145">5 V DC</text><text x="316" y="105">switch</text><text x="530" y="105">100 Ω</text>
+  </g>
+</svg>
