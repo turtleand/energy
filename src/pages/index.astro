@@ -39,61 +39,68 @@ const firstLesson = lessons[0];
     <div class="container">
       <header class="section-heading">
         <p class="eyebrow">Choose your route</p>
-        <h2 id="learning-map-title">One foundation. Three ways to continue.</h2>
-        <p>Learn in order first. Practice, play, and deeper study become useful once the basic model is in place.</p>
+        <h2 id="learning-map-title">Start with the foundations. Add what helps.</h2>
+        <p>The lesson path builds the model. Everything beside it is optional.</p>
       </header>
 
-      <div class="learning-map">
-        <a class="learning-route learning-route-primary" href="/learn/">
-          <span class="route-node" aria-hidden="true">01</span>
-          <span class="route-copy">
-            <span class="route-kicker">Start here</span>
+      <div class="learning-launchpad">
+        <a class="learning-primary" href="/learn/">
+          <span class="route-kicker">Primary path</span>
+          <span class="learning-primary-copy">
             <strong>Learn the foundations</strong>
             <span>
               {lessons.length} connected lessons, each with a simulation that makes the model visible.
             </span>
           </span>
-          <span class="route-action">Follow the lesson path</span>
+          <span class="button button-primary">Follow the lesson path</span>
         </a>
 
-        <span class="route-branch" aria-hidden="true"><i></i><i></i><i></i></span>
-
-        <div class="learning-branches">
-          <a class="learning-route" href="/practice/falstad/">
-            <span class="route-node" aria-hidden="true">02</span>
-            <span class="route-copy">
-              <span class="route-kicker">Practice</span>
-              <strong>Build the circuits yourself</strong>
-              <span>{falstadExercises.length} guided Falstad exercises from complete loops to transformers.</span>
+        <section class="optional-paths" aria-labelledby="optional-paths-title">
+          <header class="optional-paths-heading">
+            <span>
+              <span class="route-kicker">Optional next steps</span>
+              <h3 id="optional-paths-title">Choose by goal</h3>
             </span>
-            <span class="route-action">Open circuit practice</span>
-          </a>
+            <p>Choose one, combine them, or return later.</p>
+          </header>
 
-          <a class="learning-route" href="/play/">
-            <span class="route-node" aria-hidden="true">03</span>
-            <span class="route-copy">
-              <span class="route-kicker">Play</span>
-              <strong>Restore a working grid</strong>
-              <span>{games.length} games that turn the foundation lessons into connected missions.</span>
-            </span>
-            <span class="route-action">Choose a game</span>
-          </a>
-
-          {curriculum && (
-            <a class="learning-route" href={`/curricula/${curriculum.slug}/`}>
-              <span class="route-node" aria-hidden="true">04</span>
-              <span class="route-copy">
-                <span class="route-kicker">Go deeper</span>
-                <strong>Plan the next layer</strong>
-                <span>
-                  A {curriculum.modules.length}-module reference outline for circuits, electronics,
-                  measurement, and control.
-                </span>
+          <nav class="optional-route-list" aria-label="Optional paths after foundations">
+            <a class="optional-route optional-route-practice" href="/practice/falstad/">
+              <span class="optional-route-marker" aria-hidden="true"></span>
+              <span class="optional-route-copy">
+                <span class="route-kicker">Practice</span>
+                <strong>Build circuits from blank</strong>
+                <span>{falstadExercises.length} guided exercises</span>
               </span>
-              <span class="route-action">View the curriculum outline</span>
+              <span class="optional-route-arrow" aria-hidden="true">→</span>
             </a>
-          )}
-        </div>
+
+            <a class="optional-route optional-route-play" href="/play/">
+              <span class="optional-route-marker" aria-hidden="true"></span>
+              <span class="optional-route-copy">
+                <span class="route-kicker">Play</span>
+                <strong>Reinforce ideas through missions</strong>
+                <span>{games.length} games</span>
+              </span>
+              <span class="optional-route-arrow" aria-hidden="true">→</span>
+            </a>
+
+            {curriculum && (
+              <a
+                class="optional-route optional-route-deeper"
+                href={`/curricula/${curriculum.slug}/`}
+              >
+                <span class="optional-route-marker" aria-hidden="true"></span>
+                <span class="optional-route-copy">
+                  <span class="route-kicker">Go deeper</span>
+                  <strong>Map the next layer</strong>
+                  <span>{curriculum.modules.length}-module reference outline</span>
+                </span>
+                <span class="optional-route-arrow" aria-hidden="true">→</span>
+              </a>
+            )}
+          </nav>
+        </section>
       </div>
     </div>
   </section>
