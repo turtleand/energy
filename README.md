@@ -1,28 +1,17 @@
 # Turtleand Energy
 
-Turtleand Energy is a public learning surface for energy, electricity, circuits, and the systems that turn physical reality into useful work.
+Turtleand Energy is a public learning surface for electricity, circuits, power, storage, grids, and the physical systems that turn energy into useful work.
 
-The first version is intentionally small. It ships one clear doorway and one interactive lesson artifact instead of empty sections for future ideas.
+## Public structure
 
-## What is included now
+The site has one primary learning path and three optional branches:
 
-- Homepage for `https://energy.turtleand.com`
-- Content model for lessons and labs
-- Lesson 1 content: electricity from first principles
-- Interactive lab: voltage, resistance, current, power, and energy flow in a simple circuit
-- Public discovery files: `robots.txt`, sitemap generation, `llms.txt`, and `llms-full.txt`
+- **Learn** at `/learn/`: fifteen foundation lessons grouped into four modules. Each lesson keeps its interactive simulation inside the article.
+- **Practice** at `/practice/falstad/`: ten build-from-blank CircuitJS exercises organized as a three-module ladder.
+- **Play** at `/play/`: a chooser for Circuit Riders and Gridkeeper, two games that reinforce the foundation lessons.
+- **Go deeper** at `/curricula/electricity-depth-circuits-and-electronics/`: a reference outline for the next layer of circuits and electronics study.
 
-## Planned expansion
-
-The structure is ready for future sections, but the homepage only renders sections that have real content. Good future candidates:
-
-- More lessons
-- More labs
-- Circuit practice artifacts
-- Energy maps
-- Storage and grid explainers
-
-Do not add empty homepage shelves just because the model can support them.
+The homepage is an orientation surface for these four destinations. It should not become a second article archive or a shelf of future promises.
 
 ## Run locally
 
@@ -57,6 +46,19 @@ src/content/labs/
 ```
 
 A lesson can link to a lab with `labSlug`. The homepage should show only ready, populated content.
+
+Ready lessons also declare one typed foundation module in `module`:
+
+- `core-electricity`
+- `everyday-electricity`
+- `generate-store-move`
+- `buildings-to-grids`
+
+Module names, ordering, summaries, sequencing helpers, and validation live in `src/data/foundations.ts`. Add or move lessons through frontmatter instead of hardcoding lesson lists into pages.
+
+Game metadata lives in `src/content/games/`. Falstad exercise content lives in `src/content/falstad-exercises/`, with its module definitions and progress model in `src/practice/falstad.ts`.
+
+The build regenerates `public/llms.txt` and `public/llms-full.txt` in the same Learn, Practice, Play, and Go deeper order as the public navigation.
 
 ## Deployment
 

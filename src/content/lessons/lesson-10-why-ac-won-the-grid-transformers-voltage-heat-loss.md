@@ -1,7 +1,7 @@
 ---
 title: "Lesson 10: Why AC Won the Grid"
 summary: "Learn how transformers made long-distance AC power practical by raising voltage, lowering current, and reducing wire heat loss before power is stepped down near users."
-module: "Foundations"
+module: "generate-store-move"
 order: 10
 status: ready
 labSlug: "lesson-10-why-ac-won-the-grid-transformers-voltage-heat-loss"

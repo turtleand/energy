@@ -1,0 +1,68 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const games = (await getCollection('games', ({ data }) => data.status === 'ready')).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+---
+
+<BaseLayout
+  title="Energy games"
+  description="Choose between a guided electrical maintenance campaign and an open island restoration game."
+>
+  <section class="play-index" aria-labelledby="play-title">
+    <div class="container">
+      <nav class="learning-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <span>Play</span>
+      </nav>
+      <header class="play-hero">
+        <p class="eyebrow">Reinforce through play</p>
+        <h1 id="play-title">Restore the system, not just the answer.</h1>
+        <p class="lede">
+          Both games revisit the foundation lessons. Choose a guided mission campaign or a freer
+          island journey.
+        </p>
+      </header>
+
+      <div class="play-choices">
+        {games.map((game, index) => {
+          const isGuided = game.data.slug === 'circuit-riders';
+          const chapterCount = game.data.campaignActs?.length ?? game.data.districts?.length ?? 0;
+          const chapterLabel = game.data.campaignActs ? 'acts' : 'districts';
+          const missionCount = game.data.missions?.length ?? game.data.coveredLessonSlugs.length;
+          const missionLabel = game.data.missions ? 'missions' : 'lessons';
+
+          return (
+            <article class="play-choice" data-game={game.data.slug}>
+              <div class="play-choice-signal" aria-hidden="true">
+                <i></i><i></i><i></i><i></i>
+              </div>
+              <div class="play-choice-copy">
+                <p class="eyebrow">{isGuided ? 'Guided mission campaign' : 'Open island exploration'}</p>
+                <h2>{game.data.title}</h2>
+                <p>{game.data.summary}</p>
+                <p class="play-choice-fit">
+                  <strong>Choose this if:</strong>{' '}
+                  {isGuided
+                    ? 'you want a clear mission order with focused electrical challenges.'
+                    : 'you want to move freely and restore larger connected districts.'}
+                </p>
+                <div class="play-choice-meta">
+                  <span>{chapterCount} {chapterLabel}</span>
+                  <span>{missionCount} {missionLabel}</span>
+                  {index === 0 && <span class="recommended-label">Recommended first</span>}
+                </div>
+                <a class="button button-primary" href={`/play/${game.data.slug}/`}>
+                  Play {game.data.title}
+                </a>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

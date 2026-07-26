@@ -2,31 +2,33 @@
 
 Turtleand Energy is a public learning surface for energy, electricity, circuits, and physical systems.
 
-## Curricula
-- [Electricity Depth: Circuits and Electronics](https://energy.turtleand.com/curricula/electricity-depth-circuits-and-electronics/): A reference path from circuit structure and measurement to electronic components, motors, and controlled power.
+## Learn: electricity foundations
+- [Follow the foundation path](https://energy.turtleand.com/learn/): Fifteen connected lessons from first electricity intuition to buildings, grids, and generation mixes.
 
-## Articles
+### Core electricity
 - [Lesson 1: Electricity from first principles](https://energy.turtleand.com/lessons/lesson-1-electricity-from-first-principles/): Start with source, push, flow, resistance, load, power, and energy before memorizing equations. Includes embedded simulation: Adjust voltage, resistance, time, and loop state to see current, power, and transferred energy change together.
 - [Lesson 2: Static charge buildup](https://energy.turtleand.com/lessons/lesson-2-static-charge-buildup/): See how charge imbalance accumulates, reaches a critical point, and releases suddenly as a spark. Includes embedded simulation: Watch imbalance rise automatically until the spark discharges and the buildup starts again.
 - [Lesson 3: Simple circuits from first principles](https://energy.turtleand.com/lessons/lesson-3-simple-circuits-from-first-principles/): Understand source, path, load, switch, and return path before adding circuit formulas. Includes embedded simulation: Open and close a switch to see how a complete path turns circuit flow and the load on or off.
 - [Lesson 4: Ohm's Law without formula fear](https://energy.turtleand.com/lessons/lesson-4-ohms-law-without-formula-fear/): Learn voltage, current, and resistance as one visible relationship before treating Ohm's Law as algebra. Includes embedded simulation: Move voltage and resistance to see current rise, fall, and keep its units visible.
+
+### Everyday electricity
 - [Lesson 5: DC vs AC](https://energy.turtleand.com/lessons/lesson-5-dc-vs-ac/): Learn the difference between one-direction current and reversing current, then see how devices turn wall power into usable DC. Includes embedded simulation: Step through voltage adjustment, rectification, smoothing, and regulation to see why the first DC output is pulsing before it becomes stable.
 - [Lesson 6: How to Read a Power Adapter Label Without Burning Your Device](https://energy.turtleand.com/lessons/lesson-6-power-adapter-labels/): Learn the label checks that matter before plugging an adapter into a device: voltage, type, current, connector, polarity, and USB-C negotiation. Includes embedded simulation: Change a sample adapter label and see which field makes the device safe, underpowered, or dangerous.
 - [Lesson 7: Power and Energy: Watts, Watt-hours, and Electric Bills](https://energy.turtleand.com/lessons/lesson-7-power-energy-bills/): Learn why watts measure the rate of energy transfer, why watt-hours measure total energy, and how kilowatt-hours become an electric bill. Includes embedded simulation: Change watts, runtime, and price to see how power times time becomes watt-hours, kilowatt-hours, and cost.
 - [Lesson 8: Conductors, Insulators, Grounding, and Safety](https://energy.turtleand.com/lessons/lesson-8-conductors-insulators-grounding-safety/): Learn how conductors guide current, how insulators resist unwanted paths, and how grounding gives fault current a safer route. Includes embedded simulation: Switch between normal operation, an unsafe fault, a grounded fault, and a leakage fault to see which path current takes and which protection responds.
+
+### Generate, store, and move electricity
 - [Lesson 9: Generators and Electromagnetic Induction](https://energy.turtleand.com/lessons/lesson-9-generators-electromagnetic-induction/): See how motion between a magnet and wire coil changes magnetic flux and makes voltage appear at the wire ends. Includes embedded simulation: Move a magnet near a wire coil to see magnetic flux change and voltage appear at the wire ends.
 - [Lesson 10: Why AC Won the Grid](https://energy.turtleand.com/lessons/lesson-10-why-ac-won-the-grid-transformers-voltage-heat-loss/): Learn how transformers made long-distance AC power practical by raising voltage, lowering current, and reducing wire heat loss before power is stepped down near users. Includes embedded simulation: Adjust transmitted power and line voltage in a simplified model to see how higher voltage lowers current and reduces relative wire heat loss.
 - [Lesson 10 bis: Batteries and Chemical Electricity](https://energy.turtleand.com/lessons/lesson-10-batteries-chemical-electricity/): Learn the beginner battery model: chemical difference creates voltage, electrons move through the outside circuit, and ions move through the electrolyte inside the battery. Includes embedded simulation: Switch between discharge, run-down, and charging states to see the outside electron path, inside ion path, and chemical difference change together.
+
+### From buildings to grids
 - [Lesson 11: House Wiring Faults and Protection](https://energy.turtleand.com/lessons/lesson-11-house-wiring-faults-and-protection/): Use one simple mental model: live and neutral form the normal loop, breakers/fuses watch too much current, and GFCI/RCD devices watch leakage. Includes embedded simulation: Pick normal use, too much current, or leaking current and see whether the breaker/fuse or GFCI/RCD is the device that reacts.
 - [Lesson 12: Neighborhood Distribution](https://energy.turtleand.com/lessons/lesson-12-neighborhood-distribution/): Learn how power moves from transmission into neighborhood feeders, local transformers, and home service connections, and why higher distribution voltage lowers feeder current and heat loss. Includes embedded simulation: Adjust neighborhood load, feeder voltage, and home load to see how feeder current, relative wire heat loss, and home service current respond.
 - [Lesson 13: Grid Balancing, Frequency, and Blackouts](https://energy.turtleand.com/lessons/lesson-13-grid-balancing-frequency-blackouts/): Learn why generation and consumption must stay in rhythm, how frequency reveals imbalance, and how layered controls and protection keep disturbances from becoming wider blackouts. Includes embedded simulation: Choose a grid disturbance, change its size and available fast response, then watch the frequency signal, layered controls, and protection state change.
 - [Lesson 14: Why Electricity Mixes Differ](https://energy.turtleand.com/lessons/lesson-14-electricity-mixes-capacity-and-generation/): Learn why countries build different electricity portfolios, why installed capacity is not the same as actual generation, and how complementary resources and storage help meet demand over time. Includes embedded simulation: Compare three fictional electricity systems across changing conditions, then see how installed capacity, actual output, complementary generation, demand, and storage action differ.
 
-## Games
-- [Circuit Riders: Loop Patrol](https://energy.turtleand.com/play/circuit-riders/): Ride a maintenance drone through one connected electrical city, restore 12 systems, and make every loop pulse.
-- [Gridkeeper: Light the Island](https://energy.turtleand.com/play/gridkeeper/): Restore six connected districts and make electricity visible through a living island grid.
-
-## Circuit practice
+## Practice
 - [Guided Falstad circuit practice](https://energy.turtleand.com/practice/falstad/): Ten build-from-blank exercises across complete loops, changing signals, fields, resonance, transformers, and line loss.
 - [Rung 1: Close the loop](https://energy.turtleand.com/practice/falstad/close-the-loop/): Build one source, one switch, and one load so open and closed paths become visible.
 - [Rung 2: Sweep Ohm's Law](https://energy.turtleand.com/practice/falstad/ohms-law-sweep/): Rebuild the article's 6 V and 12 Ω example, then change one variable at a time.
@@ -39,36 +41,15 @@ Turtleand Energy is a public learning surface for energy, electricity, circuits,
 - [Rung 9: Find series resonance](https://energy.turtleand.com/practice/falstad/series-rlc-resonance/): Sweep an RLC circuit around 50 Hz and watch current peak when energy exchange lines up.
 - [Rung 10: Move power with less line loss](https://energy.turtleand.com/practice/falstad/transformer-line-loss/): Compare direct and transformed transmission at the same delivered load power.
 
-## Curriculum details
-### Electricity Depth: Circuits and Electronics
+## Play
+- [Choose an Energy game](https://energy.turtleand.com/play/): Compare the guided Circuit Riders campaign with the open Gridkeeper island restoration.
+- [Circuit Riders: Loop Patrol](https://energy.turtleand.com/play/circuit-riders/): Ride a maintenance drone through one connected electrical city, restore 12 systems, and make every loop pulse.
+- [Gridkeeper: Light the Island](https://energy.turtleand.com/play/gridkeeper/): Restore six connected districts and make electricity visible through a living island grid.
 
-Build the circuit intuition and measurement discipline needed to reason about practical electronics without treating diagrams or formulas as magic.
+## Go deeper
+- [Electricity Depth: Circuits and Electronics](https://energy.turtleand.com/curricula/electricity-depth-circuits-and-electronics/): A reference path from circuit structure and measurement to electronic components, motors, and controlled power.
 
-1. **Series and parallel circuits**
-   Learn how current paths, voltage drops, and equivalent resistance change when components share one path or branch across several paths.
-   Topics: single-path and branching circuits / current and voltage distribution / equivalent resistance / open and short circuit behavior
-
-2. **Circuit measurement**
-   Measure voltage, current, resistance, and continuity while understanding reference points, meter placement, uncertainty, and safe limits.
-   Topics: multimeter modes / series and parallel meter placement / reference points and polarity / measurement limits and uncertainty
-
-3. **Kirchhoff’s laws**
-   Use conservation of charge and energy to analyze circuits with multiple nodes, branches, sources, and loops.
-   Topics: Kirchhoff’s current law / Kirchhoff’s voltage law / node and loop equations / sign conventions and solution checks
-
-4. **Capacitors and inductors**
-   See how electric and magnetic fields store energy, oppose sudden change, and shape circuit behavior over time.
-   Topics: charge and magnetic energy storage / transients and time constants / RC and RL behavior / filtering and switching effects
-
-5. **Diodes and transistors**
-   Move from passive networks to components that steer, switch, and control electrical signals and power.
-   Topics: diode direction and voltage drop / rectification and protection / transistors as switches / amplification and biasing intuition
-
-6. **Motors and power electronics**
-   Connect electromagnetic force to motion, then learn how switching circuits regulate motors, voltage, current, and heat.
-   Topics: motor torque and back EMF / PWM motor control / power switching and conversion / protection, efficiency, and thermal limits
-
-## Article details
+## Foundation article details
 ### Lesson 1: Electricity from first principles
 
 Electricity is easier to understand when the structure comes before the equations.
@@ -1967,3 +1948,32 @@ Explain why the direct source had to be raised to match delivered power, why ste
 ## Check your model
 
 Transformers trade voltage and current. At the same delivered load power, 10 times less line current produces about 100 times less resistive line loss in this idealized comparison.
+
+## Deeper curriculum details
+### Electricity Depth: Circuits and Electronics
+
+Build the circuit intuition and measurement discipline needed to reason about practical electronics without treating diagrams or formulas as magic.
+
+1. **Series and parallel circuits**
+   Learn how current paths, voltage drops, and equivalent resistance change when components share one path or branch across several paths.
+   Topics: single-path and branching circuits / current and voltage distribution / equivalent resistance / open and short circuit behavior
+
+2. **Circuit measurement**
+   Measure voltage, current, resistance, and continuity while understanding reference points, meter placement, uncertainty, and safe limits.
+   Topics: multimeter modes / series and parallel meter placement / reference points and polarity / measurement limits and uncertainty
+
+3. **Kirchhoff’s laws**
+   Use conservation of charge and energy to analyze circuits with multiple nodes, branches, sources, and loops.
+   Topics: Kirchhoff’s current law / Kirchhoff’s voltage law / node and loop equations / sign conventions and solution checks
+
+4. **Capacitors and inductors**
+   See how electric and magnetic fields store energy, oppose sudden change, and shape circuit behavior over time.
+   Topics: charge and magnetic energy storage / transients and time constants / RC and RL behavior / filtering and switching effects
+
+5. **Diodes and transistors**
+   Move from passive networks to components that steer, switch, and control electrical signals and power.
+   Topics: diode direction and voltage drop / rectification and protection / transistors as switches / amplification and biasing intuition
+
+6. **Motors and power electronics**
+   Connect electromagnetic force to motion, then learn how switching circuits regulate motors, voltage, current, and heat.
+   Topics: motor torque and back EMF / PWM motor control / power switching and conversion / protection, efficiency, and thermal limits

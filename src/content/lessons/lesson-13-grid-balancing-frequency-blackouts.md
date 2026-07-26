@@ -1,7 +1,7 @@
 ---
 title: "Lesson 13: Grid Balancing, Frequency, and Blackouts"
 summary: "Learn why generation and consumption must stay in rhythm, how frequency reveals imbalance, and how layered controls and protection keep disturbances from becoming wider blackouts."
-module: "Foundations"
+module: "buildings-to-grids"
 order: 13
 status: ready
 labSlug: "lesson-13-grid-balancing-frequency-blackouts"

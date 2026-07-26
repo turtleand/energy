@@ -1,7 +1,7 @@
 ---
 title: "Lesson 5: DC vs AC"
 summary: "Learn the difference between one-direction current and reversing current, then see how devices turn wall power into usable DC."
-module: "Foundations"
+module: "everyday-electricity"
 order: 5
 status: ready
 labSlug: "lesson-5-dc-vs-ac"

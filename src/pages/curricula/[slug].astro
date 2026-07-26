@@ -17,9 +17,18 @@ const { curriculum } = Astro.props;
 <BaseLayout title={curriculum.title} description={curriculum.summary}>
   <article class="curriculum-shell">
     <header class="container curriculum-hero">
-      <p class="eyebrow">Curriculum reference</p>
+      <nav class="learning-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        <span aria-hidden="true">/</span>
+        <span>Go deeper</span>
+      </nav>
+      <p class="eyebrow">Next-stage curriculum outline</p>
       <h1>{curriculum.title}</h1>
       <p class="lede">{curriculum.summary}</p>
+      <p class="curriculum-reference-note">
+        Use this outline to choose the next subjects to study. It is a reference sequence, not a
+        completed course or a substitute for supervised practical training.
+      </p>
       <div class="curriculum-outcome" aria-label="Program outcome">
         <span>Outcome</span>
         <p>{curriculum.outcome}</p>

@@ -1,7 +1,7 @@
 ---
 title: "Lesson 14: Why Electricity Mixes Differ"
 summary: "Learn why countries build different electricity portfolios, why installed capacity is not the same as actual generation, and how complementary resources and storage help meet demand over time."
-module: "Foundations"
+module: "buildings-to-grids"
 order: 14
 status: ready
 labSlug: "lesson-14-electricity-mixes-capacity-and-generation"

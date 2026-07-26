@@ -1,7 +1,7 @@
 ---
 title: "Lesson 9: Generators and Electromagnetic Induction"
 summary: "See how motion between a magnet and wire coil changes magnetic flux and makes voltage appear at the wire ends."
-module: "Foundations"
+module: "generate-store-move"
 order: 9
 status: ready
 labSlug: "lesson-9-generators-electromagnetic-induction"

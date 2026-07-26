@@ -1,7 +1,7 @@
 ---
 title: "Lesson 7: Power and Energy: Watts, Watt-hours, and Electric Bills"
 summary: "Learn why watts measure the rate of energy transfer, why watt-hours measure total energy, and how kilowatt-hours become an electric bill."
-module: "Foundations"
+module: "everyday-electricity"
 order: 7
 status: ready
 labSlug: "lesson-7-power-energy-bills"
